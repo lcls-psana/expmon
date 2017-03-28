@@ -1,0 +1,121 @@
+#!@PYTHON@
+#------------------------------
+import os
+import sys
+from optparse import OptionParser
+from PyQt4 import QtGui
+
+from expmon.EMConfigParameters import cp
+from expmon.EMQMain import EMQMain
+from expmon.PSQThreadWorker import PSQThreadWorker
+#------------------------------
+
+class EM_GUI :
+    def __init__(self, parser) :
+        """Experiment Monitor"""
+
+        self.parser = parser
+        (opts, args) = parser.parse_args()
+        self.args = args
+        self.opts = vars(opts)
+        self.defs = vars(parser.get_default_values())
+
+        self.verbos = opts.verbos
+        #if self.verbos : self.print_raw()
+        if self.verbos : self.print_pars()
+
+        print 'Start %s' % self.__init__.__doc__
+
+        app = QtGui.QApplication(sys.argv)
+
+        t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) # 0177777)
+        t1.start()
+
+        gui = EMQMain(parser)
+        #gui = QtGui.QWidget()
+        gui.show()
+	stat = app.exec_()
+	statt1 = t1.quit() # t1.exit(0)
+        sys.exit(stat)
+
+#------------------------------
+
+    def print_raw(self) :
+        print 'Command:', ' '.join(sys.argv)
+        print '  opts: ', self.opts
+        print '  defs: ', self.defs
+        print '  args: ', self.args
+
+#------------------------------
+
+    def print_pars(self) :
+        """Prints input parameters"""
+        print 'Command:', ' '.join(sys.argv)+\
+              '\nlaunches %s' % self.__init__.__doc__+\
+              '\nwith argument %s and optional parameters:\n' % str(self.args)+\
+              '<key>      <value>          <default>'
+        for k,v in self.opts.items() :
+            print '%s %s %s' % (k.ljust(10), str(v).ljust(16), str(self.defs[k]).ljust(16))
+
+#------------------------------
+
+    def dsname(self) :
+        """Returns dsname retrieved from input parameters, e.g.'exp=mfxn8316:run=11' """
+        exp = self.opts['exp']
+        run = self.opts['run']
+        return 'exp=%s:run=%s' % (exp, run)
+
+#------------------------------
+
+def usage() :
+    return '\n\nCommand to launch Monitoring Tool GUI:\n'+\
+           '\n  %prog'+\
+           ' -e <experiment> -r <run-number> -v'+\
+           '\n\n  Examples:'+\
+           '\n  %prog -e mfxn8316 -r 11'+\
+           '\n  %prog -e mfxn8316 -r 11 -v'+\
+           '\n  %prog -e mfxn8316 -r 11 -u 3 -w 2 -v'
+ 
+#------------------------------
+
+def input_option_parser() :
+
+    exp_def    = 'mfxn8316' 
+    run_def    = 1
+    verbos_def = True
+    nwin1_def  = 2
+    nwin2_def  = 3
+
+    h_exp    = 'experiment, e.g., cxi43210, default = %s' % exp_def
+    h_run    = 'run number, default = %d' % run_def
+    h_verbos = 'verbosity, default = %s' % str(verbos_def)
+    h_nwin1  = 'number of windows type 1, default = %d' % nwin1_def
+    h_nwin2  = 'number of windows type 2, default = %d' % nwin2_def
+
+    parser = OptionParser(description='Command line parameters', usage ='usage: %prog <opts>' + usage())
+    parser.add_option('-e', '--exp',    default=exp_def,    action='store', type='string', help=h_exp)
+    parser.add_option('-r', '--run',    default=run_def,    action='store', type='int',    help=h_run)
+    parser.add_option('-v', '--verbos', default=verbos_def, action='store_false',          help=h_verbos)
+    parser.add_option('-w', '--nwin1',  default=nwin1_def,  action='store', type='int',    help=h_nwin1)
+    parser.add_option('-u', '--nwin2',  default=nwin2_def,  action='store', type='int',    help=h_nwin2)
+ 
+    return parser #, parser.parse_args()
+
+#------------------------------
+
+if __name__ == "__main__" :
+
+    proc_name = os.path.basename(sys.argv[0])
+
+    parser = input_option_parser()
+
+    #if len(sys.argv)==1 :
+        #parser.print_help()
+        #msg = '\nWARNING: run this command with parameters, e.g.: %s -h' % proc_name
+        #sys.exit ('%s\nEnd of %s' % (msg, proc_name))
+
+    EM_GUI(parser)
+
+    sys.exit(0)
+
+#------------------------------

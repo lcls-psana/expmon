@@ -1,0 +1,107 @@
+#------------------------------
+"""EMConfigParameters - class supporting configuration parameters for application.
+
+@see class :py:class:`expmon.EMConfigParameters`
+
+@see project modules
+    * :py:class:`expmon.EMConfigParameters`
+    * :py:class:`expmon.Logger`
+    * :py:class:`CalibManager.Logger`
+    * :py:class:`CalibManager.ConfigParameters`
+
+This software was developed for the SIT project.
+If you use all or part of it, please give an appropriate acknowledgment.
+
+@version $Id:EMConfigParameters.py 11923 2016-11-22 14:28:00Z dubrovin@SLAC.STANFORD.EDU $
+
+@author Mikhail S. Dubrovin
+"""
+#------------------------------
+
+# import os
+from expmon.PSConfigParameters import PSConfigParameters
+from expmon.PSNameManager      import nm # It is here for initialization
+
+#------------------------------
+
+class EMConfigParameters(PSConfigParameters) :
+    """A storage of configuration parameters for Experiment Monitor (EM) project.
+    """
+    MON1 = 1
+    MON2 = 2
+    tab_names = ['Mon-A', 'Mon-B', 'Mon-C', 'Mon-D', 'Mon-E']
+    tab_types = [ MON1,    MON1,    MON1,    MON2,    MON2]
+
+    number_of_tabs = len(tab_names)
+
+    def __init__(self, fname=None) :
+        """fname : str - the file name with configuration parameters, if not specified then use default.
+        """
+        PSConfigParameters.__init__(self)
+        #self._name = self.__class__.__name__
+        #log.debug('In c-tor', self._name)
+        print 'In EMConfigParameters c-tor' # % self._name
+
+        #self.fname_cp = '%s/%s' % (os.path.expanduser('~'), '.confpars-montool.txt') # Default config file name
+        self.fname_cp = './confpars-expmon.txt' # Default config file name
+
+        self.declareParameters()
+        self.readParametersFromFile()
+
+        self.list_of_sources = None # if None - updated in the ThreadWorker
+        #self.emqthreadworker = None
+
+        nm.set_config_pars(self)
+
+#------------------------------
+        
+    def declareParameters(self) :
+        # Possible typs for declaration : 'str', 'int', 'long', 'float', 'bool'
+        self.log_level = self.declareParameter(name='LOG_LEVEL_OF_MSGS', val_def='info', type='str')
+        #self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='/reg/g/psdm/logs/montool/log.txt', type='str')
+        self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='log.txt', type='str')
+
+        self.save_log_at_exit = self.declareParameter( name='SAVE_LOG_AT_EXIT', val_def=True,  type='bool')
+        #self.dir_log_cpo      = self.declareParameter( name='DIR_FOR_LOG_FILE_CPO', val_def='/reg/g/psdm/logs/calibman', type='str')
+
+        self.current_tab     = self.declareParameter(name='CURRENT_TAB', val_def='Status', type='str')
+
+        self.main_win_pos_x  = self.declareParameter(name='MAIN_WIN_POS_X',  val_def=5,   type='int')
+        self.main_win_pos_y  = self.declareParameter(name='MAIN_WIN_POS_Y',  val_def=5,   type='int')
+        self.main_win_width  = self.declareParameter(name='MAIN_WIN_WIDTH',  val_def=800, type='int')
+        self.main_win_height = self.declareParameter(name='MAIN_WIN_HEIGHT', val_def=700, type='int')
+
+        # LISTS of parameters
+
+        #tab_names = [('TAB_NAME', 'TAB_NAME_DEF' ,'str') for i in range(self.number_of_tabs)]
+        #self.tab_name_list = self.declareListOfPars('TAB_NAME', tab_names)
+
+        det1_srcs = [('None', 'None' ,'str') for i in range(self.number_of_tabs)]
+        det2_srcs = [('None', 'None' ,'str') for i in range(self.number_of_tabs)]
+
+        self.det1_src_list = self.declareListOfPars('DET1_SRC', det1_srcs)
+        self.det2_src_list = self.declareListOfPars('DET2_SRC', det2_srcs)
+
+#------------------------------
+
+cp = EMConfigParameters()
+
+#------------------------------
+
+def test_EMConfigParameters() :
+    from expmon.Logger import log
+
+    log.setPrintBits(0377)
+    cp.readParametersFromFile()
+    cp.printParameters()
+    cp.log_level.setValue('debug')
+    cp.saveParametersInFile()
+
+#------------------------------
+
+if __name__ == "__main__" :
+    import sys
+    test_EMConfigParameters()
+    sys.exit(0)
+
+#------------------------------

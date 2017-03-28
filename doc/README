@@ -1,0 +1,22 @@
+#--------------------------------------------------------------------------
+# File and Version Information:
+#  $Id: README 13119 2017-02-06 18:54:12Z dubrovin@SLAC.STANFORD.EDU $
+#
+# Description:
+#  README file for package expmon
+#------------------------------------------------------------------------
+
+Package author: Mikhail S. Dubrovin
+
+Brief description:
+==================
+
+After 2016-11-14 mtg of Chris with AMO/SXR people
+Daniel Jeremy Higley <dhigley@stanford.edu>
+come up with idea of GUI-based approach for SXR monitoring tools. 
+This package contains a few modules with implementation of this tool.
+
+Detailed description:
+=====================
+
+https://jira.slac.stanford.edu/browse/PSAS-271

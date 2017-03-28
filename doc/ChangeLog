@@ -1,0 +1,80 @@
+#------------------------------
+# File and Version Information:
+#  $Id: ChangeLog 13201 2017-03-13 16:31:00Z dubrovin@SLAC.STANFORD.EDU $
+#
+# Description:
+#  ChangeLog file for package expmon
+#------------------------------
+
+Package author: Mikhail S. Dubrovin
+
+Please describe any modifications that you made to the package in the
+reverse time order.
+
+#------------------------------
+Tag: V01-00-01
+2017-03-28 Mikhail S. Dubrovin
+- move package to github repository lcls-psana/expmon
+
+Tag: V00-01-04
+2017-02-17 Mikhail S. Dubrovin
+- ex_acqiris_hex.py - commented move_fig
+
+Tag: V00-01-03
+2017-02-17 Mikhail S. Dubrovin
+- Multiple updates toward re-usable modules and config parameters in different projects
+
+Tag: V00-01-02
+2017-02-07 Mikhail S. Dubrovin
+- In EM* modules fix closeEvent, do not use Logger->EMQLogger from EMQThreadWorker
+
+Tag: V00-01-01
+2017-02-06 Mikhail S. Dubrovin
+- move package in regular psana packages from user's:
+
+newpkg expmon
+psvn newpkg expmon
+addpkg expmon
+
+Then copy all stuff to expmon/
+
+
+Tag: V00-00-01
+2016-12-15 Mikhail S. Dubrovin
+- work in progress, keep adding project modules,
+- bare-bone command 'emon' launces GUI, switches between windows,
+	preserves persistent parameters in config file, saves logbook
+- save current version of the package before winter break vacation.
+
+2016-11-23 Mikhail S. Dubrovin
+-package created
+
+cd ~/LCLS
+newrel ana-current rel-sxrmon
+cd rel-sxrmon
+sit_setup
+
+kinit
+newpkg expmon
+psvn -u newpkg expmon
+addpkg -u expmon
+
+cd expmon
+mkdir doc
+mkdir src
+
+cp .../PSCalib/src/DCLogger.py src/EMLogger.py
+cp .../PSCalib/src/DCConfigParameters.py src/EMConfigParameters.py
+
+svn add expmon/src
+
+svn commit -m "Create package expmon"
+scons
+
+#------------------------------
+
+- just created this template file, this entry is an example of the change log entry
+- keep it brief and easy to read
+- always include author name and date of the change, provide CVS tag when appropriate
+
+#------------------------------
