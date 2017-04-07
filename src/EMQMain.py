@@ -13,9 +13,10 @@ import sys
 from PyQt4 import QtGui, QtCore
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
-from expmon.EMQLogger          import EMQLogger
+#from expmon.EMQLogger          import EMQLogger
 from expmon.EMQTabs            import EMQTabs
 from expmon.QWInsExpRun        import QWInsExpRun
+from graphqt.QWLogger          import QWLogger
 from graphqt.QIcons            import icon
 from graphqt.Styles            import style
 #import time   # for sleep(sec)
@@ -49,7 +50,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
         self.emqinsexprun = QWInsExpRun(cp) # QtGui.QPushButton('button') 
         self.emqtabs      = EMQTabs(self) # QtGui.QTextEdit()
-        self.emqlogger    = EMQLogger(show_buttons=False)
+        self.emqlogger    = QWLogger(log, cp, show_buttons=False)
 
         self.vsplit = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.vsplit.addWidget(self.emqinsexprun)

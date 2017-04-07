@@ -12,6 +12,12 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 #------------------------------
+
+Tag: V01-00-02
+2017-03-28 Mikhail S. Dubrovin
+- make reusable EMQLogger.py as graphqt.QWLogger, update it in EMQMain.py
+- PSUtils.get_array_from_file - extend for CrystFEL.h5 and .bin
+
 Tag: V01-00-01
 2017-03-28 Mikhail S. Dubrovin
 - move package to github repository lcls-psana/expmon
@@ -35,9 +41,7 @@ Tag: V00-01-01
 newpkg expmon
 psvn newpkg expmon
 addpkg expmon
-
 Then copy all stuff to expmon/
-
 
 Tag: V00-00-01
 2016-12-15 Mikhail S. Dubrovin
