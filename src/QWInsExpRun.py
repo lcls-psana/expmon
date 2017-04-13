@@ -10,9 +10,11 @@ import os
 from expmon.EMQFrame import Frame
 from PyQt4 import QtGui, QtCore
 
-from expmon.Logger             import log
 import graphqt.QWUtils         as qwu
 from graphqt.QWDirName         import QWDirName
+from graphqt.QWEventControl    import QWEventControl
+from expmon.QWDataSource       import QWDataSource     
+from expmon.QWDataSetExtension import QWDataSetExtension
 import expmon.EMUtils          as emu
 from expmon.EMQUtils           import popup_select_experiment
 from graphqt.QWPopupSelectItem import popup_select_item_from_list
@@ -25,29 +27,33 @@ class QWInsExpRun(Frame) :
     """GUI to input instrument, experiment, and run number
     """
 
-    def __init__ (self, cp, parent=None, orient='H') :
+    def __init__ (self, cp, log, parent=None, orient='V', show_mode=1) :
         """ cp (ConfigParameters) is passed as a parameter in order to use this widget in different apps
             Depends on:
             cp.char_expand
             cp.list_of_instr
-            cp.list_of_sourcesbasic
+            cp.list_of_sources
 
-            cp.instr_name - par
-            cp.exp_name   - par
-            cp.str_runnum - par
-            cp.calib_dir  - par
+            cp.instr_name  - par
+            cp.exp_name    - par
+            cp.str_runnum  - par
+            cp.calib_dir   - par
+            cp.data_source - par
         """
 
         Frame.__init__(self, parent, mlw=1)
         self._name = self.__class__.__name__
 
         self.cp     = cp
+        self.log    = log
         self.parent = parent
         self.orient = orient
+        self.show_mode = show_mode
 
         # Constants
         self.char_expand   = cp.char_expand
         self.list_of_instr = cp.list_of_instr
+
         # Parameters
         self.instr_name = cp.instr_name
         self.exp_name   = cp.exp_name
@@ -57,13 +63,17 @@ class QWInsExpRun(Frame) :
         self.lab_ins = QtGui.QLabel('Ins:')
         self.lab_exp = QtGui.QLabel('Exp:')
         self.lab_run = QtGui.QLabel('Run:')
- 
+
         self.but_ins = QtGui.QPushButton(self.instr_name.value()) # + self.char_expand)
         self.but_exp = QtGui.QPushButton(self.exp_name.value())
         self.but_run = QtGui.QPushButton(self.str_runnum.value())
+        self.w_dsext = QWDataSetExtension(cp, log)
         self.w_calib = QWDirName(None, butname='Select', label='Clb:',\
                                  path=self.calib_dir.value(), show_frame=False)
         self.w_calib.connect_path_is_changed_to_recipient(self.on_but_calib)
+
+        self.w_src = QWDataSource(cp, log)
+        self.w_evt = QWEventControl(cp, log, show_mode=2)
 
         if self.orient=='H' : self.set_layout_hor()
         else                : self.set_layout_ver()
@@ -104,16 +114,19 @@ class QWInsExpRun(Frame) :
         self.hbox.addWidget(self.lab_run)
         self.hbox.addWidget(self.but_run)
         self.hbox.addStretch(1)
+        self.hbox.addWidget(self.w_dsext)
 
         self.vbox = QtGui.QVBoxLayout()
         self.vbox.addLayout(self.hbox)
         self.vbox.addWidget(self.w_calib)
+        self.vbox.addWidget(self.w_src)
+        self.vbox.addWidget(self.w_evt)
 
         self.setLayout(self.vbox)
  
 
     def set_tool_tips(self):
-       self.setToolTip('%s object'%self._name)
+       self.setToolTip('Data-set control')
 
 
     def set_style(self):
@@ -121,7 +134,10 @@ class QWInsExpRun(Frame) :
         #self.setMinimumWidth(500)
         #self.setGeometry(10, 25, 400, 600)
         #self.setFixedHeight(100)
-        #self.setContentsMargins(QtCore.QMargins(-5,-5,-5,-5))
+
+        self.w_src.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        self.w_evt.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        #self.w_dsext.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
 
         self.lab_ins.setStyleSheet(style.styleLabel)
         self.lab_exp.setStyleSheet(style.styleLabel)
@@ -135,6 +151,10 @@ class QWInsExpRun(Frame) :
         self.but_exp.setFixedWidth(70)
         self.but_run.setFixedWidth(width)
         self.w_calib.but.setFixedWidth(width)
+
+        self.w_calib.setVisible(self.show_mode & 1)
+        self.w_src.setVisible  (self.show_mode & 2)
+        self.w_evt.setVisible  (self.show_mode & 4)
 
 
     def on_but(self):
@@ -194,7 +214,7 @@ class QWInsExpRun(Frame) :
     def on_but_calib(self, cdir):
         w = self.w_calib
         if str(cdir).rsplit('/',1)[1] != 'calib' :
-            log.warning('NOT A calib DIRECTORY: %s'%(cdir), self._name)
+            self.log.warning('NOT A calib DIRECTORY: %s'%(cdir), self._name)
             w.edi.setStyleSheet(style.styleButtonBad)
             w.but.setStyleSheet(style.styleButtonGood)
             return
@@ -212,7 +232,7 @@ class QWInsExpRun(Frame) :
             but.setStyleSheet(style.styleButtonGood)
         else :
             par.setValue(val)
-            log.info('Selected %s: %s'%(cmt,val), self._name)
+            self.log.info('Selected %s: %s'%(cmt,val), self._name)
             but.setStyleSheet(style.styleButton)
         but.setText(par.value())
 
@@ -220,7 +240,7 @@ class QWInsExpRun(Frame) :
     def set_run(self, val=None, cmt=''):
         if val != self.str_runnum.value() :
             # set flag to evaluate list of sources in separate thread
-            log.info('set request to find sources for run: %s'% val, self._name)
+            self.log.info('set request to find sources for run: %s'% val, self._name)
             #cp.emqthreadworker.set_request_find_sources()
             self.cp.list_of_sources = None # to initiate ThreadWorker to evaluate it
 
@@ -260,6 +280,7 @@ if __name__ == "__main__" :
     #from expmon.PSNameManager      import nm
     from expmon.EMConfigParameters import cp # !!! PASSED AS PARAMETER
     from expmon.PSQThreadWorker import PSQThreadWorker
+    from expmon.Logger import log
 
     nm.set_config_pars(cp)
 
@@ -268,7 +289,7 @@ if __name__ == "__main__" :
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()
 
-    ex = QWInsExpRun(cp)
+    ex = QWInsExpRun(cp, log, show_mode=0377)
     ex.move(QtCore.QPoint(50,50))
     ex.show()
     

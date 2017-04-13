@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-03
+2017-04-12 Mikhail S. Dubrovin
+- add modules for data imaging
+
 Tag: V01-00-02
 2017-03-28 Mikhail S. Dubrovin
 - make reusable EMQLogger.py as graphqt.QWLogger, update it in EMQMain.py

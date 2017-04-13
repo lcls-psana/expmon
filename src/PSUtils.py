@@ -20,9 +20,84 @@ import sys
 import numpy as np
 
 from time import time
-from psana import DataSource
+from psana import DataSource, EventId, EventTime
+from Detector.AreaDetector import AreaDetector
 #from expmon.Logger import log
 from expmon.PSNameManager import nm
+
+from pyimgalgos.GlobalUtils import table_from_cspad_ndarr, reshape_to_2d, print_ndarr #subtract_bkgd
+from PSCalib.GeometryObject import data2x2ToTwo2x1 #, two2x1ToData2x2
+
+#------------------------------
+
+def dataset(dsname) : # dsname='exp=cxi12316:run=1234', src='CxiDs2.0:Cspad.0'
+    return psana.DataSource(dsname)
+
+#------------------------------
+
+def event_time(evt) :
+    evtId = evt.get(EventId)
+    (sec, nsec), fid = evtId.time(), evtId.fiducials()
+    return EventTime(int((sec<<32)|nsec),fid)
+
+#------------------------------
+
+def dataset_times(ds) :
+    """Too... slow, Works for :smd ds mode
+       Returns list of psana.EventTime objects
+    """
+    return [event_time(evt) for evt in ds.events()]
+
+#------------------------------
+
+def run_times(run) :
+    """Works for :idx ds mode only
+       run = ds.runs().next() # psana.Run object
+       Returns list of psana.EventTime objects
+    """
+    return run.times()
+
+#------------------------------
+
+def dict_evnum_times(run) :
+    """Works for :idx ds mode only
+       run = ds.runs().next() # psana.Run object
+       Returns dictionary of enumerated psana.EventTime objects
+
+       Usage::
+           import expmon.PSUtils as psu
+           ds = DataSource('exp=xpptut15:run=54:idx')
+           run = ds.runs().next()
+           d=psu.dict_evnum_times(run)
+           evnum=5
+           et = dt[evnum]
+           evt = psu.event_for_time(run, et)
+    """
+    return dict(enumerate(run.times()))
+
+#------------------------------
+
+def dataset_events(ds) :
+    return ds.events()
+
+#------------------------------
+
+def event_for_time(run, et) :
+    """run = ds.runs().next() # psana.Run object
+       et = psana.EventTime
+       Returns psana.Event() object
+    """
+    return run.event(et)
+
+#------------------------------
+
+    #env = ds.env()
+    #runnum = evt.run()
+    #evt = ds.events().next()
+    #run = ds.runs().next()
+    #runnum = run.run()
+    #det = AreaDetector(src, env)
+
 #------------------------------
 
 def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
@@ -142,9 +217,6 @@ def get_array_from_file(fname, dtype=None) :
 #------------------------------
 
 def get_image_array_from_file(ifname=None, dtype=None) :
-    #import pyimgalgos.GlobalUtils as gu
-    from pyimgalgos.GlobalUtils import table_from_cspad_ndarr, reshape_to_2d
-    from PSCalib.GeometryObject import data2x2ToTwo2x1 #, two2x1ToData2x2
 
     arr = get_array_from_file(ifname, dtype)
     if arr is None : return None
@@ -152,7 +224,8 @@ def get_image_array_from_file(ifname=None, dtype=None) :
     if arr.size == 32*185*388 : # CSPAD
         arr = table_from_cspad_ndarr(arr)
 
-    elif arr.size == 2*185*388 and arr.shape[0]==185: # CSPAD2x2
+    elif arr.size == 2*185*388 and arr.shape[-1]==2: # CSPAD2x2
+        #print_ndarr(arr, name='nda', first=0, last=10)
         arr = data2x2ToTwo2x1(arr) # DAQ:(185, 388, 2) -> Natural:(2, 185, 388)
 
     return arr if arr.ndim==2 else reshape_to_2d(arr)
@@ -172,10 +245,42 @@ def test_list_of_sources(tname) :
 
 #------------------------------
 
+def test_dataset_times(tname) :
+    #ds = DataSource('exp=xpptut15:run=54:smd')
+    ds = DataSource('exp=cxif5315:run=169:smd')
+    t0_sec = time()
+    dst = dataset_times(ds)
+    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
+    print len(dst), dst[0].seconds(), dst[0].nanoseconds(), dst[0].fiducial()
+
+#------------------------------
+
+def test_steps(tname) :
+    #ds = DataSource('exp=xpptut15:run=54:idx')
+    ds = DataSource('exp=cxif5315:run=169:idx')
+    run = ds.runs().next()
+    #nsteps = run.nsteps()
+    #print 'nsteps = %d' % nsteps
+    print 'run:', run
+
+    t0_sec = time()
+    #for i in range(nsteps):
+    times = run.times()
+    print len(times), times[0]
+
+    evt = event_for_time(run, times[0])
+    print 'evt:', evt
+
+    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
+
+#------------------------------
+
 def test_all(tname) :
     lexps = []
-    if tname == '0': test_list_of_sources(tname)
-    if tname == '1': test_list_of_sources(tname) 
+    if   tname == '0': test_list_of_sources(tname)
+    elif tname == '1': test_list_of_sources(tname) 
+    elif tname == '2': test_dataset_times(tname) 
+    elif tname == '3': test_steps(tname) 
     else : return
 
 #------------------------------
