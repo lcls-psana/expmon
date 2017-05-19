@@ -6,8 +6,10 @@ from optparse import OptionParser
 from PyQt4 import QtGui
 
 from expmon.EMConfigParameters import cp
+#from expmon.Logger             import log
 from expmon.EMQMain import EMQMain
 from expmon.PSQThreadWorker import PSQThreadWorker
+from expmon.EMQThreadEventLoop import EMQThreadEventLoop
 #------------------------------
 
 class EM_GUI :
@@ -15,27 +17,31 @@ class EM_GUI :
         """Experiment Monitor"""
 
         self.parser = parser
-        (opts, args) = parser.parse_args()
-        self.args = args
-        self.opts = vars(opts)
+        (popts, pargs) = parser.parse_args()
+        self.args = pargs
+        self.opts = vars(popts)
         self.defs = vars(parser.get_default_values())
 
-        self.verbos = opts.verbos
-        #if self.verbos : self.print_raw()
-        if self.verbos : self.print_pars()
+        verbos = popts.verbos
+        #if verbos : self.print_raw()
+        if verbos : self.print_pars()
 
         print 'Start %s' % self.__init__.__doc__
 
         app = QtGui.QApplication(sys.argv)
 
-        t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) # 0177777)
+        t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0)
         t1.start()
+
+        t2 = EMQThreadEventLoop(parent=None, dt_msec=500, pbits=0)
+        t2.start()
 
         gui = EMQMain(parser)
         #gui = QtGui.QWidget()
         gui.show()
 	stat = app.exec_()
 	statt1 = t1.quit() # t1.exit(0)
+	statt2 = t2.quit()
         sys.exit(stat)
 
 #------------------------------
@@ -72,6 +78,7 @@ def usage() :
            '\n  %prog'+\
            ' -e <experiment> -r <run-number> -v'+\
            '\n\n  Examples:'+\
+           '\n  %prog -e sxro5916 -r 10'+\
            '\n  %prog -e mfxn8316 -r 11'+\
            '\n  %prog -e mfxn8316 -r 11 -v'+\
            '\n  %prog -e mfxn8316 -r 11 -u 3 -w 2 -v'
@@ -80,24 +87,27 @@ def usage() :
 
 def input_option_parser() :
 
-    exp_def    = 'mfxn8316' 
-    run_def    = 1
-    verbos_def = True
-    nwin1_def  = 2
-    nwin2_def  = 3
+    d_exp    = None # 'mfxn8316' 
+    d_run    = 1
+    d_clb    = '' 
+    d_verbos = True
+    d_nwin1  = 2
+    d_nwin2  = 3
 
-    h_exp    = 'experiment, e.g., cxi43210, default = %s' % exp_def
-    h_run    = 'run number, default = %d' % run_def
-    h_verbos = 'verbosity, default = %s' % str(verbos_def)
-    h_nwin1  = 'number of windows type 1, default = %d' % nwin1_def
-    h_nwin2  = 'number of windows type 2, default = %d' % nwin2_def
+    h_exp    = 'experiment, e.g., cxi43210, default = %s' % d_exp
+    h_run    = 'run number, default = %d' % d_run
+    h_clb    = 'calibration directory, e.g., ./calib, default = %s' % d_clb
+    h_verbos = 'verbosity, default = %s' % str(d_verbos)
+    h_nwin1  = 'number of windows type 1, default = %d' % d_nwin1
+    h_nwin2  = 'number of windows type 2, default = %d' % d_nwin2
 
     parser = OptionParser(description='Command line parameters', usage ='usage: %prog <opts>' + usage())
-    parser.add_option('-e', '--exp',    default=exp_def,    action='store', type='string', help=h_exp)
-    parser.add_option('-r', '--run',    default=run_def,    action='store', type='int',    help=h_run)
-    parser.add_option('-v', '--verbos', default=verbos_def, action='store_false',          help=h_verbos)
-    parser.add_option('-w', '--nwin1',  default=nwin1_def,  action='store', type='int',    help=h_nwin1)
-    parser.add_option('-u', '--nwin2',  default=nwin2_def,  action='store', type='int',    help=h_nwin2)
+    parser.add_option('-e', '--exp',    default=d_exp,    action='store', type='string', help=h_exp)
+    parser.add_option('-r', '--run',    default=d_run,    action='store', type='int',    help=h_run)
+    parser.add_option('-c', '--clb',    default=d_clb,    action='store', type='string', help=h_clb)
+    parser.add_option('-v', '--verbos', default=d_verbos, action='store_false',          help=h_verbos)
+    parser.add_option('-w', '--nwin1',  default=d_nwin1,  action='store', type='int',    help=h_nwin1)
+    parser.add_option('-u', '--nwin2',  default=d_nwin2,  action='store', type='int',    help=h_nwin2)
  
     return parser #, parser.parse_args()
 

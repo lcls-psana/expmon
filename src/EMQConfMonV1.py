@@ -77,9 +77,9 @@ class EMQConfMonV1(QtGui.QWidget) :
 
 if __name__ == "__main__" :
     app = QtGui.QApplication(sys.argv)
-    ex  = EMQConfMonV1()
-    ex.move(QtCore.QPoint(50,50))
-    ex.show()
+    w = EMQConfMonV1()
+    w.move(QtCore.QPoint(50,50))
+    w.show()
     app.exec_()
 
 #------------------------------

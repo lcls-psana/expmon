@@ -1,9 +1,7 @@
 #------------------------------
 """GUI for configuration of DetV1
-
-@version $Id: EMQConfDetV1.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
-
-@author Mikhail S. Dubrovin
+   Created: 2017-02-18
+   Author : Mikhail Dubrovin
 """
 #------------------------------
 import sys
@@ -19,6 +17,11 @@ from graphqt.Frame             import Frame
 from graphqt.Styles            import style
 #from graphqt.QIcons            import icon
 
+
+#from expmon.EMQDetI       import EMQDetI
+from expmon.EMQDetF import get_detector_widget
+#    w = get_detector_widget(src)
+
 from time import time
 
 #------------------------------
@@ -27,8 +30,7 @@ from time import time
 class EMQConfDetV1(Frame) :
     """Detector configuration GUI
     """
-
-    def __init__ (self, parent=None, tabind=0, detind=0) :
+    def __init__ (self, parent, tabind=0, detind=0) :
         Frame.__init__(self, parent, mlw=1, vis=False)
         #QtGui.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
@@ -36,19 +38,20 @@ class EMQConfDetV1(Frame) :
         self.par_src = cp.det1_src_list[tabind] if detind == 1 else\
                        cp.det2_src_list[tabind]
 
-        self.wimg = None        
-
         self.tabind = tabind
         self.detind = detind
+        src = self.par_src.value()
         #self.w = QtGui.QTextEdit(self._name)
         self.lab_src = QtGui.QLabel('Det %d:'%self.detind)
-        self.but_src = QtGui.QPushButton(self.par_src.value())
+        self.but_src = QtGui.QPushButton(src)
         self.but_view = QtGui.QPushButton('View')
+        self.wdet = get_detector_widget(self, src) # default
 
         self.box = QtGui.QHBoxLayout(self)
         self.box.addWidget(self.lab_src)
         self.box.addWidget(self.but_src)
         self.box.addWidget(self.but_view)
+        self.box.addWidget(self.wdet)
         self.box.addStretch(1)
         self.setLayout(self.box)
 
@@ -81,30 +84,33 @@ class EMQConfDetV1(Frame) :
         #    self.set_calib()
         self.par_src.setValue(sel)
         self.but_src.setText(sel)
+
+        #---- update self.wdet
+        self.box.removeWidget(self.wdet)
+        self.wdet.close()
+        del self.wdet
+        self.wdet = get_detector_widget(self, sel)
+        self.wdet.setMinimumWidth(300)
+        self.box.insertWidget(3,self.wdet)
+        #self.box.addWidget(self.wdet)
+        #---- 
+
         log.info('Mon: %d  Det: %s  selected: %s' %\
                  (self.tabind, self.detind, sel), __name__)
 
 
     def on_but_view(self):
-        print '%s.on_but_view' % self._name
+        log.debug('on_but_view', self._name)
+        #print '%s.on_but_view' % self._name
+        self.wdet.on_but_view()
 
-        from graphqt.IMVMain import IMVMain
 
-        if self.wimg is None :
-            self.wimg = IMVMain(parser=None)
-            #self.move(self.pos())
-            self.wimg.move(self.pos() + QtCore.QPoint(self.width()+40, 0))
-            #self.wimg.move(QtGui.QCursor.pos()+QtCore.QPoint(200,-200))
-            self.wimg.show()
-
-        else :
-            self.wimg.close()
-            self.wimg = None
+    def get_signal(self):
+        return self.wdet.get_signal()
 
 
     def set_style(self):
         #self.setGeometry(10, 25, 400, 600)
-        self.setWindowTitle(self._name)
         self.setMinimumSize(300,50)
 
         #self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
@@ -113,20 +119,18 @@ class EMQConfDetV1(Frame) :
 
         self.lab_src.setStyleSheet(style.styleLabel)
         self.but_src.setMinimumWidth(200)
+        self.wdet.setMinimumWidth(300)
 
-
-    def moveEvent(self, e):
+    #def moveEvent(self, e):
         #log.debug('%s.moveEvent' % self._name) 
-        pass
+        #pass
 
 
     def closeEvent(self, e):
-        #log.debug('closeEvent', self._name)
-        #log.debug('EMQConfDetV1.closeEvent')
         log.debug('closeEvent', self._name)
-        if self.wimg is not None :
-            try : self.wimg.close()
-            except : pass
+
+        try : self.wdet.close()
+        except : pass
 
         #QtGui.QWidget.closeEvent(self, e)
         Frame.closeEvent(self, e)
@@ -135,9 +139,10 @@ class EMQConfDetV1(Frame) :
 
 if __name__ == "__main__" :
     app = QtGui.QApplication(sys.argv)
-    ex  = EMQConfDetV1()
-    ex.move(QtCore.QPoint(50,50))
-    ex.show()
+    w = EMQConfDetV1()
+    w.setWindowTitle(w._name)
+    w.move(QtCore.QPoint(50,50))
+    w.show()
     app.exec_()
 
 #------------------------------

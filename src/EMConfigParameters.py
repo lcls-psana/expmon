@@ -29,10 +29,11 @@ class EMConfigParameters(PSConfigParameters) :
     """
     MON1 = 1
     MON2 = 2
-    tab_names = ['Mon-A', 'Mon-B', 'Mon-C', 'Mon-D', 'Mon-E']
-    tab_types = [ MON1,    MON1,    MON1,    MON2,    MON2]
+    tab_names = ['Mon-A', 'Mon-B', 'Mon-C', 'Mon-D']
+    tab_types = [ MON1,    MON1,    MON1,    MON2]
 
     number_of_tabs = len(tab_names)
+    number_of_det_pars = 16
 
     def __init__(self, fname=None) :
         """fname : str - the file name with configuration parameters, if not specified then use default.
@@ -43,10 +44,12 @@ class EMConfigParameters(PSConfigParameters) :
         print 'In EMConfigParameters c-tor' # % self._name
 
         #self.fname_cp = '%s/%s' % (os.path.expanduser('~'), '.confpars-montool.txt') # Default config file name
-        self.fname_cp = './confpars-expmon.txt' # Default config file name
+        self.fname_cp = './emon-confpars.txt' # Default config file name
 
         self.declareParameters()
         self.readParametersFromFile()
+
+        self.emqmain = None
 
         self.list_of_sources = None # if None - updated in the ThreadWorker
         #self.emqthreadworker = None
@@ -59,10 +62,10 @@ class EMConfigParameters(PSConfigParameters) :
         # Possible typs for declaration : 'str', 'int', 'long', 'float', 'bool'
         self.log_level = self.declareParameter(name='LOG_LEVEL_OF_MSGS', val_def='info', type='str')
         #self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='/reg/g/psdm/logs/montool/log.txt', type='str')
-        self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='log.txt', type='str')
+        self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='emon-log.txt', type='str')
 
-        self.save_log_at_exit = self.declareParameter( name='SAVE_LOG_AT_EXIT', val_def=True,  type='bool')
-        #self.dir_log_cpo      = self.declareParameter( name='DIR_FOR_LOG_FILE_CPO', val_def='/reg/g/psdm/logs/calibman', type='str')
+        self.save_log_at_exit = self.declareParameter( name='SAVE_LOG_AT_EXIT', val_def=False,  type='bool')
+        self.dir_log_repo    = self.declareParameter(name='DIR_LOG_REPO', val_def='/reg/g/psdm/logs/emon', type='str')
 
         self.current_tab     = self.declareParameter(name='CURRENT_TAB', val_def='Status', type='str')
 
@@ -76,11 +79,22 @@ class EMConfigParameters(PSConfigParameters) :
         #tab_names = [('TAB_NAME', 'TAB_NAME_DEF' ,'str') for i in range(self.number_of_tabs)]
         #self.tab_name_list = self.declareListOfPars('TAB_NAME', tab_names)
 
-        det1_srcs = [('None', 'None' ,'str') for i in range(self.number_of_tabs)]
-        det2_srcs = [('None', 'None' ,'str') for i in range(self.number_of_tabs)]
+        det1_srcs = [('None', 'None', 'str') for i in range(self.number_of_tabs)]
+        det2_srcs = [('None', 'None', 'str') for i in range(self.number_of_tabs)]
 
         self.det1_src_list = self.declareListOfPars('DET1_SRC', det1_srcs)
         self.det2_src_list = self.declareListOfPars('DET2_SRC', det2_srcs)
+
+
+        # List of 16 parameters for all tabs,
+        # addressed as cp.det1_list_of_pars[parnum][tabind]
+
+        det_par_tabs = [(None, None, 'float') for i in range(self.number_of_tabs)]
+        self.det1_list_of_pars = [None] * self.number_of_det_pars
+        self.det2_list_of_pars = [None] * self.number_of_det_pars
+        for p in range(self.number_of_det_pars) :
+            self.det1_list_of_pars[p] = self.declareListOfPars('DET1_PAR%02d'%p, det_par_tabs)
+            self.det2_list_of_pars[p] = self.declareListOfPars('DET2_PAR%02d'%p, det_par_tabs)
 
 #------------------------------
 

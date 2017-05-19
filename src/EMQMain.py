@@ -15,10 +15,13 @@ from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
 #from expmon.EMQLogger          import EMQLogger
 from expmon.EMQTabs            import EMQTabs
-from expmon.QWInsExpRun        import QWInsExpRun
+from expmon.EMQDataControl     import EMQDataControl
 from graphqt.QWLogger          import QWLogger
 from graphqt.QIcons            import icon
 from graphqt.Styles            import style
+import expmon.PSUtils as psu
+from expmon.PSNameManager import nm
+
 #import time   # for sleep(sec)
 
 #------------------------------
@@ -32,6 +35,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self._name = self.__class__.__name__
 
         log.setPrintBits(0377)
+        self.log_rec_on_start()
+
+        self.init_parameters(parser)
 
         self.main_win_width  = cp.main_win_width 
         self.main_win_height = cp.main_win_height
@@ -48,7 +54,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         icon.set_icons()
         self.setWindowIcon(icon.icon_monitor)
 
-        self.emqinsexprun = QWInsExpRun(cp, log) # QtGui.QPushButton('button') 
+        self.emqinsexprun = EMQDataControl(cp, log, show_mode=5) # QtGui.QPushButton('button') 
         self.emqtabs      = EMQTabs(self) # QtGui.QTextEdit()
         self.emqlogger    = QWLogger(log, cp, show_buttons=False)
 
@@ -75,7 +81,32 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
     #-------------------
 
-    def printStyleInfo(self):
+    def init_parameters(self, parser):
+        self.parser = parser
+        (popts, pargs) = parser.parse_args()
+        self.args = pargs
+        self.opts = vars(popts)
+        self.defs = vars(parser.get_default_values())
+
+        verbos = popts.verbos # True
+        exp    = popts.exp    # 'mfxn8316' 
+        run    = popts.run    # 11
+        clb    = popts.clb    # ''
+        nwin1  = popts.nwin1  # 2
+        nwin2  = popts.nwin2  # 3
+ 
+        if exp != self.defs['exp'] :
+            cp.exp_name.setValue(exp)
+            cp.instr_name.setValue(exp[:3].upper())
+
+        if run != self.defs['run'] : cp.str_runnum.setValue('%d'%run)
+        if clb != self.defs['clb'] : cp.calib_dir .setValue(clb)
+
+        #print '%s.init_parameters: TODO assign optional parameters to cp' % self._name
+
+    #-------------------
+
+    def print_style_info(self):
         qstyle     = self.style()
         qpalette   = qstyle.standardPalette()
         qcolor_bkg = qpalette.color(1)
@@ -87,8 +118,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
     def set_tool_tips(self):
         self.setToolTip('Experiment Monitor Control GUI')
 
+
     def set_style(self):
-        self.setMinimumSize(770,500)
+        self.setMinimumSize(400,500)
         self.setContentsMargins(QtCore.QMargins(-5,-5,-5,-5))
 
         #self.setFixedSize(800,500)
@@ -157,23 +189,29 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.main_win_width .setValue(w)
         self.main_win_height.setValue(h)
 
-        #try :
-        #    ndb = NotificationDB()
-        #    ndb.add_record()
-        #except :
-        #    pass
- 
-        #cp.close()
-
         cp.printParameters()
         cp.saveParametersInFile()
 
         if cp.save_log_at_exit.value() :
-            log.saveLogInFile(cp.log_file.value())
+            #log.saveLogInFile(cp.log_file.value())
             #print 'Saved log file: %s' % cp.log_file.value()
             #log.saveLogTotalInFile(fnm.log_file_total())
 
+            nm.set_cp_and_log(cp, log)
+            path = nm.log_file_repo()
+
+            if psu.create_path(path) :
+                log.saveLogInFile(path)
+                #print 'Log file: %s' % path
+            else : log.warning('onSave: path for log file %s was not created.' % path, self.name)
+  
 #------------------------------
+
+    def log_rec_on_start(self) :
+        msg = 'User "%s" from cwd "%s" launched command:\n%s'%\
+              (psu.get_login(), psu.get_cwd(), ' '.join(sys.argv))
+        log.info(msg, self._name)
+
 #------------------------------
 
     #def mousePressEvent(self, event):

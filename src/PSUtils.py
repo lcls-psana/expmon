@@ -20,13 +20,19 @@ import sys
 import numpy as np
 
 from time import time
-from psana import DataSource, EventId, EventTime
-from Detector.AreaDetector import AreaDetector
+import psana
+#from psana import DataSource, EventId, EventTime
+#from Detector.AreaDetector import AreaDetector
 #from expmon.Logger import log
 from expmon.PSNameManager import nm
 
 from pyimgalgos.GlobalUtils import table_from_cspad_ndarr, reshape_to_2d, print_ndarr #subtract_bkgd
 from PSCalib.GeometryObject import data2x2ToTwo2x1 #, two2x1ToData2x2
+
+#------------------------------
+
+def detector(src, env) : # src='CxiDs2.0:Cspad.0'
+    return psana.Detector(src, env)
 
 #------------------------------
 
@@ -36,9 +42,9 @@ def dataset(dsname) : # dsname='exp=cxi12316:run=1234', src='CxiDs2.0:Cspad.0'
 #------------------------------
 
 def event_time(evt) :
-    evtId = evt.get(EventId)
+    evtId = evt.get(psana.EventId)
     (sec, nsec), fid = evtId.time(), evtId.fiducials()
-    return EventTime(int((sec<<32)|nsec),fid)
+    return psana.EventTime(int((sec<<32)|nsec),fid)
 
 #------------------------------
 
@@ -66,7 +72,7 @@ def dict_evnum_times(run) :
 
        Usage::
            import expmon.PSUtils as psu
-           ds = DataSource('exp=xpptut15:run=54:idx')
+           ds = psana.DataSource('exp=xpptut15:run=54:idx')
            run = ds.runs().next()
            d=psu.dict_evnum_times(run)
            evnum=5
@@ -114,15 +120,37 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
     #print 'expmon.PSUtils.list_of_sources if is passed'
 
-    ds = DataSource(dsn)
+    ds = psana.DataSource(dsn)
     cfg = ds.env().configStore()
     sources = [str(k.src()) for k in cfg.keys()] # DetInfo(CxiDs2.0:Cspad.0)
-    srcs = set([s[8:-1] for s in sources if s[:7]=='DetInfo']) # selects CxiDs2.0:Cspad.0
+    srcs_cfg = set([s[8:-1] for s in sources if s[:7]=='DetInfo']) # selects CxiDs2.0:Cspad.0
+
+    #evt0 = ds.events().next()
+    try : 
+        evt0 = ds.events().next()
+    #except StopIteration, reason:
+        #print "ERROR: failed to get next event: ", reason
+    except : # StopIteration, reason:
+        print "ERROR: StopIteration for dsname=%s" % dsn
+        ds = psana.DataSource(dsn)
+        evt0 = ds.events().next()
+
+    sources = [str(k.src()) for k in evt0.keys()] # DetInfo(CxiDs2.0:Cspad.0)
+    srcs_evt = set([s[8:-1] for s in sources if s[:7]=='BldInfo']) # selects CxiDs2.0:Cspad.0
+
+    #print 'cfg.keys:'
+    #for k in srcs_cfg : print 'XXX:', k
+    #print 'evt0.keys:'
+    #for k in srcs_evt : print 'XXX:', k
+
+    #for k in sources : print 'XXX:', k
     #for k in cfg.keys() : print 'XXX:', k
+    #for k in evt0.keys() : print 'XXX:', k
     #for s in srcs : print 'XXX:', s
     #print 'Exit expmon.PSUtils.list_of_sources'
 
-    return srcs
+    #return srcs_cfg 
+    return srcs_cfg.union(srcs_evt) 
 
 #------------------------------
 
@@ -247,7 +275,7 @@ def test_list_of_sources(tname) :
 
 def test_dataset_times(tname) :
     #ds = DataSource('exp=xpptut15:run=54:smd')
-    ds = DataSource('exp=cxif5315:run=169:smd')
+    ds = psana.DataSource('exp=cxif5315:run=169:smd')
     t0_sec = time()
     dst = dataset_times(ds)
     print 'consumed time(sec) = %.6f' % (time()-t0_sec)
@@ -257,7 +285,7 @@ def test_dataset_times(tname) :
 
 def test_steps(tname) :
     #ds = DataSource('exp=xpptut15:run=54:idx')
-    ds = DataSource('exp=cxif5315:run=169:idx')
+    ds = psana.DataSource('exp=cxif5315:run=169:idx')
     run = ds.runs().next()
     #nsteps = run.nsteps()
     #print 'nsteps = %d' % nsteps
@@ -273,6 +301,56 @@ def test_steps(tname) :
 
     print 'consumed time(sec) = %.6f' % (time()-t0_sec)
 
+
+#------------------------------
+
+def get_login() :
+    """Returns login name
+    """
+    import getpass
+    return getpass.getuser()
+
+#------------------------------
+
+def get_pid() :
+    """Returns pid - process id
+    """
+    return os.getpid()
+ 
+#------------------------------
+
+def get_cwd() :
+    """get corrent work directory"""
+    return os.getcwd()
+
+#------------------------------
+
+def create_directory(dir, mode=0777) :
+    #print 'create_directory: %s' % dir
+    if os.path.exists(dir) :
+        #logger.info('Directory exists: ' + dir, __name__) 
+        pass
+    else :
+        os.makedirs(dir)
+        os.chmod(dir, mode)
+        #os.system(cmd)
+        #logger.info('Directory created: ' + dir, __name__) 
+
+#------------------------------
+
+def create_path(path, depth=5, mode=0777) : 
+    # Creates missing path for /reg/g/psdm/logs/calibman/2016/07/2016-07-19-12:20:59-log-dubrovin-562.txt
+    # if path to file exists return True, othervise False
+    subdirs = path.strip('/').split('/')
+    cpath = ''
+    for i,sd in enumerate(subdirs[:-1]) :
+        cpath += '/%s'% sd 
+        if i<depth : continue
+        create_directory(cpath, mode)
+        #print 'create_path: %s' % cpath
+
+    return os.path.exists(cpath)
+ 
 #------------------------------
 
 def test_all(tname) :

@@ -1,6 +1,6 @@
 #------------------------------
 """
-@version $Id: QWInsExpRun.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
+@version $Id: QWDataControl.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
 
 @author Mikhail S. Dubrovin
 """
@@ -23,7 +23,7 @@ from graphqt.Styles            import style
 
 #------------------------------
 
-class QWInsExpRun(Frame) :
+class QWDataControl(Frame) :
     """GUI to input instrument, experiment, and run number
     """
 
@@ -113,11 +113,16 @@ class QWInsExpRun(Frame) :
         #self.hbox.addStretch(1)
         self.hbox.addWidget(self.lab_run)
         self.hbox.addWidget(self.but_run)
-        self.hbox.addStretch(1)
+        self.hbox.addSpacing(20)
         self.hbox.addWidget(self.w_dsext)
+        self.hbox.addStretch(1)
+
+        self.w_dset = QtGui.QWidget(self)
+        self.w_dset.setLayout(self.hbox)
 
         self.vbox = QtGui.QVBoxLayout()
-        self.vbox.addLayout(self.hbox)
+        #self.vbox.addLayout(self.hbox)
+        self.vbox.addWidget(self.w_dset)
         self.vbox.addWidget(self.w_calib)
         self.vbox.addWidget(self.w_src)
         self.vbox.addWidget(self.w_evt)
@@ -135,9 +140,10 @@ class QWInsExpRun(Frame) :
         #self.setGeometry(10, 25, 400, 600)
         #self.setFixedHeight(100)
 
-        self.w_src.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
-        self.w_evt.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
-        #self.w_dsext.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        self.w_dsext.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        self.w_dset .setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        self.w_src  .setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        self.w_evt  .setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
 
         self.lab_ins.setStyleSheet(style.styleLabel)
         self.lab_exp.setStyleSheet(style.styleLabel)
@@ -289,7 +295,7 @@ if __name__ == "__main__" :
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()
 
-    ex = QWInsExpRun(cp, log, show_mode=0377)
+    ex = QWDataControl(cp, log, show_mode=0377)
     ex.move(QtCore.QPoint(50,50))
     ex.show()
     

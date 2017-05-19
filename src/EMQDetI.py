@@ -1,0 +1,113 @@
+#------------------------------
+"""GUI for configuration of detector object.
+   Created: 2017-02-18
+   Author : Mikhail Dubrovin
+"""
+#------------------------------
+import sys
+import os
+
+from PyQt4 import QtGui, QtCore
+
+from expmon.EMConfigParameters import cp
+from expmon.Logger             import log
+import expmon.PSUtils          as psu
+import graphqt.QWUtils         as qwu
+from graphqt.Styles            import style
+#from graphqt.Frame             import Frame
+#from graphqt.QIcons            import icon
+#from time import time
+#------------------------------
+
+class EMQDetI(QtGui.QWidget) :
+    """Interface for EMQDet* objects
+    """
+    def __init__ (self, parent, src=None) :
+        #Frame.__init__(self, parent, mlw=1, vis=False)
+        QtGui.QWidget.__init__(self, parent=None)
+        self._name = self.__class__.__name__
+
+        self.parent = parent
+        if parent is not None :
+            self.tabind = parent.tabind
+            self.detind = parent.detind
+
+        self.set_source(src)
+
+        #self.w = QtGui.QTextEdit(self._name)
+        self.lab_info = QtGui.QLabel('NOT IMPLEMENTED "%s"' % src)
+        #self.but_src = QtGui.QPushButton(self.par_src.value())
+        #self.but_view = QtGui.QPushButton('View')
+
+        self.box = QtGui.QHBoxLayout(self)
+        self.box.addWidget(self.lab_info)
+        #self.box.addStretch(1)
+        self.setLayout(self.box)
+
+        self.set_style()
+        #self.set_tool_tips()
+        #gu.printStyleInfo(self)
+        #cp.guitabs = self
+
+        #self.connect(self.but_src,  QtCore.SIGNAL('clicked()'), self.on_but_src)
+        #self.connect(self.but_view, QtCore.SIGNAL('clicked()'), self.on_but_view)
+
+
+    def set_source(self, src):
+        self.src=str(src)
+
+
+    def set_style(self):
+        self.lab_info.setMinimumWidth(300)
+        self.lab_info.setStyleSheet(style.styleLabel)
+        self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+
+        #self.setGeometry(10, 25, 400, 600)
+        #self.setMinimumSize(400,50)
+        #self.vsplit.setMinimumHeight(700)        
+        #self.setStyleSheet(style.styleBkgd)
+        #self.but_src.setMinimumWidth(200)
+
+
+    #def moveEvent(self, e):
+        #log.debug('%s.moveEvent' % self._name) 
+        #pass
+
+
+    def closeEvent(self, e):
+        log.debug('closeEvent', self._name)
+        #if self.wimg is not None :
+        #    try : self.wimg.close()
+        #    except : pass
+
+        QtGui.QWidget.closeEvent(self, e)
+        #Frame.closeEvent(self, e)
+
+#------------------------------
+
+    def message_def(self, met, cmt=''):
+        msg = 'Default %s must be re-implemented in derived class. %s' % (met, cmt)
+        self.lab_info.setText(msg)
+        log.info(msg, self._name)
+
+#------------------------------
+# Abstract methods MUST BE RE-IMPLEMENTED:
+#------------------------------
+
+    def on_but_view(self, evt=None): self.message_def(sys._getframe().f_code.co_name)
+
+    def get_signal(self, evt=None):  self.message_def(sys._getframe().f_code.co_name)
+
+#------------------------------
+
+if __name__ == "__main__" :
+    app = QtGui.QApplication(sys.argv)
+    w = EMQDetI()
+    w.setWindowTitle(w._name)
+    w.move(QtCore.QPoint(50,50))
+    w.on_but_view()
+    w.get_signal()
+    w.show()
+    app.exec_()
+
+#------------------------------

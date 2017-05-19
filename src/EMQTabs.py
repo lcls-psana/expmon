@@ -1,10 +1,8 @@
 
 #------------------------------
-"""GUI for tabs
-
-@version $Id: EMQTabs.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
-
-@author Mikhail S. Dubrovin
+"""GUI for tabs and switching window.
+   Created: 2017-02-18
+   Author : Mikhail Dubrovin
 """
 #------------------------------
 import sys
@@ -14,8 +12,8 @@ from PyQt4 import QtGui, QtCore
 
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
-from expmon.EMQTabBar          import EMQTabBar
 from expmon.EMQConfMonV1       import EMQConfMonV1
+#from expmon.EMQTabBar          import EMQTabBar
 #from graphqt.QIcons            import icon
 #from expmon.EMQFrame           import Frame
 #import time   # for sleep(sec)

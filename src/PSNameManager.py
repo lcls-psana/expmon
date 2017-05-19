@@ -17,13 +17,21 @@ class PSNameManager :
     """
     _name = 'PSNameManager'
 
-    def __init__(self, cp=None) :
+    def __init__(self, cp=None, log=None) :
         #log.info('object is init-ed', self._name)
-        self.cp  = cp
+        self.set_cp_and_log(cp, log)
         
+    def set_cp_and_log(self, cp, log) :
+        self.cp  = cp
+        self.log = log
+
     def set_config_pars(self, cp) :
         #log.info('config pars object is set from file: %s' % cp.fname_cp, self._name)
         self.cp  = cp
+
+    def set_logger(self, log) :
+        #log.info('config pars object is set from file: %s' % cp.fname_cp, self._name)
+        self.log = log 
     
     def cpars(self) :
         if self.cp is None :
@@ -83,6 +91,19 @@ class PSNameManager :
             return '%s:%s:dir=%s' % (base, ext, self.dir_ffb())
 
         return base
+
+#------------------------------
+
+    def log_file_repo(self) :
+        import os
+        import expmon.PSUtils as psu
+
+        if None in (self.cp, self.log) : return None
+        # Returns name like /reg/g/psdm/logs/emon/2017/07/2016-05-17-10:16:00-log-dubrovin-562.txt
+        fname = self.log.getLogFileName()     # 2016-07-19-11:53:02-log.txt
+        year, month = fname.split('-')[:2]  # 2016, 07
+        name, ext = os.path.splitext(fname) # 2016-07-19-11:53:02-log, .txt   
+        return '%s/%s/%s/%s-%s-%s%s' % (self.cp.dir_log_repo.value(), year, month, name, psu.get_login(), psu.get_pid(), ext)
 
 #------------------------------
 

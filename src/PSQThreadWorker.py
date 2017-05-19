@@ -10,7 +10,7 @@ import os
 import random
 from time import time
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore # QtGui
 #from expmon.PSConfigParameters import cp
 import expmon.PSUtils as psu
 #import expmon.EMUtils as emu

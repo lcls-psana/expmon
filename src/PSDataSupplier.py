@@ -1,54 +1,56 @@
 #------------------------------
 """
-@version $Id: PSImageProducer.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
-
-@author Mikhail S. Dubrovin
+PSDataSupplier - access to detector data
+Created: 2017-02-18
+Author : Mikhail Dubrovin
 
 Usage ::
-    from expmon.PSImageProducer import PSImageProducer
+    from expmon.PSDataSupplier import PSDataSupplier
     from graphqt.Logger import log
     from graphqt.IVConfigParameters import cp
 
     log.setPrintBits(0377)
 
-    ip = PSImageProducer(cp, log)
+    dso = PSDataSupplier(cp, log, dsname=None, detname=None)
 
-    evt = ip.es.event_next()
-    evt = ip.event_for_number(123)
-    env = ip.env()
-    run = ip.run()
-    det = ip.detector()
+    evt = dso.es.event_next()
+    evt = dso.event_for_number(123)
+    env = dso.env()
+    run = dso.run()
+    det = dso.detector()
 
-    ip.det().print_attributes()    
+    dso.det().print_attributes()    
 
     for n in range(5) :
-        #evt = ip.event_for_number(n)
-        #nda = ip.det().raw(evt)
-        #img = ip.image(n, nda)
-        img = ip.image(n)
+        #evt = dso.event_for_number(n)
+        #nda = dso.det().raw(evt)
+        #img = dso.image(n, nda)
+        img = dso.image(n)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 """
 #------------------------------
 
 from expmon.PSNameManager import nm
 from expmon.PSEventSupplier import PSEventSupplier
-from Detector.AreaDetector import AreaDetector    
+#from Detector.AreaDetector import AreaDetector    
+#from psana import Detector  
+from psana import Detector, Source    
 
 #------------------------------
 
-class PSImageProducer :
+class PSDataSupplier :
     """Uses configuration parameters to get image
     """
-    _name = 'PSImageProducer'
+    _name = 'PSDataSupplier'
 
-    def __init__(self, cp, log) :
+    def __init__(self, cp, log, dsname=None, detname=None) :
         log.debug('In __init__', self._name)
         self.cp  = cp
         self.log = log
         self.es = None
 
-        self.set_dataset()
-        self.set_detector()
+        self.set_dataset(dsname)
+        self.set_detector(detname)
 
 
     def set_dataset(self, dsname=None) :
@@ -65,12 +67,14 @@ class PSImageProducer :
     def set_detector(self, detname=None) :
         self.detname = self.cp.data_source.value() if detname is None else detname
         self.log.info('set_detector %s' % self.detname, self._name)
-        self.det = AreaDetector(self.detname, self.es.env(), pbits=0)        
+        env = self.es.env()
+        self.det = Detector(self.detname, env) if env is not None else None
+        #self.det = AreaDetector(self.detname, self.es.env(), pbits=0)        
 
 
     def image(self, evnum=None, nda=None) :
         evt = self.es.event_for_number(evnum)
-        return self.det.image(evt, nda)
+        return self.det.image(evt, nda) if self.det is not None else None
 
 
     def detector(self) :
@@ -123,8 +127,8 @@ def test_all() :
     log.setPrintBits(0) # 0377)
 
     t0_sec = time()
-    ip = PSImageProducer(cp, log)
-    print 'PSImageProducer initialization time(sec) = %.6f' % (time()-t0_sec)
+    ip = PSDataSupplier(cp, log)
+    print 'PSDataSupplier initialization time(sec) = %.6f' % (time()-t0_sec)
 
     #evt = ip.event_next()
     #ip.detector().print_attributes()
