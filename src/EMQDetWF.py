@@ -24,7 +24,7 @@ class EMQDetWF(EMQDetI) :
         EMQDetI.__init__(self, parent, src)
         self._name = self.__class__.__name__
 
-        self.wgrp = None        
+        self.guview = None        
         self.wf = None        
         self.wt = None        
 
@@ -41,8 +41,12 @@ class EMQDetWF(EMQDetI) :
         self.par_winw  = det_list_of_pars[3][tabind]
 
         self.par_indwf = det_list_of_pars[4][tabind]
-        self.par_xmin  = det_list_of_pars[5][tabind]
-        self.par_xmax  = det_list_of_pars[6][tabind]
+        self.par_tmin  = det_list_of_pars[5][tabind]
+        self.par_tmax  = det_list_of_pars[6][tabind]
+        self.par_bmin  = det_list_of_pars[7][tabind]
+        self.par_bmax  = det_list_of_pars[8][tabind]
+
+        self.set_roi_sig()
 
         #self.w = QtGui.QTextEdit(self._name)
         #self.lab_info = QtGui.QLabel('Use EMQDetWF for "%s"' % src)
@@ -85,7 +89,7 @@ class EMQDetWF(EMQDetI) :
 
     def init_det(self):
         self.dso = PSDataSupplier(cp, log, dsname=None, detname=self.src)
-        print 'init_det for src: %s' % self.src
+        log.debug('init_det for src: %s' % self.src, self._name)
 
 
     def set_tool_tips(self):
@@ -111,46 +115,89 @@ class EMQDetWF(EMQDetI) :
 
     def closeEvent(self, e):
         log.debug('closeEvent', self._name)
-        if self.wgrp is not None :
-            try : self.wgrp.close()
+        if self.guview is not None :
+            try : self.guview.close()
             except : pass
         QtGui.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
 #------------------------------
 
+    def is_set(self):
+        return True
+
+
+    def roi_limit_bins(self):
+        """Uses wt, tmin and tmax to find and return bin indexes bmin, bmax
+        """
+        #self.wf, self.wt
+        tmin, tmax = self.par_tmin.value(),\
+                     self.par_tmax.value()
+        indwf = int(self.par_indwf.value())
+        if indwf<0 : indwf=0
+
+        bmin = None
+        for b,t in enumerate(self.wt[indwf]) :
+            if t<tmin : continue
+            bmin = b-1
+            break
+        if bmin<0 : bmin = 0
+
+        bmax = None
+        for b,t in enumerate(self.wt[indwf]) :
+            if t<tmax : continue
+            bmax = b
+            break
+        if bmax is None : bmax = self.wt[indwf].size - 1
+        
+        return bmin, bmax
+
+
     def on_but_set(self):
         #print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
         log.debug('on_but_set', self._name)
-        if self.wgrp is None :
+        if self.guview is None :
             log.warning('"View" waveform then use "Set" button', self._name)
             return
-        xmin, xmax, ymin, ymax = self.wgrp.axes_limits()
-        #print 'xmin=%.6f  xmax=%.6f  ymin=%.1f  ymax=%.1f' % (xmin, xmax, ymin, ymax)
-        self.par_xmin.setValue(xmin)
-        self.par_xmax.setValue(xmax)
+        tmin, tmax, vmin, vmax = self.guview.axes_limits()
+        #print 'tmin=%.6f  tmax=%.6f  vmin=%.1f  vmax=%.1f' % (tmin, tmax, vmin, vmax)
+        self.par_tmin.setValue(tmin)
+        self.par_tmax.setValue(tmax)
+        bmin, bmax = self.roi_limit_bins()
+        print 'on_but_set bmin, bmax = ', bmin, bmax
+        self.par_bmin.setValue(bmin)
+        self.par_bmax.setValue(bmax)
+
+        self.set_roi_sig()
         self.set_info()
 
 
     def set_info(self):
-        xmin = self.par_xmin.value()
-        xmax = self.par_xmax.value()
-        if None in (xmin, xmax) : return
-        msg = '[%.3g, %.3g]' % (xmin, xmax)
-        self.lab_info.setText('ROI time: %s' % msg)
+        if None in (self.sig_tmin, self.sig_tmax) : return
+        if None in (self.sig_bmin, self.sig_bmax) : return
+        msg = 'ROI t:[%.3g, %.3g] b:[%d, %d]' % (self.sig_tmin, self.sig_tmax, self.sig_bmin, self.sig_bmax)
+        self.lab_info.setText('%s' % msg)
+
+#------------------------------
+
+    def set_roi_sig(self):
+        self.sig_tmin = self.par_tmin.value()
+        self.sig_tmax = self.par_tmax.value()
+        self.sig_bmin = self.par_bmin.value()
+        self.sig_bmax = self.par_bmax.value()
 
 #------------------------------
 
     def on_but_indwf(self):
         #print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
-        log.debug('on_but_indwf', self._name)
+        #log.debug('on_but_indwf', self._name)
         ngrp = self.wf.shape[0] if self.wf is not None else 4
         lst_inds = ['-1'] + ['%d'%i for i in range(ngrp)]
         sel = qwu.selectFromListInPopupMenu(lst_inds)
         if sel is None : return
         self.par_indwf.setValue(None if sel is 'None' else int(sel))
         self.but_indwf.setText(sel)
-        log.info('Set wave index: %s' % sel, __name__)
+        log.info('on_but_indwf: select wave index: %s' % sel, self._name)
 
 #------------------------------
 # Abstract methods IMPLEMENTATION:
@@ -176,7 +223,7 @@ class EMQDetWF(EMQDetI) :
 
     def plot_wf_update(self, wf, wt):
 
-        self.wgrp.remove_all_graphs()
+        self.guview.remove_all_graphs()
 
         indwf = self.par_indwf.value()
         
@@ -187,44 +234,59 @@ class EMQDetWF(EMQDetI) :
         for gr in range(ngrp) :
             if gr == indwf or indwf<0 :
                 color = colors[gr%5]
-                self.wgrp.add_graph(wt[gr], wf[gr], QtGui.QPen(color), brush=QtGui.QBrush())
+                self.guview.add_graph(wt[gr], wf[gr], QtGui.QPen(color), brush=QtGui.QBrush())
 
 #------------------------------
 
     #def on_but_view(self): self.message_def(sys._getframe().f_code.co_name)
     def on_but_view(self):
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
-
-        if self.wgrp is None :
+        msg = '%s' % (sys._getframe().f_code.co_name)
+        log.debug(msg, self._name)
+        if self.guview is None :
             wf, wt, tmin, tmax, fmin, fmax = self.get_wf_next_event()
 
             rectax=QtCore.QRectF(tmin, fmin, tmax-tmin, fmax-fmin) if wf is not None else\
                    QtCore.QRectF(0,0,1,1)
 
-            self.wgrp = GUViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
+            self.guview = GUViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
                                     margl=0.12, margr=0.01, margt=0.01, margb=0.06)
 
-            self.wgrp.connect_view_is_closed_to(self.on_child_close)
+            self.guview.connect_view_is_closed_to(self.on_child_close)
 
             self.plot_wf_update(wf, wt)
 
-            self.wgrp.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
+            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
             self.set_window_geometry()
-            self.wgrp.show()
+            self.guview.show()
 
         else :
             wf, wt, tmin, tmax, fmin, fmax = self.get_wf_next_event()
             self.plot_wf_update(wf, wt)
-            self.wgrp.raise_()
-            #self.wgrp.close()
-            #self.wgrp = None
+            self.guview.raise_()
+            #self.guview.close()
+            #self.guview = None
 
-    #def get_signal(self):  self.message_def(sys._getframe().f_code.co_name)
+        tit = '%s  %s' % (cp.tab_names[self.tabind], self.src)
+        self.guview.setWindowTitle(tit)
+
+
+    def signal(self, evt):  
+
+        if self.tabind < 0 :
+            msg = 'WARNING: %s%s waveform index in not selected: %d'%\
+                   (self._name, sys._getframe().f_code.co_name, self.tabind)
+            print msg
+            return None
+
+        wf, wt, tmin, tmax, fmin, fmax = self.get_wf_next_event()
+        wf1 = wf[self.tabind]
+        bmin, bmax = self.sig_bmin, self.sig_bmax
+        return wf1.sum() if bmin is None else wf1[bmin:bmax].sum()
 
 #------------------------------
 
     def set_window_geometry(self) :
-        win=self.wgrp
+        win=self.guview
         if self.par_winx.value() is None : return
         win.setGeometry(self.par_winx.value(),\
                         self.par_winy.value(),\
@@ -234,7 +296,7 @@ class EMQDetWF(EMQDetI) :
 #------------------------------
 
     def save_window_geometry(self) : 
-        win=self.wgrp
+        win=self.guview
         point, size = win.mapToGlobal(QtCore.QPoint(0,0)), win.size() # Offset (-5,-22) for frame size.
         x,y,w,h = point.x(), point.y(), size.width(), size.height()
         msg = 'Save window x,y,w,h : %d, %d, %d, %d' % (x,y,w,h)
@@ -247,10 +309,11 @@ class EMQDetWF(EMQDetI) :
 #------------------------------
 
     def on_child_close(self): 
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        msg = 'In %s' % (sys._getframe().f_code.co_name)
+        log.debug('init_det for src: %s' % self.src, self._name)
         self.save_window_geometry()
-        self.wgrp.disconnect_view_is_closed_from(self.on_child_close)
-        self.wgrp = None
+        self.guview.disconnect_view_is_closed_from(self.on_child_close)
+        self.guview = None
 
 #------------------------------
 

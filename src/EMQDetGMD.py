@@ -72,19 +72,24 @@ class EMQDetGMD(EMQDetI) :
 # Abstract methods IMPLEMENTATION:
 #------------------------------
 
+    def is_set(self):
+        return True
+
+
     #def on_but_view(self): self.message_def(sys._getframe().f_code.co_name)
     def on_but_view(self):
         log.debug('on_but_view', self._name)
         #print '%s.on_but_view' % self._name
-        v = self.get_signal()
+        v = self.signal()
         self.lab_info.setText('GMD value: %.3f'%v if v is not None else 'GMD value: None')
- 
 
-    def get_signal(self, evt=None):
+ 
+    def signal(self, evt=None):
         evt_sig = self.dso.event_next() if evt is None else evt
         det = self.dso.detector()
         if det is None : return None
         gmd_data = det.get(evt_sig)
+        if gmd_data is None : return None
         return gmd_data.relativeEnergyPerPulse()
 
         #from expmon.PSEventSupplier import PSEventSupplier
@@ -101,7 +106,7 @@ if __name__ == "__main__" :
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
     w.on_but_view()
-    w.get_signal()
+    w.signal()
     w.show()
     app.exec_()
 

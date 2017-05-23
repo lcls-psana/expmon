@@ -30,7 +30,7 @@ class EM_GUI :
 
         app = QtGui.QApplication(sys.argv)
 
-        t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0)
+        t1 = PSQThreadWorker(cp, parent=None, dt_msec=500, pbits=0)
         t1.start()
 
         t2 = EMQThreadEventLoop(parent=None, dt_msec=500, pbits=0)

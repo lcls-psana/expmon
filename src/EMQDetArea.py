@@ -16,7 +16,7 @@ class EMQDetArea(EMQDetI) :
         EMQDetI.__init__(self, parent, src)
         self._name = self.__class__.__name__
 
-        self.wimg = None        
+        self.guview = None        
         self.arrimg = None
 
         #self.parent = parent
@@ -35,6 +35,8 @@ class EMQDetArea(EMQDetI) :
         self.par_xmax  = det_list_of_pars[5][tabind]
         self.par_ymin  = det_list_of_pars[6][tabind]
         self.par_ymax  = det_list_of_pars[7][tabind]
+
+        self.set_roi_sig()
 
         #self.w = QtGui.QTextEdit(self._name)
         #self.lab_info = QtGui.QLabel('Use EMQDetArea for "%s"' % src)
@@ -70,7 +72,8 @@ class EMQDetArea(EMQDetI) :
 
     def init_det(self):
         self.dso = PSDataSupplier(cp, log, dsname=None, detname=self.src)
-        print 'init_det for src: %s' % self.src
+        log.info('init_det for src: %s' % self.src, self._name)
+        self.arrimg = arr = self.dso.image(cp.event_number.value())
 
 
     def set_style(self):
@@ -92,74 +95,96 @@ class EMQDetArea(EMQDetI) :
 
     def closeEvent(self, e):
         log.debug('closeEvent', self._name)
-        if self.wimg is not None :
-            try : self.wimg.close()
+        if self.guview is not None :
+            try : self.guview.close()
             except : pass
         QtGui.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
 #------------------------------
 
+    def set_roi_sig(self):
+        self.sig_cmin = self.par_xmin.value()
+        self.sig_cmax = self.par_xmax.value()
+        self.sig_rmin = self.par_ymin.value()
+        self.sig_rmax = self.par_ymax.value()
+
+
     def on_but_set(self):
         #print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
         log.debug('on_but_set', self._name)
-        if self.wimg is None :
+        if self.guview is None :
             log.warning('"View" image then use "Set" button', self._name)
             return
-        xmin, xmax, ymin, ymax = self.wimg.axes_limits()
+        xmin, xmax, ymin, ymax = self.guview.axes_limits()
         #print 'xmin=%.6f  xmax=%.6f  ymin=%.1f  ymax=%.1f' % (xmin, xmax, ymin, ymax)
         self.par_xmin.setValue(floor(xmin))
         self.par_xmax.setValue(ceil(xmax))
         self.par_ymin.setValue(floor(ymin))
         self.par_ymax.setValue(ceil(ymax))
+        self.set_roi_sig()
         self.set_info()
 
 
     def set_info(self):
-        xmin = self.par_xmin.value()
-        xmax = self.par_xmax.value()
-        ymin = self.par_ymin.value()
-        ymax = self.par_ymax.value()
-        if None in (xmin, xmax, ymin, ymax) : return
-        msg = 'X:[%d, %d] Y:[%d, %d]' % (xmin, xmax, ymin, ymax)
+        if None in (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax) : return
+        msg = 'cols:[%d, %d] rows:[%d, %d]' % (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax)
         self.lab_info.setText('ROI: %s' % msg)
 
 #------------------------------
 # Abstract methods IMPLEMENTATION:
 #------------------------------
 
+    def is_set(self):
+        return True
+
+
     #def on_but_view(self): self.message_def(sys._getframe().f_code.co_name)
     def on_but_view(self):
-        print '%s.on_but_view' % self._name
+        msg = '%s.on_but_view  plot for src: %s' % (self._name, self.src)
+        log.debug(msg, self._name)
 
         from graphqt.GUViewImage import GUViewImage
         #import pyimgalgos.NDArrGenerators as ag
 
-        print 'plot for src: %s' % self.src
-
-        if self.wimg is None :
-            #self.wimg = IVMain(parser=None)
+        if self.guview is None :
+            #self.guview = IVMain(parser=None)
             #arr = ag.random_standard((500,500), mu=0, sigma=10)
             self.arrimg = arr = self.dso.image(cp.event_number.value())
-            self.wimg = GUViewImage(None, arr)
+            self.guview = GUViewImage(None, arr)
             #self.move(self.pos())
-            self.wimg.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
-            #self.wimg.move(QtGui.QCursor.pos()+QtCore.QPoint(200,-200))
+            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
+            #self.guview.move(QtGui.QCursor.pos()+QtCore.QPoint(200,-200))
             self.set_window_geometry()
-            self.wimg.show()
-            self.wimg.connect_view_is_closed_to(self.on_child_close)
+            self.guview.show()
+            self.guview.connect_view_is_closed_to(self.on_child_close)
 
         else :
             self.arrimg = arr = self.dso.image(self.dso.event_next()) # cp.event_number.value())
-            self.wimg.set_pixmap_from_arr(arr)
-            self.wimg.raise_()
+            self.guview.set_pixmap_from_arr(arr)
+            self.guview.raise_()
 
-    #def get_signal(self):  self.message_def(sys._getframe().f_code.co_name)
+        tit = '%s  %s' % (cp.tab_names[self.tabind], self.src)
+        self.guview.setWindowTitle(tit)
+
+
+    def raw(self, evt):
+        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
+        img = self.dso.raw(evt)
+        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
+
+
+    def signal(self, evt):  
+        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
+        #print 'XXX %s.signal before image' % self._name
+        img = self.dso.image(evt)
+        #print 'XXX %s.signal after image' % self._name
+        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
 
 #------------------------------
 
     def set_window_geometry(self) :
-        win=self.wimg
+        win=self.guview
         if self.par_winx.value() is None : return
         win.setGeometry(self.par_winx.value(),\
                         self.par_winy.value(),\
@@ -169,7 +194,7 @@ class EMQDetArea(EMQDetI) :
 #------------------------------
 
     def save_window_geometry(self) : 
-        win=self.wimg
+        win=self.guview
         point, size = win.mapToGlobal(QtCore.QPoint(0,0)), win.size() # Offset (-5,-22) for frame size.
         x,y,w,h = point.x(), point.y(), size.width(), size.height()
         msg = 'Save window x,y,w,h : %d, %d, %d, %d' % (x,y,w,h)
@@ -182,10 +207,11 @@ class EMQDetArea(EMQDetI) :
 #------------------------------
 
     def on_child_close(self): 
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        msg = 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        log.debug(msg, self._name)
         self.save_window_geometry()
-        self.wimg.disconnect_view_is_closed_from(self.on_child_close)
-        self.wimg = None
+        self.guview.disconnect_view_is_closed_from(self.on_child_close)
+        self.guview = None
 
 #------------------------------
 

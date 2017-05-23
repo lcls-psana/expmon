@@ -13,6 +13,7 @@ from PyQt4 import QtGui, QtCore
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
 from expmon.EMQConfMonV1       import EMQConfMonV1
+from expmon.EMQConfMonI        import EMQConfMonI
 #from expmon.EMQTabBar          import EMQTabBar
 #from graphqt.QIcons            import icon
 #from expmon.EMQFrame           import Frame
@@ -32,9 +33,6 @@ class EMQTabs(QtGui.QWidget) :
         #Frame.__init__(self, parent, mlw=1)
         QtGui.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
-
-        self.setGeometry(10, 25, 400, 600)
-        self.setWindowTitle(self._name)
 
         self.MON1        = cp.MON1
         self.tab_types   = cp.tab_types
@@ -59,8 +57,9 @@ class EMQTabs(QtGui.QWidget) :
 
         self.hboxW = QtGui.QHBoxLayout()
 
-        self.makeTabBar()
-        self.guiSelector()
+        self.make_monitors()
+        self.make_tab_bar()
+        self.gui_selector()
 
         if self.orientation == 'H' : self.box = QtGui.QVBoxLayout(self) 
         else :                       self.box = QtGui.QHBoxLayout(self) 
@@ -71,21 +70,21 @@ class EMQTabs(QtGui.QWidget) :
 
         self.setLayout(self.box)
 
-        self.showToolTips()
-        self.setStyle()
+        self.show_tool_tips()
+        self.set_style()
         #gu.printStyleInfo(self)
 
         self.move(10,25)
         
         #print 'End of init'
         
-    #-------------------
+    #--------------------------
 
-    def showToolTips(self):
+    def show_tool_tips(self):
         pass
         #self.butExit.setToolTip('Close all windows and \nexit this program') 
 
-    def setStyle(self):
+    def set_style(self):
         self.setMinimumHeight(250)
         self.setContentsMargins(QtCore.QMargins(-5,-5,-5,-5))
 
@@ -98,7 +97,7 @@ class EMQTabs(QtGui.QWidget) :
         #self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
  
 
-    def makeTabBar(self,mode=None) :
+    def make_tab_bar(self,mode=None) :
         #if mode != None : self.tab_bar.close()
         self.tab_bar = QtGui.QTabBar()
         #self.tab_bar = EMQTabBar(width=100)
@@ -115,51 +114,55 @@ class EMQTabs(QtGui.QWidget) :
         else :
             self.tab_bar.setShape(QtGui.QTabBar.RoundedWest)
 
-        self.setTabByName(self.current_tab.value())
+        self.set_tab_by_name(self.current_tab.value())
             
-        self.connect(self.tab_bar, QtCore.SIGNAL('currentChanged(int)'), self.onTabBar)
-        self.connect(self.tab_bar, QtCore.SIGNAL('tabCloseRequested(int)'), self.onTabClose)
+        self.connect(self.tab_bar, QtCore.SIGNAL('currentChanged(int)'), self.on_tab_bar)
+        self.connect(self.tab_bar, QtCore.SIGNAL('tabCloseRequested(int)'), self.on_tab_close)
 
 
-    def setTabByName(self, tab_name) :
+    def set_tab_by_name(self, tab_name) :
         try    :
             tab_index = self.tab_names.index(tab_name)
         except :
             tab_index = 0
             self.current_tab.setValue(self.tab_names[tab_index])
-        log.info('%s.makeTabBarr - set tab: %s' % (self._name, tab_name))
+        log.info('%s.make_tab_barr - set tab: %s' % (self._name, tab_name))
         self.tab_bar.setCurrentIndex(tab_index)
 
+    #--------------------------
 
-    def guiSelector(self):
+    def make_monitors(self):
+        cp.monitors = []
+        for itab in range(len(self.tab_names)) :
+            cp.monitors.append(EMQConfMonV1(None,itab) if self.tab_types[itab] == self.MON1 else\
+                               EMQConfMonI(None,itab))
+                               #QtGui.QTextEdit('MON2 window: %d'%itab))
 
-        try    : self.gui_win.close()
-        except : pass
 
-        try    : del self.gui_win
-        except : pass
-
-        self.gui_win = None
+    def gui_selector(self):
+        if self.gui_win is not None :
+            self.hboxW.removeWidget(self.gui_win)
+            self.gui_win.setVisible(False)
 
         for itab in range(len(self.tab_names)) :
             if self.current_tab.value() == self.tab_names[itab] :
-               self.gui_win = EMQConfMonV1(None,itab) if self.tab_types[itab] == self.MON1 else\
-                              QtGui.QTextEdit('MON2 window: %d'%itab)
-               # GUIDark(self), GUIMaskEditor(self)
+               self.gui_win = cp.monitors[itab]
+               self.gui_win.setVisible(True)
 
         self.hboxW.addWidget(self.gui_win)
 
+    #--------------------------
 
-    def onTabBar(self, ind):
+    def on_tab_bar(self, ind):
         tab_name = str(self.tab_bar.tabText(ind))
         self.current_tab.setValue(tab_name)
         msg = 'Selected tab: %i - %s' % (ind, tab_name)
         log.info(msg, self._name)
-        self.guiSelector()
+        self.gui_selector()
 
 
-    def onTabClose(self, ind):
-        log.debug('%s.onTabClose ind:%d' % (self._name, ind))
+    def on_tab_close(self, ind):
+        log.debug('%s.on_tab_close ind:%d' % (self._name, ind))
         self.tab_bar.removeTab(ind)
 
 
@@ -182,8 +185,11 @@ class EMQTabs(QtGui.QWidget) :
         log.debug('closeEvent', self._name)
         #log.info('%s.closeEvent' % self._name)
 
-        try    : self.gui_win.close()
-        except : pass
+        for mon in cp.monitors :
+            mon.close()
+
+        #try    : self.gui_win.close()
+        #except : pass
 
         #try    : del self.gui_win
         #except : pass
@@ -201,9 +207,11 @@ class EMQTabs(QtGui.QWidget) :
 
 if __name__ == "__main__" :
     app = QtGui.QApplication(sys.argv)
-    ex  = EMQTabs()
-    ex.move(QtCore.QPoint(50,50))
-    ex.show()
+    w = EMQTabs()
+    w.setGeometry(10, 25, 400, 600)
+    w.setWindowTitle(w._name)
+    w.move(QtCore.QPoint(50,50))
+    w.show()
     app.exec_()
 
 #------------------------------

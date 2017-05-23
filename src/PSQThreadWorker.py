@@ -1,9 +1,9 @@
 
 #------------------------------
-# $Id: PSQThreadWorker.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
-#
-# Description:
-#  Module PSQThreadWorker
+"""PSQThreadWorker.
+   Created: 2017-02-18
+   Author : Mikhail Dubrovin
+"""
 #------------------------------
 import sys
 import os
@@ -35,10 +35,10 @@ class PSQThreadWorker(QtCore.QThread) :
         self.thread_id = random.random()
         self.counter   = 0
 
-        #self.connect_signal_to_slot(self.test_connection)
-
         self.set_request_find_sources()
         
+        #self.connect_signal_to_slot(self.test_connection)
+
 
     def set_request_find_sources(self) :
         self.cp.list_of_sources = None
@@ -60,6 +60,12 @@ class PSQThreadWorker(QtCore.QThread) :
             #self.emit_check_status_signal()
             self.msleep(self.dt_msec)
 
+#------------------------------
+#------------------------------
+#------------------------------
+#------------------------------
+#------------------------------
+#------------------------------
 #------------------------------
 
     def emit_check_status_signal(self) :

@@ -26,6 +26,8 @@ Usage ::
         #nda = dso.det().raw(evt)
         #img = dso.image(n, nda)
         img = dso.image(n)
+        # or
+        img = dso.image(evt)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 """
 #------------------------------
@@ -34,7 +36,7 @@ from expmon.PSNameManager import nm
 from expmon.PSEventSupplier import PSEventSupplier
 #from Detector.AreaDetector import AreaDetector    
 #from psana import Detector  
-from psana import Detector, Source    
+from psana import Detector, Source
 
 #------------------------------
 
@@ -72,8 +74,14 @@ class PSDataSupplier :
         #self.det = AreaDetector(self.detname, self.es.env(), pbits=0)        
 
 
-    def image(self, evnum=None, nda=None) :
-        evt = self.es.event_for_number(evnum)
+    def raw(self, evt, nda=None) :
+        return self.det.raw(evt) if self.det is not None else None
+
+
+    def image(self, par=None, nda=None) :
+        """ par psana.Event or int event number
+        """
+        evt = self.es.event_for_number(par) if isinstance(par, int) else par
         return self.det.image(evt, nda) if self.det is not None else None
 
 
@@ -142,10 +150,10 @@ def test_all() :
     #======
 
     for n in range(5) :
-        #evt = ip.event_for_number(n)
+        evt = ip.event_for_number(n)
         #nda = ip.raw(evt)
         #img = ip.image(n, nda)
-        img = ip.image(n)
+        img = ip.image(evt)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 
 #------------------------------

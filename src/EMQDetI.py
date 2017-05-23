@@ -14,6 +14,7 @@ from expmon.Logger             import log
 import expmon.PSUtils          as psu
 import graphqt.QWUtils         as qwu
 from graphqt.Styles            import style
+#from psana import Detector, Source    
 #from graphqt.Frame             import Frame
 #from graphqt.QIcons            import icon
 #from time import time
@@ -54,7 +55,9 @@ class EMQDetI(QtGui.QWidget) :
 
 
     def set_source(self, src):
-        self.src=str(src)
+        self.src    = str(src)
+        #self.source = Source(src)
+        #print '%s.set_source: source: %s  %s' % (self._name, self.src, str(self.source))
 
 
     def set_style(self):
@@ -87,16 +90,22 @@ class EMQDetI(QtGui.QWidget) :
 
     def message_def(self, met, cmt=''):
         msg = 'Default %s must be re-implemented in derived class. %s' % (met, cmt)
-        self.lab_info.setText(msg)
-        log.info(msg, self._name)
+        #self.lab_info.setText(msg)
+        #log.info(msg, self._name)
+        print msg
 
 #------------------------------
 # Abstract methods MUST BE RE-IMPLEMENTED:
 #------------------------------
 
+    def is_set(self):
+        return False
+
     def on_but_view(self, evt=None): self.message_def(sys._getframe().f_code.co_name)
 
-    def get_signal(self, evt=None):  self.message_def(sys._getframe().f_code.co_name)
+    def signal(self, evt=None):  
+        self.message_def(sys._getframe().f_code.co_name)
+        return None
 
 #------------------------------
 

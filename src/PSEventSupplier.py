@@ -19,13 +19,14 @@ Usage ::
 
     stat = es.is_direct_access()
 
-    evt = es.events()               # returns event iterator for non-index mode, or None
-    evt = es.event_next()           # psana.Event - for non-idx mode
-    evt = es.event_for_num(num)     # psana.Event - for idx mode
-    evn = es.current_event_number() # int
-    nev = es.number_of_events()     # int
-    env = es.env()                  # psana.Environment
-    run = es.run()                  # psana.Run
+    evt = es.events()                   # returns event iterator for non-index mode, or None
+    evt = es.event_next()               # psana.Event - for non-idx mode
+    evt, n = es.event_next_and_number() # psana.Event and its int number
+    evt = es.event_for_num(num)         # psana.Event - for idx mode
+    evn = es.current_event_number()     # int
+    nev = es.number_of_events()         # int
+    env = es.env()                      # psana.Environment
+    run = es.run()                      # psana.Run
 """
 #------------------------------
 
@@ -36,10 +37,10 @@ from psana import DataSource, EventId, EventTime, setOption
 class PSEventSupplier :
     _name = 'PSEventSupplier'
     def __init__(self, cp, log=None, dsname=None, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx'
-        if log is not None : log.debug('In __init__', self._name)
+        #if log is not None : log.debug('In __init__', self._name)
         self.cp  = cp
         self.log = log
-        self._num = -1
+        self._evnum = -1
         self.is_idx_mode = False
         self.set_dataset(dsname, calib_dir)
 
@@ -92,7 +93,6 @@ class PSEventSupplier :
             self.events = None
             raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
-        self._run = self.ds.runs().next()
         self.events = self.ds.events() # for event_next() method
 
 
@@ -112,16 +112,20 @@ class PSEventSupplier :
         """Returns next psana.Event object
         """
         if self.is_idx_mode :
-            n = self._num+1
+            n = self._evnum+1
             return self.event_for_number(n)
         else :
             if self.events is None : return None
-            self._num += 1
+            self._evnum += 1
             return self.events.next()
 
 
     def current_event_number(self) :
-        return self._num
+        return self._evnum
+
+
+    def event_next_and_number(self) :
+        return self.event_next(), self._evnum
 
 
     def event_for_number(self, n=None) :
@@ -132,10 +136,10 @@ class PSEventSupplier :
 
         elif self.is_idx_mode :
             et = self.dic_evtimes[n]
-            self._num = n
+            self._evnum = n
             return self._run.event(et)
         else :
-            if self.log is not None: self.log.warning('dataset is in non-idx mode: NEXT event is returned.', self._name)
+            #if self.log is not None: self.log.debug('dataset is in non-idx mode: NEXT event is returned.', self._name)
             return self.event_next()
 
 

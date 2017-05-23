@@ -35,12 +35,12 @@ class EMQConfDetV1(Frame) :
         #QtGui.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
 
-        self.par_src = cp.det1_src_list[tabind] if detind == 1 else\
-                       cp.det2_src_list[tabind]
+        self.p_src = cp.det1_src_list[tabind] if detind == 1 else\
+                     cp.det2_src_list[tabind]
 
         self.tabind = tabind
         self.detind = detind
-        src = self.par_src.value()
+        src = self.p_src.value()
         #self.w = QtGui.QTextEdit(self._name)
         self.lab_src = QtGui.QLabel('Det %d:'%self.detind)
         self.but_src = QtGui.QPushButton(src)
@@ -60,8 +60,26 @@ class EMQConfDetV1(Frame) :
         #gu.printStyleInfo(self)
         #cp.guitabs = self
 
+        self._src_is_set = self.src() != 'None'
+
         self.connect(self.but_src,  QtCore.SIGNAL('clicked()'), self.on_but_src)
         self.connect(self.but_view, QtCore.SIGNAL('clicked()'), self.on_but_view)
+
+
+    def par_src(self):
+        return self.p_src
+
+
+    def src(self):
+        return self.par_src().value()
+
+
+    def src_is_set(self):
+        return self._src_is_set
+
+
+    def det_is_set(self):
+        return self.wdet.is_set()
 
 
     def on_but_src(self):
@@ -75,15 +93,16 @@ class EMQConfDetV1(Frame) :
         #print '\nconsumed time (sec) =', time()-t0_sec
         #for s in srcs : print 'XXX EMQConfDetV1:', s
         
-        sel = qwu.selectFromListInPopupMenu(srcs)
+        sel = qwu.selectFromListInPopupMenu(['None',] + list(srcs))
         if sel is None : return
 
         #if sel != self.instr_name.value() :
         #    self.set_exp()
         #    self.set_run()
         #    self.set_calib()
-        self.par_src.setValue(sel)
+        self.p_src.setValue(sel)
         self.but_src.setText(sel)
+        self._src_is_set = self.src() != 'None'
 
         #---- update self.wdet
         self.box.removeWidget(self.wdet)
@@ -105,8 +124,8 @@ class EMQConfDetV1(Frame) :
         self.wdet.on_but_view()
 
 
-    def get_signal(self):
-        return self.wdet.get_signal()
+    def signal(self, evt):
+        return self.wdet.signal(evt)
 
 
     def set_style(self):

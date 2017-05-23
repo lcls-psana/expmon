@@ -13,8 +13,10 @@ import sys
 from PyQt4 import QtGui, QtCore
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
+from expmon.RingBuffer   import RingBuffer
 #from expmon.EMQLogger          import EMQLogger
 from expmon.EMQTabs            import EMQTabs
+from expmon.EMQPresenter       import EMQPresenter
 from expmon.EMQDataControl     import EMQDataControl
 from graphqt.QWLogger          import QWLogger
 from graphqt.QIcons            import icon
@@ -38,6 +40,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.log_rec_on_start()
 
         self.init_parameters(parser)
+
+        cp.dataringbuffer = RingBuffer(size=cp.data_buf_size.value())
+        cp.emqpresenter = EMQPresenter()
 
         self.main_win_width  = cp.main_win_width 
         self.main_win_height = cp.main_win_height
@@ -170,6 +175,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
         try    : cp.emqlogger.close()
         except : pass
 
+        cp.emqpresenter.__del__()
+        #cp.emqpresenter = None
+
         self.on_save()
 
         QtGui.QWidget.closeEvent(self, e)
@@ -189,7 +197,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.main_win_width .setValue(w)
         self.main_win_height.setValue(h)
 
-        cp.printParameters()
+        #cp.printParameters()
         cp.saveParametersInFile()
 
         if cp.save_log_at_exit.value() :

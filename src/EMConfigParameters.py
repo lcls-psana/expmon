@@ -53,6 +53,10 @@ class EMConfigParameters(PSConfigParameters) :
 
         self.list_of_sources = None # if None - updated in the ThreadWorker
         #self.emqthreadworker = None
+        self.emqpresenter = None
+
+        self.flag_do_event_loop = False
+        self.flag_nevents_collected = False
 
         nm.set_config_pars(self)
 
@@ -68,6 +72,9 @@ class EMConfigParameters(PSConfigParameters) :
         self.dir_log_repo    = self.declareParameter(name='DIR_LOG_REPO', val_def='/reg/g/psdm/logs/emon', type='str')
 
         self.current_tab     = self.declareParameter(name='CURRENT_TAB', val_def='Status', type='str')
+
+        self.data_buf_size   = self.declareParameter(name='DATA_BUF_SIZE', val_def=1000, type='int')
+        self.nevents_update  = self.declareParameter(name='EVENTS_UPDATE', val_def=100, type='int')
 
         self.main_win_pos_x  = self.declareParameter(name='MAIN_WIN_POS_X',  val_def=5,   type='int')
         self.main_win_pos_y  = self.declareParameter(name='MAIN_WIN_POS_Y',  val_def=5,   type='int')
