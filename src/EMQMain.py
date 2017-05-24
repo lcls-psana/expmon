@@ -44,6 +44,8 @@ class EMQMain(QtGui.QWidget) : # Frame)
         cp.dataringbuffer = RingBuffer(size=cp.data_buf_size.value())
         cp.emqpresenter = EMQPresenter()
 
+        cp.emqeventloop.connect_events_collected_to(cp.emqpresenter.on_events_collected)
+
         self.main_win_width  = cp.main_win_width 
         self.main_win_height = cp.main_win_height
         self.main_win_pos_x  = cp.main_win_pos_x 

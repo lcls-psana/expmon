@@ -106,8 +106,8 @@ class RingBuffer() :
         self.iw_incremented = False
         if self.ir == self.iw : return self.records_last(nrecs=self.bsize)
         if self.ir == -1 : self.ir = 0
-        bufret = self.buf[self.ir:self.iw+1] if self.ir < self.iw else\
-                 self.buf[self.ir:] + self.buf[:self.iw+1]
+        bufret = self.buf[self.ir+1:self.iw+1] if self.ir < self.iw else\
+                 self.buf[self.ir+1:] + self.buf[:self.iw+1]
         self.ir = self.iw
         return bufret
 

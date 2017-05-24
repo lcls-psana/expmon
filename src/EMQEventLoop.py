@@ -1,32 +1,36 @@
 #------------------------------
 """
-EMEventLoop
+EMQEventLoop
 Created: 2017-05-17
 Author : Mikhail Dubrovin
 
 Usage ::
-    from expmon.EMEventLoop import EMEventLoop
-    el = EMEventLoop()
+    from expmon.EMQEventLoop import EMQEventLoop
+    el = EMQEventLoop()
 """
 #------------------------------
 
 import sys
+from PyQt4 import QtCore#, QtGui
 
 from time import time, sleep
 from expmon.EMConfigParameters import cp
+#from expmon.Logger             import log
 from expmon.PSNameManager import nm
 from expmon.PSEventSupplier import PSEventSupplier
 
 #------------------------------
 
-class EMEventLoop :
+class EMQEventLoop(QtCore.QObject) :
     """Uses configuration parameters to get image
     """
-    def __init__(self) :
+    def __init__(self, parent=None) :
+        QtCore.QObject.__init__(self, parent)
         self._name = self.__class__.__name__
         print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
         self.init_event_loop()
         #self.start_event_loop()
+        #self.connect_events_collected_to(self.test_events_collected)
 
 #------------------------------
 
@@ -43,6 +47,7 @@ class EMEventLoop :
         self.pars_det2 = cp.det2_list_of_pars
 
         cp.flag_nevents_collected = False
+        #self.counter_update = 0
 
         #self.par_winx  = det_list_of_pars[0][tabind]
         #self.par_winy  = det_list_of_pars[1][tabind]
@@ -86,13 +91,13 @@ class EMEventLoop :
 #------------------------------
 
     def event_loop(self) :
+        self.t0_sec = time()
         while cp.flag_do_event_loop :
-            t0_sec = time()
             #self.evt   = self.es.event_next()
             #self.evnum = self.es.current_event_number()
             self.evt, self.evnum = self.es.event_next_and_number()
 
-            #print 'XXX %s.event_loop evnum: %d' % (self._name, self.evnum)
+            #print 'XXX %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
 
             if self.evt is None :
                 print '%s.%s - evt is None, current evnum: %d'%\
@@ -102,45 +107,40 @@ class EMEventLoop :
 
             self.proc_event()
 
-            if not self.evnum % self.nevents_update :
-                print '%s.%s - evnum %d   dt(sec/evt) = %.6f'%\
-                      (self._name, sys._getframe().f_code.co_name, self.evnum, (time()-t0_sec)/self.nevents_update)
-
+            if self.evnum>1 and (not self.evnum % self.nevents_update) :
                 cp.flag_nevents_collected = True
-                print 100*'_', 'flag is set'
+                self.emit(QtCore.SIGNAL('events_collected()'))
 
+#------------------------------
+
+    def connect_events_collected_to(self, slot) :
+        print '%s.connect_events_collected_to'%(self._name)
+        self.connect(self, QtCore.SIGNAL('events_collected()'), slot)
+
+#------------------------------
+
+    def disconnect_events_collected_from(self, slot) :
+        print '%s.disconnect_events_collected_from'%(self._name)
+        self.disconnect(self, QtCore.SIGNAL('events_collected()'), slot)
+
+#------------------------------
+
+    def test_events_collected(self) :
+        msg = '%s.%s - evnum %d   dt(sec/evt) = %.6f'%\
+              (self._name, sys._getframe().f_code.co_name, self.evnum, (time()-self.t0_sec)/self.nevents_update)
+        print msg
+        self.t0_sec = time()
+
+#------------------------------
 #------------------------------
 
     def proc_event(self) :
         evt, evnum = self.evt, self.evnum
-        #print 'In %s.%s  evnum=%d' % (self._name, sys._getframe().f_code.co_name, evnum)
-
-        #if False :
-        #  for it in range(cp.number_of_tabs) :
-        #    p_src1 = self.lst_src1[it]
-        #    p_src2 = self.lst_src2[it]
-        #    print 'tab:%d  src1: %s  src2: %s' % (it, p_src1.value().ljust(32), p_src2.value().ljust(32))
-
-        # define data record as a triplet of values
-        rec = [[None, None, None],] * self.number_of_tabs
-
-        #print 'XXX %s.proc_event evnum: %d'% (self._name, self.evnum)
-        #print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        rec = [cp.exp_name.value(), evt.run(), evnum]
 
         for i, mon in enumerate(cp.monitors) :
-            mon_is_active = mon.is_active()
-            if not mon_is_active : continue
-
-            #print 'XXX %s.proc_event is_active mon: %d' % (self._name, i)
-
-            #signals = [det.signal(evt) for det in mon.detectors()]
-            signal1, signal2 = mon.det1().signal(evt), mon.det2().signal(evt)
-
-            msg = '%s  src1: %s  src2: %s  signals: %s %s'%\
-                  (cp.tab_names[i], mon.det1().src().ljust(32), mon.det2().src().ljust(32), signal1, signal2)
-            print msg
-
-            rec[i] = [i, signal1, signal2] 
+            rec += [i, mon.det1().signal(evt), mon.det2().signal(evt)] if mon.is_active() else\
+                   [None, None, None]
 
         cp.dataringbuffer.save_record(rec)
 

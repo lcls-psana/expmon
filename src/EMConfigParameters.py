@@ -50,10 +50,11 @@ class EMConfigParameters(PSConfigParameters) :
         self.readParametersFromFile()
 
         self.emqmain = None
-
-        self.list_of_sources = None # if None - updated in the ThreadWorker
         #self.emqthreadworker = None
         self.emqpresenter = None
+        self.emqeventloop = None
+
+        self.list_of_sources = None # if None - updated in the ThreadWorker
 
         self.flag_do_event_loop = False
         self.flag_nevents_collected = False

@@ -183,8 +183,8 @@ class EMQDetWF(EMQDetI) :
     def set_roi_sig(self):
         self.sig_tmin = self.par_tmin.value()
         self.sig_tmax = self.par_tmax.value()
-        self.sig_bmin = self.par_bmin.value()
-        self.sig_bmax = self.par_bmax.value()
+        self.sig_bmin = int(self.par_bmin.value())
+        self.sig_bmax = int(self.par_bmax.value())
 
 #------------------------------
 

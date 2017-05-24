@@ -4,7 +4,7 @@ Created: 2017-05-19
 Author : Mikhail Dubrovin
 
 Usage ::
-    from expmon.EMEventLoop import EMEventLoop
+    from expmon.EMQConfMonV1 import EMQConfMonV1
 """
 #------------------------------
 

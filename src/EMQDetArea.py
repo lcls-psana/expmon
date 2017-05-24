@@ -104,10 +104,10 @@ class EMQDetArea(EMQDetI) :
 #------------------------------
 
     def set_roi_sig(self):
-        self.sig_cmin = self.par_xmin.value()
-        self.sig_cmax = self.par_xmax.value()
-        self.sig_rmin = self.par_ymin.value()
-        self.sig_rmax = self.par_ymax.value()
+        self.sig_cmin = int(self.par_xmin.value())
+        self.sig_cmax = int(self.par_xmax.value())
+        self.sig_rmin = int(self.par_ymin.value())
+        self.sig_rmax = int(self.par_ymax.value())
 
 
     def on_but_set(self):

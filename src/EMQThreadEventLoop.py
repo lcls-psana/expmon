@@ -6,19 +6,19 @@ Author : Mikhail Dubrovin
 
 Usage ::
     o = EMQThreadEventLoop(parent=None, dt_msec=500, pbits=0377)
-    o._check_flags() # checks cp.flag_do_event_loop and launch EMEventLoop
+    o._check_flags() # checks cp.flag_do_event_loop and launch EMQEventLoop
     o.run()          # keeps thread alive, calls _check_flags and sleeps
-    o.update_dataset() # should be callsed if dataset is changed, deletes EMEventLoop object
+    o.update_dataset() # should be callsed if dataset is changed, deletes EMQEventLoop object
 """
 #------------------------------
 import sys
 import os
 import random
-from time import time
+#from time import time
 
 from PyQt4 import QtCore # QtGui
 from expmon.EMConfigParameters import cp
-from expmon.EMEventLoop import EMEventLoop
+from expmon.EMQEventLoop import EMQEventLoop
 #from expmon.Logger  import log # CAN'T USE LOGGER->GUI IN THREAD
 
 #------------------------------
@@ -45,15 +45,15 @@ class EMQThreadEventLoop(QtCore.QThread) :
 
         cp.flag_do_event_loop = False
 
-        cp.emeventloop = None
+        cp.emqeventloop = EMQEventLoop() # None
         cp.emqthreadeventloop = self
 
 #------------------------------
 
     def update_dataset(self) :
-        if cp.emeventloop is None : 
-           del cp.emeventloop
-        cp.emeventloop = None
+        if cp.emqeventloop is None : 
+           del cp.emqeventloop
+        cp.emqeventloop = None
 
 #------------------------------
 
@@ -63,8 +63,8 @@ class EMQThreadEventLoop(QtCore.QThread) :
             print '%s  flag_do_event_loop: %s' % (msg, cp.flag_do_event_loop)
 
         if  cp.flag_do_event_loop :
-            if cp.emeventloop is None : cp.emeventloop = EMEventLoop()
-            cp.emeventloop.start_event_loop()
+            #if cp.emqeventloop is None : cp.emqeventloop = EMQEventLoop()
+            cp.emqeventloop.start_event_loop()
 
 #------------------------------
 
