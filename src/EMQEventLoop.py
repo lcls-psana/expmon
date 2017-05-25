@@ -92,6 +92,8 @@ class EMQEventLoop(QtCore.QObject) :
 
     def event_loop(self) :
         self.t0_sec = time()
+
+        count_evt_none = 0
         while cp.flag_do_event_loop :
             #self.evt   = self.es.event_next()
             #self.evnum = self.es.current_event_number()
@@ -102,9 +104,13 @@ class EMQEventLoop(QtCore.QObject) :
             if self.evt is None :
                 print '%s.%s - evt is None, current evnum: %d'%\
                       (self._name, sys._getframe().f_code.co_name, self.evnum)
-                self.stop_event_loop()
-                break
+                count_evt_none +=1 
+                if count_evt_none > 10 : 
+                    self.stop_event_loop()
+                    break
+                else : continue
 
+            count_evt_none = 0
             self.proc_event()
 
             if self.evnum>1 and (not self.evnum % self.nevents_update) :
@@ -114,13 +120,13 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def connect_events_collected_to(self, slot) :
-        print '%s.connect_events_collected_to'%(self._name)
+        #print '%s.connect_events_collected_to'%(self._name)
         self.connect(self, QtCore.SIGNAL('events_collected()'), slot)
 
 #------------------------------
 
     def disconnect_events_collected_from(self, slot) :
-        print '%s.disconnect_events_collected_from'%(self._name)
+        #print '%s.disconnect_events_collected_from'%(self._name)
         self.disconnect(self, QtCore.SIGNAL('events_collected()'), slot)
 
 #------------------------------

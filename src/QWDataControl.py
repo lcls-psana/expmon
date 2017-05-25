@@ -73,18 +73,22 @@ class QWDataControl(Frame) :
         self.w_calib.connect_path_is_changed_to_recipient(self.on_but_calib)
 
         self.w_src = QWDataSource(cp, log)
-        self.w_evt = QWEventControl(cp, log, show_mode=2)
+        self.w_evt = QWEventControl(cp, log, show_mode=0377)
 
         if self.orient=='H' : self.set_layout_hor()
         else                : self.set_layout_ver()
  
         self.set_style()
+        self.set_show_mode(show_mode)
         self.set_tool_tips()
 
         self.connect(self.but_ins, QtCore.SIGNAL('clicked()'), self.on_but_ins)
         self.connect(self.but_exp, QtCore.SIGNAL('clicked()'), self.on_but_exp)
         self.connect(self.but_run, QtCore.SIGNAL('clicked()'), self.on_but_run)
 
+
+    def event_control(self):
+        return self.w_evt
 
     def set_layout_hor(self):
         self.box = QtGui.QHBoxLayout(self)
@@ -158,9 +162,13 @@ class QWDataControl(Frame) :
         self.but_run.setFixedWidth(width)
         self.w_calib.but.setFixedWidth(width)
 
+
+    def set_show_mode(self, show_mode=0377):
+        self.show_mode = show_mode
         self.w_calib.setVisible(self.show_mode & 1)
-        self.w_src.setVisible  (self.show_mode & 2)
-        self.w_evt.setVisible  (self.show_mode & 4)
+        self.w_src  .setVisible(self.show_mode & 2)
+        self.w_evt  .setVisible(self.show_mode & 4)
+        self.w_dsext.setVisible(self.show_mode & 8)
 
 
     def on_but(self):
@@ -295,9 +303,10 @@ if __name__ == "__main__" :
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()
 
-    ex = QWDataControl(cp, log, show_mode=0377)
-    ex.move(QtCore.QPoint(50,50))
-    ex.show()
+    w = QWDataControl(cp, log, show_mode=0377) 
+    w.event_control().set_show_mode(show_mode=010)
+    w.move(QtCore.QPoint(50,50))
+    w.show()
     
     t1.quit()
     app.exec_()

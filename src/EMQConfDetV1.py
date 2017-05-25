@@ -119,7 +119,7 @@ class EMQConfDetV1(Frame) :
 
 
     def on_but_view(self):
-        log.debug('on_but_view', self._name)
+        #log.debug('on_but_view', self._name)
         #print '%s.on_but_view' % self._name
         self.wdet.on_but_view()
 

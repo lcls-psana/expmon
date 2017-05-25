@@ -150,15 +150,13 @@ class EMQPresenter(QtCore.QObject) :
         #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
         w = self.wscatter[imon]
         if w is None :
- 
+            if None in (sig1, sig2) : return
             xmin, xmax = sig1.min(), sig1.max()
             ymin, ymax = sig2.min(), sig2.max()
             rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
-
             w = self.wscatter[imon] = GUViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
                                                   margl=0.12, margr=0.01, margt=0.01, margb=0.06)
-
-            w.connect_view_is_closed_to(self.on_child_close)
+            w.connect_view_is_closed_to(self.on_scatter_close)
             self.draw_scatter(imon, sig1, sig2)
             #w.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
             #self.set_window_geometry()
@@ -169,9 +167,14 @@ class EMQPresenter(QtCore.QObject) :
 
 #------------------------------
 
-    def on_child_close(self): 
+    def on_scatter_close(self): 
         msg = 'TBD %s' % (sys._getframe().f_code.co_name)
         log.debug(msg, self._name)
+
+#        for w in self.wscatter:
+#            if w is None : continue
+#            print 'w:%s  hasFocus:%s' % (str(w), w.hasFocus())
+
         #self.save_window_geometry()
         #self.w.disconnect_view_is_closed_from(self.on_child_close)
         #self.w = None

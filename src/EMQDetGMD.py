@@ -78,7 +78,7 @@ class EMQDetGMD(EMQDetI) :
 
     #def on_but_view(self): self.message_def(sys._getframe().f_code.co_name)
     def on_but_view(self):
-        log.debug('on_but_view', self._name)
+        #log.debug('on_but_view', self._name)
         #print '%s.on_but_view' % self._name
         v = self.signal()
         self.lab_info.setText('GMD value: %.3f'%v if v is not None else 'GMD value: None')

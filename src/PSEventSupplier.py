@@ -91,7 +91,7 @@ class PSEventSupplier :
             self.ds = None
             self._run = None
             self.events = None
-            raise IOError('Dataset is not created for dsname: %s' % dsname)
+            #raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
         self.events = self.ds.events() # for event_next() method
 

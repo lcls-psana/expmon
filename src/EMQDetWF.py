@@ -133,7 +133,8 @@ class EMQDetWF(EMQDetI) :
         #self.wf, self.wt
         tmin, tmax = self.par_tmin.value(),\
                      self.par_tmax.value()
-        indwf = int(self.par_indwf.value())
+        indwf = self.par_indwf.value()
+        indwf = int(indwf) if indwf is not None else 0
         if indwf<0 : indwf=0
 
         bmin = None
@@ -164,10 +165,9 @@ class EMQDetWF(EMQDetI) :
         self.par_tmin.setValue(tmin)
         self.par_tmax.setValue(tmax)
         bmin, bmax = self.roi_limit_bins()
-        print 'on_but_set bmin, bmax = ', bmin, bmax
+        log.info('set WF ROI bins min=%d max=%d' % (bmin, bmax), self._name)
         self.par_bmin.setValue(bmin)
         self.par_bmax.setValue(bmax)
-
         self.set_roi_sig()
         self.set_info()
 
@@ -183,8 +183,11 @@ class EMQDetWF(EMQDetI) :
     def set_roi_sig(self):
         self.sig_tmin = self.par_tmin.value()
         self.sig_tmax = self.par_tmax.value()
-        self.sig_bmin = int(self.par_bmin.value())
-        self.sig_bmax = int(self.par_bmax.value())
+        self.sig_bmin = self.par_bmin.value()
+        self.sig_bmax = self.par_bmax.value()
+
+        if self.sig_bmin is not None : self.sig_bmin = int(self.sig_bmin)
+        if self.sig_bmax is not None : self.sig_bmax = int(self.sig_bmax)
 
 #------------------------------
 
@@ -197,7 +200,7 @@ class EMQDetWF(EMQDetI) :
         if sel is None : return
         self.par_indwf.setValue(None if sel is 'None' else int(sel))
         self.but_indwf.setText(sel)
-        log.info('on_but_indwf: select wave index: %s' % sel, self._name)
+        log.info('select WF index=%s' % sel, self._name)
 
 #------------------------------
 # Abstract methods IMPLEMENTATION:

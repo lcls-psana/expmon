@@ -126,7 +126,7 @@ class EMQTabs(QtGui.QWidget) :
         except :
             tab_index = 0
             self.current_tab.setValue(self.tab_names[tab_index])
-        log.info('set_tab_by_name - set tab: %s' % tab_name, self._name)
+        log.debug('set_tab_by_name - set tab: %s' % tab_name, self._name)
         self.tab_bar.setCurrentIndex(tab_index)
 
     #--------------------------

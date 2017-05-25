@@ -61,7 +61,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
         icon.set_icons()
         self.setWindowIcon(icon.icon_monitor)
 
-        self.emqinsexprun = EMQDataControl(cp, log, show_mode=5) # QtGui.QPushButton('button') 
+        self.emqinsexprun = EMQDataControl(cp, log, show_mode=014) # QtGui.QPushButton('button') 
+        self.emqinsexprun.event_control().set_show_mode(show_mode=010)
+
         self.emqtabs      = EMQTabs(self) # QtGui.QTextEdit()
         self.emqlogger    = QWLogger(log, cp, show_buttons=False)
 

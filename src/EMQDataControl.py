@@ -14,15 +14,13 @@ from expmon.QWDataControl import QWDataControl
 class EMQDataControl(QWDataControl) :
     """ Data control parameters derived from QWDataControl to connect signals with EM-app recipients
     """
-    def __init__(self, cp, log, parent=None, show_mode=5) :
+    def __init__(self, cp, log, parent=None, show_mode=4) :
         QWDataControl.__init__(self, cp, log, parent=None, orient='V', show_mode=show_mode)
         self._name = self.__class__.__name__
 
         self.w_evt.connect_new_event_number_to(self.on_new_event_number)
-
         self.w_evt.connect_start_button_to(self.on_start_button)
         self.w_evt.connect_stop_button_to(self.on_stop_button)
-
 
         # Can't use signal to thread, they intercept control
         #self.w_evt.connect_start_button_to(cp.emqthreadeventloop.on_start_button)
@@ -73,6 +71,7 @@ if __name__ == "__main__" :
 
     app = QtGui.QApplication(sys.argv)
     w = EMQDataControl(cp, log, show_mode=0377)
+    #w.event_control().set_show_mode(show_mode=010)
     w.move(QtCore.QPoint(50,50))
     w.setWindowTitle(w._name)
     w.w_evt.connect_new_event_number_to(w.test_on_new_event_number_reception)
