@@ -57,18 +57,15 @@ class PSDataSupplier :
 
     def set_dataset(self, dsname=None) :
         self.dsname = nm.dsname() if dsname is None else dsname
-        self.log.info('set_dataset %s' % self.dsname, self._name)
-
         self.calib_dir = nm.dir_calib()
-        self.log.info('dir_calib %s' % self.calib_dir, self._name)
-
+        self.log.debug('dataset: %s dir_calib: %s' % (self.dsname, self.calib_dir), self._name)
         if self.es is None : self.es = PSEventSupplier(self.cp, self.log, self.dsname, self.calib_dir) 
         else :               self.es.set_dataset(self.dsname)
 
 
     def set_detector(self, detname=None) :
         self.detname = self.cp.data_source.value() if detname is None else detname
-        self.log.info('set_detector %s' % self.detname, self._name)
+        self.log.debug('detector %s' % self.detname, self._name)
         env = self.es.env()
         self.det = Detector(self.detname, env) if env is not None else None
         #self.det = AreaDetector(self.detname, self.es.env(), pbits=0)        

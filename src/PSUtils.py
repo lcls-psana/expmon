@@ -325,6 +325,20 @@ def get_cwd() :
 
 #------------------------------
 
+def get_hostname() :
+    #return os.uname()[1]
+    import socket
+    return socket.gethostname()
+
+#------------------------------
+
+def get_enviroment(env='USER') :
+    """Returns the value of specified by string name environment variable or (str) 'None'
+    """
+    return str(os.environ.get(env))
+
+#------------------------------
+
 def create_directory(dir, mode=0777) :
     #print 'create_directory: %s' % dir
     if os.path.exists(dir) :

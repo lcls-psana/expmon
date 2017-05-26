@@ -27,7 +27,8 @@ class EMQEventLoop(QtCore.QObject) :
     def __init__(self, parent=None) :
         QtCore.QObject.__init__(self, parent)
         self._name = self.__class__.__name__
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        self.dsname = None
         self.init_event_loop()
         #self.start_event_loop()
         #self.connect_events_collected_to(self.test_events_collected)
@@ -35,7 +36,10 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def init_event_loop(self) :
-        self.dsname = nm.dsname()
+        dsname = nm.dsname()
+        #print 'XXX %s.init_event_loop dsname = %s' % (self._name, dsname)
+        if dsname == self.dsname : return
+        self.dsname = dsname
         self.number_of_tabs = cp.number_of_tabs
         self.number_of_det_pars = cp.number_of_det_pars
 
@@ -59,7 +63,7 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def print_pars(self) :
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
 
         print 'dsname: %s' % self.dsname
         print 'number_of_tabs: %d' % self.number_of_tabs
@@ -80,13 +84,22 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def start_event_loop(self) :
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        self.init_event_loop() 
+
+        if self.dsname is None : 
+            print 'WARNING %s.start_event_loop dataset name "%s" IS NOT DEFINED' % (self._name, self.dsname)
+            #cp.guimain.emqinsexprun.event_control().on_but_ctl()
+            self.stop_event_loop()
+            return
+
         self.event_loop()
 
 #------------------------------
 
     def stop_event_loop(self) :
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        cp.flag_do_event_loop = False
+        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
 
 #------------------------------
 
@@ -153,7 +166,7 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def __del__(self) :
-        print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
 
 #------------------------------
 #------------------------------

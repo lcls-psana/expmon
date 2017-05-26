@@ -14,7 +14,7 @@ class EMQDetArea(EMQDetI) :
     """
     def __init__ (self, parent, src=None) :
         EMQDetI.__init__(self, parent, src)
-        self._name = self.__class__.__name__
+        self._name = 'EMQDetArea'
 
         self.guview = None        
         self.arrimg = None
@@ -31,22 +31,32 @@ class EMQDetArea(EMQDetI) :
         self.par_winh  = det_list_of_pars[2][tabind]
         self.par_winw  = det_list_of_pars[3][tabind]
 
-        self.par_xmin  = det_list_of_pars[4][tabind]
-        self.par_xmax  = det_list_of_pars[5][tabind]
-        self.par_ymin  = det_list_of_pars[6][tabind]
-        self.par_ymax  = det_list_of_pars[7][tabind]
+        self.par_sig_xmin  = det_list_of_pars[4][tabind]
+        self.par_sig_xmax  = det_list_of_pars[5][tabind]
+        self.par_sig_ymin  = det_list_of_pars[6][tabind]
+        self.par_sig_ymax  = det_list_of_pars[7][tabind]
+
+        self.par_bkg_xmin  = det_list_of_pars[8][tabind]
+        self.par_bkg_xmax  = det_list_of_pars[9][tabind]
+        self.par_bkg_ymin  = det_list_of_pars[10][tabind]
+        self.par_bkg_ymax  = det_list_of_pars[11][tabind]
 
         self.set_roi_sig()
+        self.set_roi_bkg()
 
         #self.w = QtGui.QTextEdit(self._name)
         #self.lab_info = QtGui.QLabel('Use EMQDetArea for "%s"' % src)
 
-        self.lab_info.setText('Use EMQDetArea for "%s"' % src)
-        self.set_info()
+        self.lab_info.setText('Use EMQDetArea') # for "%s"' % src)
+        #self.set_info()
 
-        self.but_set = QtGui.QPushButton('Set ROI')
+        self.lab_roi = QtGui.QLabel('Set ROI')
+        self.but_set_sig = QtGui.QPushButton('Signal')
+        self.but_set_bkg = QtGui.QPushButton('Bkgd')
         #self.box.addStretch(1)
-        self.box.addWidget(self.but_set)
+        self.box.addWidget(self.lab_roi)
+        self.box.addWidget(self.but_set_sig)
+        self.box.addWidget(self.but_set_bkg)
 
         #self.but_src = QtGui.QPushButton(self.par_src.value())
         #self.but_view = QtGui.QPushButton('View')
@@ -57,17 +67,18 @@ class EMQDetArea(EMQDetI) :
         #self.box.addStretch(1)
         #self.setLayout(self.box)
 
-        #self.set_style()
-        #self.set_tool_tips()
-        #gu.printStyleInfo(self)
+         #gu.printStyleInfo(self)
         #cp.guitabs = self
 
         #self.connect(self.but_src,  QtCore.SIGNAL('clicked()'), self.on_but_src)
         #self.connect(self.but_view, QtCore.SIGNAL('clicked()'), self.on_but_view)
 
-        self.connect(self.but_set,   QtCore.SIGNAL('clicked()'), self.on_but_set)
+        self.connect(self.but_set_sig,   QtCore.SIGNAL('clicked()'), self.on_but_set)
+        self.connect(self.but_set_bkg,   QtCore.SIGNAL('clicked()'), self.on_but_set)
 
         self.init_det()
+        self.set_style()
+        #self.set_tool_tips()
 
 
     def init_det(self):
@@ -77,10 +88,12 @@ class EMQDetArea(EMQDetI) :
 
 
     def set_style(self):
-        self.lab_info.setMinimumWidth(300)
-        self.lab_info.setStyleSheet(style.styleLabel)
-        self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
+        EMQDetI.set_style(self)
+        self.lab_roi.setStyleSheet(style.styleLabel)
 
+        #self.lab_info.setMinimumWidth(300)
+        #self.lab_info.setStyleSheet(style.styleLabel)
+        #self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
         #self.setGeometry(10, 25, 400, 600)
         #self.setMinimumSize(400,50)
         #self.vsplit.setMinimumHeight(700)        
@@ -104,15 +117,34 @@ class EMQDetArea(EMQDetI) :
 #------------------------------
 
     def set_roi_sig(self):
-        self.sig_cmin = self.par_xmin.value()
-        self.sig_cmax = self.par_xmax.value()
-        self.sig_rmin = self.par_ymin.value()
-        self.sig_rmax = self.par_ymax.value()
+        self.sig_cmin = self.par_sig_xmin.value()
+        self.sig_cmax = self.par_sig_xmax.value()
+        self.sig_rmin = self.par_sig_ymin.value()
+        self.sig_rmax = self.par_sig_ymax.value()
 
         if self.sig_cmin is not None : self.sig_cmin = int(self.sig_cmin)
         if self.sig_cmax is not None : self.sig_cmax = int(self.sig_cmax)
         if self.sig_rmin is not None : self.sig_rmin = int(self.sig_rmin)
         if self.sig_rmax is not None : self.sig_rmax = int(self.sig_rmax)
+
+        self.sig_npix = None if self.sig_cmin is None else\
+                        (self.sig_cmax - self.sig_cmin)\
+                      * (self.sig_rmax - self.sig_rmin)
+
+    def set_roi_bkg(self):
+        self.bkg_cmin = self.par_bkg_xmin.value()
+        self.bkg_cmax = self.par_bkg_xmax.value()
+        self.bkg_rmin = self.par_bkg_ymin.value()
+        self.bkg_rmax = self.par_bkg_ymax.value()
+
+        if self.bkg_cmin is not None : self.bkg_cmin = int(self.bkg_cmin)
+        if self.bkg_cmax is not None : self.bkg_cmax = int(self.bkg_cmax)
+        if self.bkg_rmin is not None : self.bkg_rmin = int(self.bkg_rmin)
+        if self.bkg_rmax is not None : self.bkg_rmax = int(self.bkg_rmax)
+
+        self.bkg_npix = None if self.bkg_cmin is None else\
+                        (self.bkg_cmax - self.bkg_cmin)\
+                      * (self.bkg_rmax - self.bkg_rmin)
 
 
     def on_but_set(self):
@@ -123,18 +155,37 @@ class EMQDetArea(EMQDetI) :
             return
         xmin, xmax, ymin, ymax = self.guview.axes_limits()
         #print 'xmin=%.6f  xmax=%.6f  ymin=%.1f  ymax=%.1f' % (xmin, xmax, ymin, ymax)
-        self.par_xmin.setValue(floor(xmin))
-        self.par_xmax.setValue(ceil(xmax))
-        self.par_ymin.setValue(floor(ymin))
-        self.par_ymax.setValue(ceil(ymax))
-        self.set_roi_sig()
-        self.set_info()
+
+        set_mode = 'signal'     if self.but_set_sig.hasFocus() else\
+                   'background' if self.but_set_bkg.hasFocus() else\
+                   'UNKNOWN'
+
+        msg = None
+        if self.but_set_sig.hasFocus() :
+            self.par_sig_xmin.setValue(floor(xmin))
+            self.par_sig_xmax.setValue(ceil(xmax))
+            self.par_sig_ymin.setValue(floor(ymin))
+            self.par_sig_ymax.setValue(ceil(ymax))
+            self.set_roi_sig()
+            msg = 'cols:[%d, %d] rows:[%d, %d]' % (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax)
+
+        if self.but_set_bkg.hasFocus() :
+            self.par_bkg_xmin.setValue(floor(xmin))
+            self.par_bkg_xmax.setValue(ceil(xmax))
+            self.par_bkg_ymin.setValue(floor(ymin))
+            self.par_bkg_ymax.setValue(ceil(ymax))
+            self.set_roi_bkg()
+            msg = 'cols:[%d, %d] rows:[%d, %d]' % (self.bkg_cmin, self.bkg_cmax, self.bkg_rmin, self.bkg_rmax)
+
+        log.info('set %s ROI %s' % (set_mode, msg), self._name)
+        self.set_info(set_mode)
 
 
-    def set_info(self):
-        if None in (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax) : return
-        msg = 'cols:[%d, %d] rows:[%d, %d]' % (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax)
-        self.lab_info.setText('ROI: %s' % msg)
+    def set_info(self, set_mode):
+        #if None in (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax) : return
+        #msg = 'cols:[%d, %d] rows:[%d, %d]' % (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax)
+        self.lab_info.setText('%s ROI is changed'%set_mode)
+        #log.info('set ROI %s' % msg, self._name)
 
 #------------------------------
 # Abstract methods IMPLEMENTATION:
@@ -180,11 +231,13 @@ class EMQDetArea(EMQDetI) :
 
 
     def signal(self, evt):  
-        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
+        scmin, scmax, srmin, srmax, snpix = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax, self.sig_npix        
+        bcmin, bcmax, brmin, brmax, bnpix = self.bkg_cmin, self.bkg_cmax, self.bkg_rmin, self.bkg_rmax, self.bkg_npix       
         #print 'XXX %s.signal before image' % self._name
-        img = self.dso.image(evt)
+        img = self.dso.raw(evt)
         #print 'XXX %s.signal after image' % self._name
-        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
+        bb = 0 if bnpix is None else img[brmin:brmax, bcmin:bcmax].sum()/bnpix
+        return img.sum() if scmin is None else img[srmin:srmax, scmin:scmax].sum() - bb*snpix
 
 #------------------------------
 

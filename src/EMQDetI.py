@@ -26,7 +26,7 @@ class EMQDetI(QtGui.QWidget) :
     def __init__ (self, parent, src=None) :
         #Frame.__init__(self, parent, mlw=1, vis=False)
         QtGui.QWidget.__init__(self, parent=None)
-        self._name = self.__class__.__name__
+        self._name = ''
 
         self.parent = parent
         if parent is not None :
@@ -37,6 +37,7 @@ class EMQDetI(QtGui.QWidget) :
 
         #self.w = QtGui.QTextEdit(self._name)
         self.lab_info = QtGui.QLabel('NOT IMPLEMENTED "%s"' % src)
+        self.lab_info.setStyleSheet(style.styleRed)
         #self.but_src = QtGui.QPushButton(self.par_src.value())
         #self.but_view = QtGui.QPushButton('View')
 
@@ -45,7 +46,7 @@ class EMQDetI(QtGui.QWidget) :
         #self.box.addStretch(1)
         self.setLayout(self.box)
 
-        self.set_style()
+        #self.set_style()
         #self.set_tool_tips()
         #gu.printStyleInfo(self)
         #cp.guitabs = self
@@ -61,9 +62,9 @@ class EMQDetI(QtGui.QWidget) :
 
 
     def set_style(self):
+        self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
         self.lab_info.setMinimumWidth(300)
         self.lab_info.setStyleSheet(style.styleLabel)
-        self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
 
         #self.setGeometry(10, 25, 400, 600)
         #self.setMinimumSize(400,50)

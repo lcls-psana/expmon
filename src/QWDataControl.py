@@ -27,18 +27,23 @@ class QWDataControl(Frame) :
     """GUI to input instrument, experiment, and run number
     """
 
-    def __init__ (self, cp, log, parent=None, orient='V', show_mode=1) :
-        """ cp (ConfigParameters) is passed as a parameter in order to use this widget in different apps
-            Depends on:
-            cp.char_expand
-            cp.list_of_instr
-            cp.list_of_sources
+    def __init__(self, cp, log, parent=None, orient='V', show_mode=1) :
+        """cp (ConfigParameters) is passed as a parameter in order to use this widget in different apps
+           Depends on:
+           cp.char_expand
+           cp.list_of_instr
+           cp.list_of_sources
 
-            cp.instr_name  - par
-            cp.exp_name    - par
-            cp.str_runnum  - par
-            cp.calib_dir   - par
-            cp.data_source - par
+           cp.instr_name  - par
+           cp.exp_name    - par
+           cp.str_runnum  - par
+           cp.calib_dir   - par
+           cp.data_source - par
+
+           show_mode & 1 - calib
+                     & 2 - source
+                     & 4 - event control
+                     & 8 - dataset extension
         """
 
         Frame.__init__(self, parent, mlw=1)
@@ -162,6 +167,10 @@ class QWDataControl(Frame) :
         self.but_run.setFixedWidth(width)
         self.w_calib.but.setFixedWidth(width)
 
+        if self.exp_name.is_default() : 
+            if self.instr_name.is_default() : self.set_ins()
+            self.set_exp()
+
 
     def set_show_mode(self, show_mode=0377):
         self.show_mode = show_mode
@@ -197,8 +206,9 @@ class QWDataControl(Frame) :
         sel = qwu.selectFromListInPopupMenu(self.list_of_instr)
         if sel is None : return
 
+        self.set_exp()
         if sel != self.instr_name.value() :
-            self.set_exp()
+            #self.set_exp()
             self.set_run()
             self.set_calib()
         self.set_ins(sel, cmt='instrument')
@@ -211,6 +221,7 @@ class QWDataControl(Frame) :
         if sel is None : return
 
         if sel != self.exp_name.value() :
+            self.set_ins(val=self.instr_name.value(), cmt='instrument')
             self.set_run()
         self.set_exp(sel, cmt='experiment')
         self.set_calib(sel)
@@ -246,18 +257,17 @@ class QWDataControl(Frame) :
             but.setStyleSheet(style.styleButtonGood)
         else :
             par.setValue(val)
-            self.log.info('Selected %s: %s'%(cmt,val), self._name)
+            self.log.info('selected %s: %s'%(cmt,val), self._name)
             but.setStyleSheet(style.styleButton)
         but.setText(par.value())
 
 
     def set_run(self, val=None, cmt=''):
-        if val != self.str_runnum.value() :
+        if val != self.str_runnum.value() and val is not None :
             # set flag to evaluate list of sources in separate thread
-            self.log.info('set request to find sources for run: %s'% val, self._name)
+            #self.log.info('set request to find sources for run: %s'% val, self._name)
             #cp.emqthreadworker.set_request_find_sources()
             self.cp.list_of_sources = None # to initiate ThreadWorker to evaluate it
-
         self.set_but_for_par(self.but_run, self.str_runnum, val, cmt)
 
 
@@ -283,6 +293,8 @@ class QWDataControl(Frame) :
             par.setValue(nm.dir_calib())
 
         edi.setText(par.value())
+        if self.exp_name.value() == self.exp_name.value_def() : return
+        self.log.info('set calib directory: %s'%par.value(), self._name)
 
 #------------------------------
 #------------------------------

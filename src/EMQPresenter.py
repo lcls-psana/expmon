@@ -126,7 +126,7 @@ class EMQPresenter(QtCore.QObject) :
         recs = cp.dataringbuffer.records_new()
         nrecs, exp, run, evnums, mon_sig1, mon_sig2 = self.records_parser(recs)
 
-        msg = '%s: %3d  #records: %4d  last event: %6d'%\
+        msg = '%s %4d for %4d events, last event: %6d'%\
               (sys._getframe().f_code.co_name, self.count_updates, nrecs, recs[-1][2])
         if self.t0_sec is not None : msg += '  t(sec/event) = %.6f' % ((time()-self.t0_sec)/nrecs)
         log.info(msg, self._name)
@@ -150,9 +150,10 @@ class EMQPresenter(QtCore.QObject) :
         #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
         w = self.wscatter[imon]
         if w is None :
-            if None in (sig1, sig2) : return
+            if sig1 is None or sig2 is None : return
             xmin, xmax = sig1.min(), sig1.max()
             ymin, ymax = sig2.min(), sig2.max()
+            if xmin is None or xmax is None or ymin is None or ymax is None : return
             rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
             w = self.wscatter[imon] = GUViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
                                                   margl=0.12, margr=0.01, margt=0.01, margb=0.06)

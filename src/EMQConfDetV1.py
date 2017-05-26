@@ -105,21 +105,24 @@ class EMQConfDetV1(Frame) :
         self._src_is_set = self.src() != 'None'
 
         #---- update self.wdet
-        self.box.removeWidget(self.wdet)
-        self.wdet.close()
-        del self.wdet
+        try :
+          self.box.removeWidget(self.wdet)
+          self.wdet.close()
+          del self.wdet
+        except : 
+          pass
         self.wdet = get_detector_widget(self, sel)
         self.wdet.setMinimumWidth(300)
         self.box.insertWidget(3,self.wdet)
         #self.box.addWidget(self.wdet)
         #---- 
 
-        log.info('Mon: %d  Det: %s  selected: %s' %\
+        log.info('Mon:%d  Det:%s  selected: %s' %\
                  (self.tabind, self.detind, sel), __name__)
 
 
     def on_but_view(self):
-        #log.debug('on_but_view', self._name)
+        log.info('"View" src: %s'%self.src(), self._name)
         #print '%s.on_but_view' % self._name
         self.wdet.on_but_view()
 

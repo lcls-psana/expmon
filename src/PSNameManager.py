@@ -79,6 +79,7 @@ class PSNameManager :
         if ext == 'shmem' :
             return 'shmem=psana.0:stop=no'
 
+        if cp.exp_name.is_default() or cp.str_runnum.is_default() : return None
         base = 'exp=%s:run=%s' % (cp.exp_name.value(), cp.str_runnum.value().lstrip('0'))
 
         if ext == 'None' :

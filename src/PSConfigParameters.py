@@ -51,7 +51,7 @@ class PSConfigParameters(ConfigParameters) :
 #------------------------------
         
     def declareBaseParameters(self) :
-        '''Declaration of common paramaters for all PS apps'''  
+        """Declaration of common paramaters for all PS apps"""
         self.list_of_sources = None # for interaction with expmon.PSUtils.list_of_sources() 
 
         self.instr_dir       = self.declareParameter(name='INSTRUMENT_DIR',  val_def='/reg/d/psdm', type='str') 

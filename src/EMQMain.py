@@ -1,9 +1,8 @@
 
 #------------------------------
-"""
-@version $Id: EMQMain.py 13157 2017-02-18 00:05:34Z dubrovin@SLAC.STANFORD.EDU $
-
-@author Mikhail S. Dubrovin
+"""EMQMain.py
+   Created: 2017-02-18
+   Author : Mikhail Dubrovin
 """
 #------------------------------
 
@@ -61,7 +60,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         icon.set_icons()
         self.setWindowIcon(icon.icon_monitor)
 
-        self.emqinsexprun = EMQDataControl(cp, log, show_mode=014) # QtGui.QPushButton('button') 
+        self.emqinsexprun = EMQDataControl(cp, log, show_mode=015)
         self.emqinsexprun.event_control().set_show_mode(show_mode=010)
 
         self.emqtabs      = EMQTabs(self) # QtGui.QTextEdit()
@@ -220,8 +219,8 @@ class EMQMain(QtGui.QWidget) : # Frame)
 #------------------------------
 
     def log_rec_on_start(self) :
-        msg = 'User "%s" from cwd "%s" launched command:\n%s'%\
-              (psu.get_login(), psu.get_cwd(), ' '.join(sys.argv))
+        msg = 'user: %s@%s  cwd: %s\n    command: %s'%\
+              (psu.get_login(), psu.get_hostname(), psu.get_cwd(), ' '.join(sys.argv))
         log.info(msg, self._name)
 
 #------------------------------
