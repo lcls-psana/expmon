@@ -95,6 +95,7 @@ class QWDataControl(Frame) :
     def event_control(self):
         return self.w_evt
 
+
     def set_layout_hor(self):
         self.box = QtGui.QHBoxLayout(self)
         self.box.addWidget(self.lab_ins)

@@ -26,7 +26,7 @@ class EMQDetI(QtGui.QWidget) :
     def __init__ (self, parent, src=None) :
         #Frame.__init__(self, parent, mlw=1, vis=False)
         QtGui.QWidget.__init__(self, parent=None)
-        self._name = ''
+        self._name = 'EMQDetI'
 
         self.parent = parent
         if parent is not None :

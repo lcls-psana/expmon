@@ -52,7 +52,9 @@ class EMConfigParameters(PSConfigParameters) :
         self.emqmain = None
         #self.emqthreadworker = None
         self.emqpresenter = None
+        self.emqdatacontrol = None
         self.emqeventloop = None
+        self.emqthreadeventloop = None
 
         self.list_of_sources = None # if None - updated in the ThreadWorker
 

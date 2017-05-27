@@ -38,22 +38,65 @@ class EMQThreadEventLoop(QtCore.QThread) :
         self.dt_msec   = dt_msec
         self.thread_id = random.random()
         self.counter   = 0
-        self.pbits  = pbits
+        self.pbits     = pbits
+        self.do_check_flags   = True
+
         #self.connect_signal_to_slot(self.test_connection)
 
         #self.set_request_process_data()
 
         cp.flag_do_event_loop = False
 
-        cp.emqeventloop = EMQEventLoop() # None
+        self.emqeventloop = EMQEventLoop()
+        
         cp.emqthreadeventloop = self
 
 #------------------------------
 
+    def __del__(self) :
+        print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
+        self.do_check_flags = False
+        self.timer.stop()
+        self.emqeventloop.__del__()
+
+#------------------------------
+
     def update_dataset(self) :
-        if cp.emqeventloop is None : 
-           del cp.emqeventloop
-        cp.emqeventloop = None
+        if self.emqeventloop is None : 
+           del self.emqeventloop
+        self.emqeventloop = None
+
+#------------------------------
+
+# DOES NOT WORK ????
+
+        #self.timer = QtCore.QTimer()
+        #self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.on_timeout)
+
+#    def start_event_loop(self) :
+#        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+#        self.emqeventloop.start_event_loop()
+
+#    def stop_event_loop(self) :
+#        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+#        self.emqeventloop.stop_event_loop()
+
+#    def run_v2(self) :
+#        print 'XXX: In EMQThreadEventLoop run - just sleep'
+#        self.msleep(self.dt_msec)
+
+#    def run(self) :     
+#        print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+#        self.timer.start(self.dt_msec)
+
+
+#    def on_timeout(self) :
+#        if not self.do_check_flags : return
+
+#        self.counter += 1
+#        if self.pbits & 2 : print '%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id)
+#        self._check_flags()
 
 #------------------------------
 
@@ -63,15 +106,15 @@ class EMQThreadEventLoop(QtCore.QThread) :
             print '%s  flag_do_event_loop: %s' % (msg, cp.flag_do_event_loop)
 
         if  cp.flag_do_event_loop :
-            #if cp.emqeventloop is None : cp.emqeventloop = EMQEventLoop()
-            cp.emqeventloop.start_event_loop()
+            #if self.emqeventloop is None : self.emqeventloop = EMQEventLoop()
+            self.emqeventloop.start_event_loop()
 
 #------------------------------
 
     def run(self) :
         """Supports alive this thread, checks flags by the timer.
         """
-        while True :
+        while self.do_check_flags :
             self.counter += 1
             if self.pbits & 2 : print '%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id)
             self._check_flags()

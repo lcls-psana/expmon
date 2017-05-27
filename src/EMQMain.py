@@ -41,9 +41,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.init_parameters(parser)
 
         cp.dataringbuffer = RingBuffer(size=cp.data_buf_size.value())
-        cp.emqpresenter = EMQPresenter()
-
-        cp.emqeventloop.connect_events_collected_to(cp.emqpresenter.on_events_collected)
+        cp.emqpresenter = EMQPresenter(do_self_update=True)
 
         self.main_win_width  = cp.main_win_width 
         self.main_win_height = cp.main_win_height
@@ -60,14 +58,14 @@ class EMQMain(QtGui.QWidget) : # Frame)
         icon.set_icons()
         self.setWindowIcon(icon.icon_monitor)
 
-        self.emqinsexprun = EMQDataControl(cp, log, show_mode=015)
-        self.emqinsexprun.event_control().set_show_mode(show_mode=010)
+        self.emqdatacontrol = EMQDataControl(cp, log, show_mode=015)
+        self.emqdatacontrol.event_control().set_show_mode(show_mode=010)
 
-        self.emqtabs      = EMQTabs(self) # QtGui.QTextEdit()
-        self.emqlogger    = QWLogger(log, cp, show_buttons=False)
+        self.emqtabs   = EMQTabs(self) # QtGui.QTextEdit()
+        self.emqlogger = QWLogger(log, cp, show_buttons=False)
 
         self.vsplit = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.vsplit.addWidget(self.emqinsexprun)
+        self.vsplit.addWidget(self.emqdatacontrol)
         self.vsplit.addWidget(self.emqtabs)
         self.vsplit.addWidget(self.emqlogger)
         #self.vsplit.moveSplitter(0,200)
@@ -85,7 +83,21 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.set_style()
 
         self.move(self.main_win_pos_x.value(), self.main_win_pos_y.value())
+
+        # DOES NOT WORK ???
+        #ec = cp.emqdatacontrol.event_control()
+        #ro = cp.emqeventloop
+        #ro = cp.emqthreadeventloop
+        #ec.connect_start_button_to(ro.start_event_loop) # self.on_event_loop
+        #ec.connect_stop_button_to(ro.stop_event_loop)
+        #ec.connect_new_event_number_to(self.emqeventloop.on_new_event_number)
+
         cp.guimain = self
+
+    #-------------------
+
+    def on_event_loop(self) :
+        print 'XXX EMQMain.on_event_loop'
 
     #-------------------
 
@@ -120,7 +132,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         qcolor_bkg = qpalette.color(1)
         #r,g,b,alp  = qcolor_bkg.getRgb()
         msg = 'Background color: r,g,b,alpha = %d,%d,%d,%d' % ( qcolor_bkg.getRgb() )
-        log.debug(msg)
+        log.debug(msg, self._name)
 
 
     def set_tool_tips(self):
@@ -169,7 +181,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
     def closeEvent(self, e):
         log.info('closeEvent', self._name)
 
-        try    : self.emqinsexprun.close()   
+        try    : self.emqdatacontrol.close()
         except : pass
      
         try    : self.emqtabs.close()
@@ -179,7 +191,9 @@ class EMQMain(QtGui.QWidget) : # Frame)
         except : pass
 
         cp.emqpresenter.__del__()
-        #cp.emqpresenter = None
+
+        #cp.emqeventloop.__del__()
+        #cp.emqthreadeventloop.__del__()
 
         self.on_save()
 

@@ -33,6 +33,8 @@ class EMQEventLoop(QtCore.QObject) :
         #self.start_event_loop()
         #self.connect_events_collected_to(self.test_events_collected)
 
+        cp.emqeventloop = self
+
 #------------------------------
 
     def init_event_loop(self) :
@@ -89,7 +91,7 @@ class EMQEventLoop(QtCore.QObject) :
 
         if self.dsname is None : 
             print 'WARNING %s.start_event_loop dataset name "%s" IS NOT DEFINED' % (self._name, self.dsname)
-            #cp.guimain.emqinsexprun.event_control().on_but_ctl()
+            #cp.guimain.emqdatacontrol.event_control().on_but_ctl()
             self.stop_event_loop()
             return
 
@@ -162,6 +164,12 @@ class EMQEventLoop(QtCore.QObject) :
                    [None, None, None]
 
         cp.dataringbuffer.save_record(rec)
+
+#------------------------------
+
+    def __del__(self) :
+        print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
 
 #------------------------------
 
