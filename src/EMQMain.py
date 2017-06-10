@@ -35,7 +35,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
         QtGui.QWidget.__init__(self, parent=None)
         self._name = self.__class__.__name__
 
-        log.setPrintBits(0377)
+        #log.setPrintBits(0377)
         self.log_rec_on_start()
 
         self.init_parameters(parser)
@@ -104,6 +104,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
     def init_parameters(self, parser):
         self.parser = parser
         (popts, pargs) = parser.parse_args()
+
         self.args = pargs
         self.opts = vars(popts)
         self.defs = vars(parser.get_default_values())

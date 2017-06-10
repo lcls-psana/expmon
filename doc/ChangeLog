@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-07
+2017-06-09 Mikhail S. Dubrovin
+- add EMQGraphic, EMQHistogram, EMQViewHist, tune other modules for expmon
+
 Tag: V01-00-06
 2017-05-26 Mikhail S. Dubrovin
 - work in progress on expmon project - add scatterplot with fit

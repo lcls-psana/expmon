@@ -17,10 +17,12 @@ class EM_GUI :
         """Experiment Monitor"""
 
         self.parser = parser
-        (popts, pargs) = parser.parse_args()
+        (cp.popts, cp.pargs) = (popts, pargs) = parser.parse_args()
         self.args = pargs
         self.opts = vars(popts)
         self.defs = vars(parser.get_default_values())
+
+        self.print_command()
 
         verbos = popts.verbos
         #if verbos : self.print_raw()
@@ -46,6 +48,12 @@ class EM_GUI :
 
 #------------------------------
 
+    def print_command(self) :
+        """Prints command"""
+        print 'Command:', ' '.join(sys.argv)
+
+#------------------------------
+
     def print_raw(self) :
         print 'Command:', ' '.join(sys.argv)
         print '  opts: ', self.opts
@@ -56,9 +64,7 @@ class EM_GUI :
 
     def print_pars(self) :
         """Prints input parameters"""
-        print 'Command:', ' '.join(sys.argv)+\
-              '\nlaunches %s' % self.__init__.__doc__+\
-              '\nwith argument %s and optional parameters:\n' % str(self.args)+\
+        print 'Arguments: %s\nOptional parameters:\n' % str(self.args)+\
               '<key>      <value>          <default>'
         for k,v in self.opts.items() :
             print '%s %s %s' % (k.ljust(10), str(v).ljust(16), str(self.defs[k]).ljust(16))
@@ -90,7 +96,7 @@ def input_option_parser() :
     d_exp    = None # 'mfxn8316' 
     d_run    = 1
     d_clb    = '' 
-    d_verbos = True
+    d_verbos = False
     d_nwin1  = 2
     d_nwin2  = 3
 
@@ -105,7 +111,7 @@ def input_option_parser() :
     parser.add_option('-e', '--exp',    default=d_exp,    action='store', type='string', help=h_exp)
     parser.add_option('-r', '--run',    default=d_run,    action='store', type='int',    help=h_run)
     parser.add_option('-c', '--clb',    default=d_clb,    action='store', type='string', help=h_clb)
-    parser.add_option('-v', '--verbos', default=d_verbos, action='store_false',          help=h_verbos)
+    parser.add_option('-v', '--verbos', default=d_verbos, action='store_true',           help=h_verbos)
     parser.add_option('-w', '--nwin1',  default=d_nwin1,  action='store', type='int',    help=h_nwin1)
     parser.add_option('-u', '--nwin2',  default=d_nwin2,  action='store', type='int',    help=h_nwin2)
  

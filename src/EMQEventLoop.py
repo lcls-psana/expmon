@@ -27,7 +27,7 @@ class EMQEventLoop(QtCore.QObject) :
     def __init__(self, parent=None) :
         QtCore.QObject.__init__(self, parent)
         self._name = self.__class__.__name__
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
         self.dsname = None
         self.init_event_loop()
         #self.start_event_loop()
@@ -60,13 +60,12 @@ class EMQEventLoop(QtCore.QObject) :
 
         self.es = PSEventSupplier(cp, log=None, dsname=self.dsname, calib_dir=None)
 
-        self.print_pars()
+        #self.print_pars()
 
 #------------------------------
 
     def print_pars(self) :
         print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
-
         print 'dsname: %s' % self.dsname
         print 'number_of_tabs: %d' % self.number_of_tabs
         print 'number_of_det_pars: %d' % self.number_of_det_pars
@@ -75,7 +74,6 @@ class EMQEventLoop(QtCore.QObject) :
             p_src1 = self.lst_src1[it]
             p_src2 = self.lst_src2[it]
             print 'tab:%d  src1: %s  src2: %s' % (it, p_src1.value().ljust(32), p_src2.value().ljust(32))
-
         return
 
         for it in range(cp.number_of_tabs) :
@@ -86,7 +84,7 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def start_event_loop(self) :
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
         self.init_event_loop() 
 
         if self.dsname is None : 
@@ -100,8 +98,8 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def stop_event_loop(self) :
+        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
         cp.flag_do_event_loop = False
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
 
 #------------------------------
 

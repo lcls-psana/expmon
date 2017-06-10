@@ -41,7 +41,7 @@ class EMQDataControl(QWDataControl) :
            2. sets flag
         """
         msg = '%s' % (sys._getframe().f_code.co_name)
-        self.log.debug(msg, self._name)
+        self.log.info(msg, self._name)
         self.cp.flag_do_event_loop = True
 
 #------------------------------
@@ -51,7 +51,7 @@ class EMQDataControl(QWDataControl) :
            2. sets flag
         """
         msg = '%s' % (sys._getframe().f_code.co_name)
-        self.log.debug(msg, self._name)
+        self.log.info(msg, self._name)
         self.cp.flag_do_event_loop = False
 
 #------------------------------

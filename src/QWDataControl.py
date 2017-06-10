@@ -164,7 +164,7 @@ class QWDataControl(Frame) :
 
         width = 50
         self.but_ins.setFixedWidth(40)
-        self.but_exp.setFixedWidth(70)
+        self.but_exp.setFixedWidth(80)
         self.but_run.setFixedWidth(width)
         self.w_calib.but.setFixedWidth(width)
 

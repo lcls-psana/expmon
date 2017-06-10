@@ -140,6 +140,27 @@ class EMQDetWF(EMQDetI) :
         return True
 
 
+    def reset_pars(self): 
+
+        self.par_sig_tmin.setDefault()
+        self.par_sig_tmax.setDefault()
+        self.par_sig_bmin.setDefault()
+        self.par_sig_bmax.setDefault()
+
+        self.par_bkg_tmin.setDefault()
+        self.par_bkg_tmax.setDefault()
+        self.par_bkg_bmin.setDefault()
+        self.par_bkg_bmax.setDefault()
+
+        self.set_roi_sig()
+        self.set_roi_bkg()
+        self.set_info()
+
+        self.par_indwf.setDefault()
+        indwf = self.par_indwf.value()
+        self.but_indwf.setText('%d' % (indwf if indwf is not None else -1))
+
+
     def roi_limit_bins(self, tmin, tmax):
         """Uses wt, tmin and tmax to find and return bin indexes bmin, bmax using self.wf, self.wt
         """
@@ -200,9 +221,9 @@ class EMQDetWF(EMQDetI) :
     def set_info(self):
         msg = None
         if not(self.sig_bmin is None or self.sig_bmax is None) :
-            msg = 'sig:[%d, %d]' % (self.sig_bmin, self.sig_bmax)
+            msg = 'S:[%d,%d]' % (self.sig_bmin, self.sig_bmax)
         if not(self.bkg_bmin is None or self.bkg_bmax is None) :
-            msg += ' bkg:[%d, %d]' % (self.bkg_bmin, self.bkg_bmax)
+            msg += ' B:[%d,%d]' % (self.bkg_bmin, self.bkg_bmax)
         self.lab_info.setText('%s' % msg)
 
 #------------------------------

@@ -56,7 +56,7 @@ class EMQDetI(QtGui.QWidget) :
 
 
     def set_source(self, src):
-        self.src    = str(src)
+        self.src = str(src)
         #self.source = Source(src)
         #print '%s.set_source: source: %s  %s' % (self._name, self.src, str(self.source))
 
@@ -101,6 +101,10 @@ class EMQDetI(QtGui.QWidget) :
 
     def is_set(self):
         return False
+
+    def reset_pars(self): 
+        #self.message_def(sys._getframe().f_code.co_name)
+        pass
 
     def on_but_view(self, evt=None): self.message_def(sys._getframe().f_code.co_name)
 

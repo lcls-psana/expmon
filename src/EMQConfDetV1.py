@@ -112,13 +112,14 @@ class EMQConfDetV1(Frame) :
         except : 
           pass
         self.wdet = get_detector_widget(self, sel)
+        self.wdet.reset_pars()
         self.wdet.setMinimumWidth(300)
         self.box.insertWidget(3,self.wdet)
         #self.box.addWidget(self.wdet)
         #---- 
 
-        log.info('Mon:%d  Det:%s  selected: %s' %\
-                 (self.tabind, self.detind, sel), __name__)
+        log.info('%s  Det:%s  selected: %s' %\
+                 (cp.tab_names[self.tabind], self.detind, sel), self._name)
 
 
     def on_but_view(self):

@@ -13,7 +13,9 @@ import numpy as np
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 #from graphqt.GUViewGraph import GUViewGraph
-from expmon.EMQViewGraph import EMQViewGraph
+#from expmon.EMQViewGraph import EMQViewGraph
+from expmon.EMQGraphic import EMQGraphic
+from expmon.EMQHistogram import EMQHistogram, image_to_hist_arr
 
 from graphqt.Styles    import style
 from expmon.EMConfigParameters import cp
@@ -55,8 +57,10 @@ class EMQPresenter(QtCore.QObject) :
         self.wscatter = [None] * self.nmonitors
         self.whsig1   = [None] * self.nmonitors
         self.whsig2   = [None] * self.nmonitors
+        self.whistogr = [None] * self.nmonitors
 
         self.timer = None
+
 
         # SELECT ONE OF TWO UPDATE MODES:
         if do_self_update : self.start_check_on_timout()
@@ -110,6 +114,7 @@ class EMQPresenter(QtCore.QObject) :
 
         for i in range(self.nmonitors) :
             if self.wscatter[i] is not None : self.wscatter[i].close()
+            if self.whistogr[i] is not None : self.whistogr[i].close()
             if self.whsig1[i]   is not None : self.whsig1[i].close()
             if self.whsig2[i]   is not None : self.whsig2[i].close()
 
@@ -178,6 +183,7 @@ class EMQPresenter(QtCore.QObject) :
         for i, mon in enumerate(cp.monitors) :
             if not mon.is_active() : continue
             self.update_scatter(i, np.array(mon_sig1[i]), np.array(mon_sig2[i]))
+            self.update_histogr(i)
 
 #------------------------------
 
@@ -195,22 +201,22 @@ class EMQPresenter(QtCore.QObject) :
                 #print 'At least one of values in pcov is inf'
                 msg = '%s: fit returns inf in pcov: %s' % (cp.tab_names[imon], str(pcov))
                 log.warning(msg, self._name)
-                return
+                return None, None
 
             perr = np.sqrt(np.diag(pcov))
             msg = '%s: fit results popt: %s  error on pars: %s' % (cp.tab_names[imon], str(popt), str(perr))
-            log.info(msg, self._name)
+            log.debug(msg, self._name)
             
             #chi2 = np.sum(((funcy(xn, *popt) - yn) / en)**2)
             #ndof = len(xn) - 1
             #prob = chi2.sf(chi2, ndof, loc=0, scale=1)
             #print 'Fit: chi2=%.2f  ndof=%d  prob=%.6f' % (chi2, ndof, prob)
 
-            return popt
+            return popt, perr
 
         except :
-            print 'Fit failed...'
-            return None
+            log.warning('Fit failed...', self._name)
+            return None, None
 
 #------------------------------
 
@@ -225,30 +231,32 @@ class EMQPresenter(QtCore.QObject) :
             if xmin is None or xmax is None or ymin is None or ymax is None : return
             rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
 
-            w = self.wscatter[imon] = EMQViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
-                                                   margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=imon)
+            w = self.wscatter[imon] = EMQGraphic(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
+                                                 margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=imon)
             #w = self.wscatter[imon] = GUViewGraph(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
             #                                      margl=0.12, margr=0.01, margt=0.01, margb=0.06)
             #w.connect_view_is_closed_to(self.on_scatter_close)
-            w.connect_view_is_closed_for_imon_to(self.on_scatter_close)
+            w.graph.connect_view_is_closed_for_imon_to(self.on_scatter_close)
 
             self.draw_scatter(imon, sig1, sig2)
             #w.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
-            #self.set_window_geometry()
+            self.set_window_geometry(imon, 0)
             w.show()
         else :
             self.draw_scatter(imon, sig1, sig2)
 
-            popt = self.fit_scatter(imon, sig1, sig2) #, rectax)
+            popt, perr = self.fit_scatter(imon, sig1, sig2) #, rectax)
             if popt is not None :
-                rect = w.rectax
+                rect = w.graph.rectax
                 xarr = np.linspace(rect.left(), rect.right(), 100)
                 yarr = [funcy(x, *popt) for x in xarr]
                 self.draw_func(imon, xarr, yarr)
-
                 self.resid = sig2 - funcy(sig1, *popt)
-                print_ndarr(self.resid, name='resid', first=0, last=5)
 
+                msg = u'  p0: %3g \u00B1 %3g  \n  p1: %3g \u00B1 %3g  ' % (popt[0], perr[0], popt[1], perr[1])
+                w.draw_info(msg)
+
+                #print_ndarr(self.resid, name='resid', first=0, last=5)
                 #print_ndarr(xarr, name='xarr', first=0, last=10)
                 #print_ndarr(yarr, name='yarr', first=0, last=10)
 
@@ -259,22 +267,74 @@ class EMQPresenter(QtCore.QObject) :
     def on_scatter_close(self, imon): 
         msg = '%s imon=%d' % (sys._getframe().f_code.co_name, imon)
         log.debug(msg, self._name)
-        self.wscatter[imon].disconnect_view_is_closed_for_imon_from(self.on_scatter_close)
+        self.wscatter[imon].graph.disconnect_view_is_closed_for_imon_from(self.on_scatter_close)
+        self.save_window_geometry(imon, 0)
         self.wscatter[imon] = None
 
-        #self.save_window_geometry()
-        #self.w.disconnect_view_is_closed_from(self.on_child_close)
-        #self.w = None
+#------------------------------
+
+    def on_histogr_close(self, imon): 
+        msg = '%s imon=%d' % (sys._getframe().f_code.co_name, imon)
+        log.debug(msg, self._name)
+        self.whistogr[imon].hist.disconnect_view_is_closed_for_imon_from(self.on_histogr_close)
+        self.save_window_geometry(imon, 1)
+        self.whistogr[imon] = None
+
+#------------------------------
+#------------------------------
+
+    def win_pars(self, imon, iplot) :
+        """ imon (int) index of monotor or tab
+            iplot = 0,1,... for scatter, histogram, etc, respectively 
+        """
+        win = self.wscatter[imon] if iplot==0 else \
+              self.whistogr[imon] 
+
+        iplot0 = iplot*4
+        par_winx = cp.mon_win_pars[iplot0+0][imon]
+        par_winy = cp.mon_win_pars[iplot0+1][imon]
+        par_winh = cp.mon_win_pars[iplot0+2][imon]
+        par_winw = cp.mon_win_pars[iplot0+3][imon]
+
+        return win, par_winx, par_winy, par_winh, par_winw
+
+#------------------------------
+
+    def save_window_geometry(self, imon, iplot) : 
+        win, par_winx, par_winy, par_winh, par_winw = self.win_pars(imon, iplot)
+
+        point, size = win.mapToGlobal(QtCore.QPoint(0,0)), win.size() # Offset (-5,-22) for frame size.
+        x,y,w,h = point.x(), point.y(), size.width(), size.height()
+        msg = 'Save window parameters x,y,w,h : %4d, %4d, %4d, %4d' % (x,y,w,h)
+        log.info(msg, self._name)
+
+        par_winx.setValue(x)
+        par_winy.setValue(y)
+        par_winw.setValue(w)
+        par_winh.setValue(h)
+
+#------------------------------
+
+    def set_window_geometry(self, imon, iplot) :
+
+        win, par_winx, par_winy, par_winh, par_winw = self.win_pars(imon, iplot)
+
+        if par_winx.value() is None : return
+
+        win.setGeometry(par_winx.value(),\
+                        par_winy.value(),\
+                        par_winw.value(),\
+                        par_winh.value())
 
 #-------------------------------
 
     def draw_scatter(self, imon, sig1, sig2):
         w = self.wscatter[imon]
         if w is None : return
-        w.remove_all_graphs()
+        w.graph.remove_all_graphs()
         color = (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
-        #w.add_graph(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush())
-        w.add_points(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush(color), fsize=0.0075)
+        #w.graph.add_graph(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush())
+        w.graph.add_points(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush(color), fsize=0.0075)
         w.setWindowTitle('Scatter plot for %s' % cp.tab_names[imon])
 
 #------------------------------
@@ -283,8 +343,50 @@ class EMQPresenter(QtCore.QObject) :
         w = self.wscatter[imon]
         if w is None : return
         color = (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
-        w.add_graph(x, y, QtGui.QPen(color), brush=QtGui.QBrush())
+        w.graph.add_graph(x, y, QtGui.QPen(color), brush=QtGui.QBrush())
 
+#-------------------------------
+
+    def draw_histogr(self, imon):
+        w = self.whistogr[imon]
+        if w is None : return
+        w.hist.remove_all_graphs()
+        color = (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
+
+        arr = self.resid
+        amin, amax, nhbins, values = image_to_hist_arr(arr, vmin=None, vmax=None, nbins=100)
+        w.hist.add_hist(values, (amin, amax), pen=QtGui.QPen(Qt.yellow, 0), brush=QtGui.QBrush(Qt.yellow))
+
+        #w.add_array_as_hist(self.resid, pen=QtGui.QPen(color, 0), brush=QtGui.QBrush(color), vtype=np.float)
+        w.setWindowTitle('Residuals for %s' % cp.tab_names[imon])
+
+#------------------------------
+
+    def update_histogr(self, imon):
+        #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
+        if self.resid is None : return 
+
+        #print_ndarr(self.resid, name='XXX: resid', first=0, last=5)
+
+        w = self.whistogr[imon]
+        if w is None :
+            xmin, xmax = self.resid.min(), self.resid.max()
+            ymin, ymax = 0, 10
+            rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
+
+            w = self.whistogr[imon] = EMQHistogram(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
+                                                   margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=imon)
+
+            w.hist.connect_view_is_closed_for_imon_to(self.on_histogr_close)
+
+            self.draw_histogr(imon)
+            self.set_window_geometry(imon, 1)
+            w.show()
+        else :
+            self.draw_histogr(imon)
+            w.raise_()
+
+#------------------------------
 #------------------------------
 #------------------------------
 #------------------------------

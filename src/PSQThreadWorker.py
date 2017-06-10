@@ -27,7 +27,7 @@ class PSQThreadWorker(QtCore.QThread) :
         """
         QtCore.QThread.__init__(self, parent)        
         self._name = self.__class__.__name__
-        print 'Start %s' % self._name
+        #print 'Start %s' % self._name
 
         self.cp        = cp
         self.dt_msec   = dt_msec

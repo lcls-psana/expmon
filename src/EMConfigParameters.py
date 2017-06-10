@@ -34,6 +34,7 @@ class EMConfigParameters(PSConfigParameters) :
 
     number_of_tabs = len(tab_names)
     number_of_det_pars = 16
+    number_of_mon_winds = 2 # scatterplot and histogram
 
     def __init__(self, fname=None) :
         """fname : str - the file name with configuration parameters, if not specified then use default.
@@ -41,7 +42,7 @@ class EMConfigParameters(PSConfigParameters) :
         PSConfigParameters.__init__(self)
         #self._name = self.__class__.__name__
         #log.debug('In c-tor', self._name)
-        print 'In EMConfigParameters c-tor' # % self._name
+        #print 'EMConfigParameters c-tor'# % self._name
 
         #self.fname_cp = '%s/%s' % (os.path.expanduser('~'), '.confpars-montool.txt') # Default config file name
         self.fname_cp = './emon-confpars.txt' # Default config file name
@@ -71,7 +72,7 @@ class EMConfigParameters(PSConfigParameters) :
         #self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='/reg/g/psdm/logs/montool/log.txt', type='str')
         self.log_file  = self.declareParameter(name='LOG_FILE_NAME', val_def='emon-log.txt', type='str')
 
-        self.save_log_at_exit = self.declareParameter( name='SAVE_LOG_AT_EXIT', val_def=False,  type='bool')
+        self.save_log_at_exit = self.declareParameter( name='SAVE_LOG_AT_EXIT', val_def=True,  type='bool')
         self.dir_log_repo    = self.declareParameter(name='DIR_LOG_REPO', val_def='/reg/g/psdm/logs/emon', type='str')
 
         self.current_tab     = self.declareParameter(name='CURRENT_TAB', val_def='Status', type='str')
@@ -105,6 +106,14 @@ class EMConfigParameters(PSConfigParameters) :
         for p in range(self.number_of_det_pars) :
             self.det1_list_of_pars[p] = self.declareListOfPars('DET1_PAR%02d'%p, det_par_tabs)
             self.det2_list_of_pars[p] = self.declareListOfPars('DET2_PAR%02d'%p, det_par_tabs)
+
+        # List of 4(x,y,w,h) * number_of_mon_winds parameters for presentation windows of all tabs/mons,
+        # addressed as cp.mon_win_pars[parnum][tabind]
+
+        win_par_tabs = [(None, None, 'float') for i in range(self.number_of_tabs)]
+        self.mon_win_pars = [None] * self.number_of_mon_winds * 4
+        for p in range(self.number_of_mon_winds * 4) :
+            self.mon_win_pars[p] = self.declareListOfPars('WIN_PAR%02d'%p, win_par_tabs)
 
 #------------------------------
 
