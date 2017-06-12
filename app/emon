@@ -80,14 +80,14 @@ class EM_GUI :
 #------------------------------
 
 def usage() :
-    return '\n\nCommand to launch Monitoring Tool GUI:\n'+\
-           '\n  %prog'+\
-           ' -e <experiment> -r <run-number> -v'+\
+    return '\n  %prog'+\
+           ' -e <experiment> -r <run-number> -c <calib-directory> -v'+\
            '\n\n  Examples:'+\
-           '\n  %prog -e sxro5916 -r 10'+\
-           '\n  %prog -e mfxn8316 -r 11'+\
-           '\n  %prog -e mfxn8316 -r 11 -v'+\
-           '\n  %prog -e mfxn8316 -r 11 -u 3 -w 2 -v'
+           '\n  %prog'+\
+           '\n  %prog -e sxro5916'+\
+           '\n  %prog -e sxro5916 -r 20'+\
+           '\n  %prog -e mfxn8316 -r 11 -c ./calib'+\
+           '\n  %prog -e mfxn8316 -r 11 -v'
  
 #------------------------------
 
@@ -107,13 +107,13 @@ def input_option_parser() :
     h_nwin1  = 'number of windows type 1, default = %d' % d_nwin1
     h_nwin2  = 'number of windows type 2, default = %d' % d_nwin2
 
-    parser = OptionParser(description='Command line parameters', usage ='usage: %prog <opts>' + usage())
+    parser = OptionParser(description='Command to launch Experiment Monitoring GUI', usage ='usage: %prog <opts>' + usage())
     parser.add_option('-e', '--exp',    default=d_exp,    action='store', type='string', help=h_exp)
     parser.add_option('-r', '--run',    default=d_run,    action='store', type='int',    help=h_run)
     parser.add_option('-c', '--clb',    default=d_clb,    action='store', type='string', help=h_clb)
     parser.add_option('-v', '--verbos', default=d_verbos, action='store_true',           help=h_verbos)
-    parser.add_option('-w', '--nwin1',  default=d_nwin1,  action='store', type='int',    help=h_nwin1)
-    parser.add_option('-u', '--nwin2',  default=d_nwin2,  action='store', type='int',    help=h_nwin2)
+    #parser.add_option('-w', '--nwin1',  default=d_nwin1,  action='store', type='int',    help=h_nwin1)
+    #parser.add_option('-u', '--nwin2',  default=d_nwin2,  action='store', type='int',    help=h_nwin2)
  
     return parser #, parser.parse_args()
 

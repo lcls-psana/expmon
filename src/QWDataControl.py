@@ -216,7 +216,7 @@ class QWDataControl(Frame) :
 
 
     def on_but_exp(self):
-        #print 'on_but exp'
+        #print 'XXXXX on_but exp'
         exps = emu.list_of_experiments()
         sel = popup_select_experiment(None, exps)
         if sel is None : return
@@ -224,8 +224,22 @@ class QWDataControl(Frame) :
         if sel != self.exp_name.value() :
             self.set_ins(val=self.instr_name.value(), cmt='instrument')
             self.set_run()
+
         self.set_exp(sel, cmt='experiment')
         self.set_calib(sel)
+        self.emit(QtCore.SIGNAL('expname_is_changed()'))
+
+
+    def connect_expname_is_changed_to(self, slot) :
+        self.connect(self, QtCore.SIGNAL('expname_is_changed()'), slot)
+
+
+    def disconnect_expname_is_changed_from(self, slot) :
+        self.disconnect(self, QtCore.SIGNAL('expname_is_changed()'), slot)
+
+
+    def test_expname_is_changed(self) :
+        print 'XXX %s.expname_is_changed to %s' % (self._name, self.cp.exp_name.value())
 
 
     def on_but_run(self):
@@ -281,7 +295,7 @@ class QWDataControl(Frame) :
 
 
     def set_calib(self, exp=None):
-        print 'TBD: %s.set_calib' % self._name
+        #print 'XXX: %s.set_calib' % self._name
         par = self.calib_dir
         but = self.w_calib.but
         edi = self.w_calib.edi

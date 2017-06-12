@@ -92,6 +92,10 @@ class EMQMain(QtGui.QWidget) : # Frame)
         #ec.connect_stop_button_to(ro.stop_event_loop)
         #ec.connect_new_event_number_to(self.emqeventloop.on_new_event_number)
 
+        #self.connect(self, QtCore.SIGNAL('update(QString)'), self.emqtabs.reset_monitors)
+        #cp.emqdatacontrol.connect_expname_is_changed_to(cp.emqdatacontrol.test_expname_is_changed)
+        cp.emqdatacontrol.connect_expname_is_changed_to(self.emqtabs.reset_monitors)
+
         cp.guimain = self
 
     #-------------------
@@ -113,8 +117,8 @@ class EMQMain(QtGui.QWidget) : # Frame)
         exp    = popts.exp    # 'mfxn8316' 
         run    = popts.run    # 11
         clb    = popts.clb    # ''
-        nwin1  = popts.nwin1  # 2
-        nwin2  = popts.nwin2  # 3
+        #nwin1  = popts.nwin1  # 2
+        #nwin2  = popts.nwin2  # 3
  
         if exp != self.defs['exp'] :
             cp.exp_name.setValue(exp)
@@ -228,7 +232,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
             if psu.create_path(path) :
                 log.saveLogInFile(path)
-                #print 'Log file: %s' % path
+                print 'Saved log file: %s' % path
             else : log.warning('onSave: path for log file %s was not created.' % path, self.name)
   
 #------------------------------

@@ -26,10 +26,19 @@ def get_detector_widget(parent=None, src=None) :
     """
     s_src = str(src)
 
-    if   'Opal'    in s_src : return EMQDetArea(parent, s_src)
-    elif 'Andor'   in s_src : return EMQDetArea(parent, s_src)
-    elif 'GMD'     in s_src : return EMQDetGMD (parent, s_src)
-    elif 'Acqiris' in s_src : return EMQDetWF  (parent, s_src)
-    else                    : return EMQDetI   (parent, s_src)
+    if   'Opal'      in s_src : return EMQDetArea(parent, s_src)
+    elif 'Andor3d'   in s_src : return EMQDetArea(parent, s_src)
+    elif 'Andor'     in s_src : return EMQDetArea(parent, s_src)
+    elif 'Princeton' in s_src : return EMQDetArea(parent, s_src)
+    elif 'pnCCD'     in s_src : return EMQDetArea(parent, s_src)
+    elif 'Rayonix'   in s_src : return EMQDetArea(parent, s_src)
+    elif 'Tm6740'    in s_src : return EMQDetArea(parent, s_src)
+    elif 'Epix100a'  in s_src : return EMQDetArea(parent, s_src)
+    elif 'Cspad2x2'  in s_src : return EMQDetArea(parent, s_src)
+    elif 'Cspad'     in s_src : return EMQDetArea(parent, s_src)
+    elif 'GMD'       in s_src : return EMQDetGMD (parent, s_src)
+    elif 'Acqiris'   in s_src : return EMQDetWF  (parent, s_src)
+    elif 'Imp'       in s_src : return EMQDetWF  (parent, s_src)
+    else                      : return EMQDetI   (parent, s_src)
 
 #------------------------------

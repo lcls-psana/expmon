@@ -74,6 +74,12 @@ class PSEventSupplier :
     def set_dataset(self, dsname, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx'
         """Sets dataset for direct access idx and regular even mode
         """
+        if dsname is None : 
+            self.ds = None
+            self._run = None
+            self.events = None
+            return
+
         if calib_dir is not None : setOption('psana.calib-dir', calib_dir)
         self.calib_dir = calib_dir
 
@@ -91,8 +97,13 @@ class PSEventSupplier :
             self.ds = None
             self._run = None
             self.events = None
+
             #raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
+        
+        #self.log.info('open dataset: %s'%dsname, self._name)
+        #print '%s.set_dataset open dataset: %s'%(self._name, dsname)
+
         self.events = self.ds.events() # for event_next() method
 
 

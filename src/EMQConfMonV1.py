@@ -40,7 +40,6 @@ class EMQConfMonV1(EMQConfMonI) :
         self.set_style()
         self.set_tool_tips()
 
-
     def set_style(self):
         EMQConfMonI.set_style(self)
 #        self.setMinimumSize(300,100)
@@ -48,6 +47,11 @@ class EMQConfMonV1(EMQConfMonI) :
 #        self.setMaximumSize(600,100)
 #        self.vsplit.setMinimumHeight(700)        
 #        self.setStyleSheet(style.styleBkgd)
+
+
+    def reset_monitor(self):
+        self.wdet1.set_src()      
+        self.wdet2.set_src()      
 
 
 #    def closeEvent(self, e):

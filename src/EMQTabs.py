@@ -131,6 +131,12 @@ class EMQTabs(QtGui.QWidget) :
 
     #--------------------------
 
+    def reset_monitors(self):
+        for mon in cp.monitors :
+            mon.reset_monitor()
+
+    #--------------------------
+
     def make_monitors(self):
         cp.monitors = []
         for itab in range(len(self.tab_names)) :

@@ -19,7 +19,6 @@ class EMQDetArea(EMQDetI) :
         self.guview = None        
         self.arrimg = None
 
-        #self.parent = parent
         tabind = parent.tabind
         detind = parent.detind
 
@@ -44,11 +43,7 @@ class EMQDetArea(EMQDetI) :
         self.set_roi_sig()
         self.set_roi_bkg()
 
-        #self.w = QtGui.QTextEdit(self._name)
-        #self.lab_info = QtGui.QLabel('Use EMQDetArea for "%s"' % src)
-
         self.lab_info.setText('Use EMQDetArea') # for "%s"' % src)
-        #self.set_info()
 
         self.lab_roi = QtGui.QLabel('Set ROI')
         self.but_set_sig = QtGui.QPushButton('Signal')
@@ -58,23 +53,8 @@ class EMQDetArea(EMQDetI) :
         self.box.addWidget(self.but_set_sig)
         self.box.addWidget(self.but_set_bkg)
 
-        #self.but_src = QtGui.QPushButton(self.par_src.value())
-        #self.but_view = QtGui.QPushButton('View')
-        #self.lab_info = QtGui.QLineEdit('NOT IMPLEMENTED "%s"' % src)
-
-        #self.box = QtGui.QHBoxLayout(self)
-        #self.box.addWidget(self.lab_info)
-        #self.box.addStretch(1)
-        #self.setLayout(self.box)
-
-         #gu.printStyleInfo(self)
-        #cp.guitabs = self
-
-        #self.connect(self.but_src,  QtCore.SIGNAL('clicked()'), self.on_but_src)
-        #self.connect(self.but_view, QtCore.SIGNAL('clicked()'), self.on_but_view)
-
-        self.connect(self.but_set_sig,   QtCore.SIGNAL('clicked()'), self.on_but_set)
-        self.connect(self.but_set_bkg,   QtCore.SIGNAL('clicked()'), self.on_but_set)
+        self.connect(self.but_set_sig, QtCore.SIGNAL('clicked()'), self.on_but_set)
+        self.connect(self.but_set_bkg, QtCore.SIGNAL('clicked()'), self.on_but_set)
 
         self.init_det()
         self.set_style()
@@ -84,13 +64,12 @@ class EMQDetArea(EMQDetI) :
     def init_det(self):
         self.dso = PSDataSupplier(cp, log, dsname=None, detname=self.src)
         log.info('init_det for src: %s' % self.src, self._name)
-        self.arrimg = arr = self.dso.image(cp.event_number.value())
+        self.arrimg = self.image(self.dso.event_next()) # cp.event_number.value())
 
 
     def set_style(self):
         EMQDetI.set_style(self)
         self.lab_roi.setStyleSheet(style.styleLabel)
-
         #self.lab_info.setMinimumWidth(300)
         #self.lab_info.setStyleSheet(style.styleLabel)
         #self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
@@ -114,7 +93,6 @@ class EMQDetArea(EMQDetI) :
         QtGui.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
-#------------------------------
 
     def set_roi_sig(self):
         self.sig_cmin = self.par_sig_xmin.value()
@@ -131,6 +109,7 @@ class EMQDetArea(EMQDetI) :
                         (self.sig_cmax - self.sig_cmin)\
                       * (self.sig_rmax - self.sig_rmin)
 
+
     def set_roi_bkg(self):
         self.bkg_cmin = self.par_bkg_xmin.value()
         self.bkg_cmax = self.par_bkg_xmax.value()
@@ -146,6 +125,7 @@ class EMQDetArea(EMQDetI) :
                         (self.bkg_cmax - self.bkg_cmin)\
                       * (self.bkg_rmax - self.bkg_rmin)
 
+#------------------------------
 
     def on_but_set(self):
         #print 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
@@ -202,22 +182,19 @@ class EMQDetArea(EMQDetI) :
 
         from graphqt.GUViewImage import GUViewImage
         #import pyimgalgos.NDArrGenerators as ag
+        #self.arrimg = ag.random_standard((500,500), mu=0, sigma=10)
+
+        self.arrimg = self.image(self.dso.event_next()) # cp.event_number.value())
 
         if self.guview is None :
-            #self.guview = IVMain(parser=None)
-            #arr = ag.random_standard((500,500), mu=0, sigma=10)
-            self.arrimg = arr = self.dso.image(cp.event_number.value())
-            self.guview = GUViewImage(None, arr)
-            #self.move(self.pos())
+            self.guview = GUViewImage(None, self.arrimg )
             self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
-            #self.guview.move(QtGui.QCursor.pos()+QtCore.QPoint(200,-200))
             self.set_window_geometry()
             self.guview.show()
             self.guview.connect_view_is_closed_to(self.on_child_close)
 
         else :
-            self.arrimg = arr = self.dso.image(self.dso.event_next()) # cp.event_number.value())
-            self.guview.set_pixmap_from_arr(arr)
+            self.guview.set_pixmap_from_arr(self.arrimg)
             self.guview.raise_()
 
         tit = '%s  %s' % (cp.tab_names[self.tabind], self.src)
@@ -229,12 +206,19 @@ class EMQDetArea(EMQDetI) :
         img = self.dso.raw(evt)
         return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
 
+        
+    def image(self, evt):  
+        nda = self.dso.raw(evt)
+        if nda is None : return None
+        return self.dso.image(evt, nda)
+        
 
     def signal(self, evt):  
         scmin, scmax, srmin, srmax, snpix = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax, self.sig_npix        
         bcmin, bcmax, brmin, brmax, bnpix = self.bkg_cmin, self.bkg_cmax, self.bkg_rmin, self.bkg_rmax, self.bkg_npix       
         #print 'XXX %s.signal before image' % self._name
-        img = self.dso.raw(evt)
+        img = self.image(evt)
+        if img is None : return None
         #print 'XXX %s.signal after image' % self._name
         bb = 0 if bnpix is None else img[brmin:brmax, bcmin:bcmax].sum()/bnpix
         return img.sum() if scmin is None else img[srmin:srmax, scmin:scmax].sum() - bb*snpix

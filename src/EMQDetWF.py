@@ -278,7 +278,11 @@ class EMQDetWF(EMQDetI) :
             self.wf, self.wt = None, None
             return None, None, None, None, None, None
         e = evt if evt is not None else self.dso.event_next()
-        self.wf, self.wt = wf, wt = self.dso.detector().raw(e) # cp.event_number.value()
+        resp = self.dso.detector().raw(e) # cp.event_number.value()
+        if resp is None : 
+            self.wf, self.wt = None, None
+            return None, None, None, None, None, None
+        self.wf, self.wt = wf, wt = resp
         #print_ndarr(wf, name='wf', first=0, last=10)
         #print_ndarr(wt, name='wt', first=0, last=10)
 

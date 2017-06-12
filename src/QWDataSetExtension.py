@@ -14,6 +14,7 @@ from PyQt4 import QtGui, QtCore
 import expmon.PSUtils  as psu
 import graphqt.QWUtils as qwu
 from graphqt.Styles    import style
+from expmon.PSNameManager import nm
 
 #------------------------------
 
@@ -62,7 +63,7 @@ class QWDataSetExtension(Frame) :
         #self.setContentsMargins(QtCore.QMargins(-5,-5,-5,-5))
 
         self.lab_ext.setStyleSheet(style.styleLabel)
-        self.but_ext.setFixedWidth(50)
+        self.but_ext.setFixedWidth(60)
         #self.lab_ext.setVisible(self.show_mode & 2)
         #self.but_ext.setVisible(self.show_mode & 2)
 
@@ -73,7 +74,10 @@ class QWDataSetExtension(Frame) :
 
         self.dsextension.setValue(sel)
         self.but_ext.setText(sel)
-        self.log.info('Data set extension: %s' % sel, __name__)
+
+        msg = 'selected dataset extension: %s  brings dsname: %s' % (sel, nm.dsname())
+        self.log.info(msg, self._name)
+
 
 #------------------------------
 #------------------------------

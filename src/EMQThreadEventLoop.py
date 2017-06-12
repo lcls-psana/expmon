@@ -39,7 +39,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
         self.thread_id = random.random()
         self.counter   = 0
         self.pbits     = pbits
-        self.do_check_flags   = True
+        self.do_check_flags = True
 
         #self.connect_signal_to_slot(self.test_connection)
 
@@ -56,8 +56,8 @@ class EMQThreadEventLoop(QtCore.QThread) :
     def __del__(self) :
         print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
         #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
-        self.do_check_flags = False
         self.timer.stop()
+        self.do_check_flags = False
         self.emqeventloop.__del__()
 
 #------------------------------
@@ -101,8 +101,10 @@ class EMQThreadEventLoop(QtCore.QThread) :
 #------------------------------
 
     def _check_flags(self) :
-        msg = 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if not self.do_check_flags : return # works after closing
+
         if self.pbits & 1 : 
+            msg = 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
             print '%s  flag_do_event_loop: %s' % (msg, cp.flag_do_event_loop)
 
         if  cp.flag_do_event_loop :

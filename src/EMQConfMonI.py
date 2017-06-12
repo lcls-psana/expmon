@@ -74,6 +74,10 @@ class EMQConfMonI(QtGui.QWidget) :
         return (self.wdet1, self.wdet2)
 
 
+    def reset_monitor(self):
+        pass
+
+
     def is_active(self):
         return not(None in self.detectors()) and self.wdet1.det_is_set() and self.wdet2.det_is_set()
 

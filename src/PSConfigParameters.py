@@ -29,7 +29,8 @@ class PSConfigParameters(ConfigParameters) :
     char_shrink    = u' \u25B2' # solid up-head triangle
  
     list_of_instr = ['AMO', 'SXR', 'XPP', 'XCS', 'CXI', 'MEC', 'MFX', 'DIA', 'MOB', 'USR']
-    list_of_dsext = ['None','idx','smd','smd:live','shmem']
+    list_of_dsext = ['None', 'smd', 'smd:live', 'shmem']
+    #list_of_dsext = ['None', 'idx', 'smd', 'smd:live', 'shmem']
                     #See: https://confluence.slac.stanford.edu/display/PSDM/Real-Time+Analysis
 
     def __init__(self, fname=None) :

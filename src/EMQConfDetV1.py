@@ -93,15 +93,21 @@ class EMQConfDetV1(Frame) :
         #print '\nconsumed time (sec) =', time()-t0_sec
         #for s in srcs : print 'XXX EMQConfDetV1:', s
         
-        sel = qwu.selectFromListInPopupMenu(['None',] + list(srcs))
-        if sel is None : return
+        lst_srcs = list(srcs) if srcs is not None else []
 
+        sel = qwu.selectFromListInPopupMenu(['None',] + lst_srcs)
+        if sel is None : return
+        self.set_src(src=sel)
+
+
+    def set_src(self, src='None'):
         #if sel != self.instr_name.value() :
         #    self.set_exp()
         #    self.set_run()
         #    self.set_calib()
-        self.p_src.setValue(sel)
-        self.but_src.setText(sel)
+        
+        self.p_src.setValue(src)
+        self.but_src.setText(src)
         self._src_is_set = self.src() != 'None'
 
         #---- update self.wdet
@@ -111,7 +117,7 @@ class EMQConfDetV1(Frame) :
           del self.wdet
         except : 
           pass
-        self.wdet = get_detector_widget(self, sel)
+        self.wdet = get_detector_widget(self, src)
         self.wdet.reset_pars()
         self.wdet.setMinimumWidth(300)
         self.box.insertWidget(3,self.wdet)
@@ -119,7 +125,7 @@ class EMQConfDetV1(Frame) :
         #---- 
 
         log.info('%s  Det:%s  selected: %s' %\
-                 (cp.tab_names[self.tabind], self.detind, sel), self._name)
+                 (cp.tab_names[self.tabind], self.detind, src), self._name)
 
 
     def on_but_view(self):

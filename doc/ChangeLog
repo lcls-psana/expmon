@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-08
+2017-06-12 Mikhail S. Dubrovin
+- tume several modules for expmon project
+
 Tag: V01-00-07
 2017-06-09 Mikhail S. Dubrovin
 - add EMQGraphic, EMQHistogram, EMQViewHist, tune other modules for expmon

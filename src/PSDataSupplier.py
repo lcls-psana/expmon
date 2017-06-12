@@ -23,11 +23,13 @@ Usage ::
 
     for n in range(5) :
         #evt = dso.event_for_number(n)
-        #nda = dso.det().raw(evt)
-        #img = dso.image(n, nda)
-        img = dso.image(n)
+        evt = dso.es.event_next()
+        #nda = self.raw(evt)
+        #img = self.image(n, nda)
+        img = self.image(n)
         # or
-        img = dso.image(evt)
+        img = self.image(evt)
+        img = self.raw(evt)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 """
 #------------------------------
@@ -71,15 +73,17 @@ class PSDataSupplier :
         #self.det = AreaDetector(self.detname, self.es.env(), pbits=0)        
 
 
-    def raw(self, evt, nda=None) :
-        return self.det.raw(evt) if self.det is not None else None
+    def raw(self, evt) :
+        if self.det is None : return None
+        return self.det.raw(evt)
 
 
     def image(self, par=None, nda=None) :
         """ par psana.Event or int event number
         """
+        if self.det is None : return None
         evt = self.es.event_for_number(par) if isinstance(par, int) else par
-        return self.det.image(evt, nda) if self.det is not None else None
+        return self.det.image(evt, nda)
 
 
     def detector(self) :
