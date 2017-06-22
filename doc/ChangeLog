@@ -13,8 +13,8 @@ reverse time order.
 
 #------------------------------
 
-####  Tag: V01-00-09
-2017-06-22 Mikhail S. Dubrovin
+Tag: V01-00-09
+2017-06-22-23 Mikhail S. Dubrovin
 - tuning emon for shmem
 	modified:   src/EMQConfDetV1.py
 	modified:   src/EMQDetArea.py

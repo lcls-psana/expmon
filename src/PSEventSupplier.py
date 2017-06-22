@@ -46,6 +46,7 @@ class PSEventSupplier :
     def __init__(self, dsname=None, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx', calib_dir='./calib'
         self._evnum = -1
         self.is_idx_mode = False
+        self.ds = None
         self.dsname = None
         self.set_dataset(dsname, calib_dir)
         #cp.pseventsupplier = self
@@ -103,6 +104,7 @@ class PSEventSupplier :
         self.is_idx_mode = False
 
         try : 
+            if self.ds is not None : del self.ds
             print 'XXX: open DataSource in PSEventSupplier.set_dataset  %s' % dsname
             self.ds = DataSource(dsname)
             self.dsname = dsname

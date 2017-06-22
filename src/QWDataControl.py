@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 
 import graphqt.QWUtils         as qwu
 from graphqt.QWDirName         import QWDirName
-from graphqt.QWEventControl    import QWEventControl
+from expmon.QWEventControl     import QWEventControl
 from expmon.QWDataSource       import QWDataSource     
 from expmon.QWDataSetExtension import QWDataSetExtension
 import expmon.EMUtils          as emu

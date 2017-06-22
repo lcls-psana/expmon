@@ -38,14 +38,15 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def init_event_loop(self) :
+
+        self.nevents_update = cp.nevents_update.value()
+
         dsname = nm.dsname()
         #print 'XXX %s.init_event_loop dsname = %s' % (self._name, dsname)
         if dsname == self.dsname : return
         self.dsname = dsname
         self.number_of_tabs = cp.number_of_tabs
         self.number_of_det_pars = cp.number_of_det_pars
-
-        self.nevents_update = cp.nevents_update.value()
 
         self.lst_src1  = cp.det1_src_list
         self.lst_src2  = cp.det2_src_list

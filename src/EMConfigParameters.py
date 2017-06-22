@@ -78,7 +78,7 @@ class EMConfigParameters(PSConfigParameters) :
 
         self.current_tab     = self.declareParameter(name='CURRENT_TAB', val_def='Status', type='str')
 
-        self.data_buf_size   = self.declareParameter(name='DATA_BUF_SIZE', val_def=500, type='int')
+        self.data_buf_size   = self.declareParameter(name='DATA_BUF_SIZE', val_def=5000, type='int')
         self.nevents_update  = self.declareParameter(name='EVENTS_UPDATE', val_def=100, type='int')
 
         self.main_win_pos_x  = self.declareParameter(name='MAIN_WIN_POS_X',  val_def=5,   type='int')

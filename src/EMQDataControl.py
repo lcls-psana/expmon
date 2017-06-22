@@ -78,7 +78,7 @@ if __name__ == "__main__" :
 
     app = QtGui.QApplication(sys.argv)
     w = EMQDataControl(cp, log, show_mode=0377)
-    #w.event_control().set_show_mode(show_mode=010)
+    #w.event_control().set_show_mode(show_mode=030)
     w.move(QtCore.QPoint(50,50))
     w.setWindowTitle(w._name)
     w.event_control().connect_new_event_number_to(w.test_on_new_event_number_reception)
