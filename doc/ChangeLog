@@ -22,7 +22,9 @@ reverse time order.
 	modified:   src/EMQEventLoop.py
 	modified:   src/EMQPresenter.py
 	modified:   src/PSEventSupplier.py
+	modified:   src/PSDataSupplier.py
 	modified:   src/PSUtils.py
+	modified:   src/EMQDetGMD.py
 
 Tag: V01-00-08
 2017-06-12 Mikhail S. Dubrovin

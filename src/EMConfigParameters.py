@@ -56,6 +56,7 @@ class EMConfigParameters(PSConfigParameters) :
         self.emqdatacontrol = None
         self.emqeventloop = None
         self.emqthreadeventloop = None
+        #self.pseventsupplier = None # is used as singleton from PSEventSupplier
 
         self.list_of_sources = None # if None - updated in the ThreadWorker
 

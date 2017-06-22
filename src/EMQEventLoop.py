@@ -17,7 +17,7 @@ from time import time, sleep
 from expmon.EMConfigParameters import cp
 #from expmon.Logger             import log
 from expmon.PSNameManager import nm
-from expmon.PSEventSupplier import PSEventSupplier
+from expmon.PSEventSupplier import pseventsupplier # use singleton PSEventSupplier
 
 #------------------------------
 
@@ -58,7 +58,11 @@ class EMQEventLoop(QtCore.QObject) :
         #self.par_winx  = det_list_of_pars[0][tabind]
         #self.par_winy  = det_list_of_pars[1][tabind]
 
-        self.es = PSEventSupplier(cp, log=None, dsname=self.dsname, calib_dir=None)
+        self.es = pseventsupplier
+        #          PSEventSupplier(cp, log=None, dsname=self.dsname, calib_dir=None)\
+        #          if cp.pseventsupplier is None else cp.pseventsupplier
+
+        self.es.set_dataset(self.dsname, calib_dir=None) # in case if it was different in cp.pseventsupplier
 
         #self.print_pars()
 
@@ -86,6 +90,8 @@ class EMQEventLoop(QtCore.QObject) :
     def start_event_loop(self) :
         if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
         self.init_event_loop() 
+
+        self.evcntr = 0
 
         if self.dsname is None : 
             print 'WARNING %s.start_event_loop dataset name "%s" IS NOT DEFINED' % (self._name, self.dsname)
@@ -115,7 +121,12 @@ class EMQEventLoop(QtCore.QObject) :
             #self.evnum = self.es.current_event_number()
             self.evt, self.evnum = self.es.event_next_and_number()
 
-            print 'XXX %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
+            self.evcntr += 1
+
+            if self.evcntr < 5\
+            or self.evcntr < 50 and not (self.evnum%10)\
+            or not (self.evnum%100):\
+                print 'XXX: %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
 
             if self.evt is None :
                 print '%s.%s - evt is None, current evnum: %d'%\
@@ -167,9 +178,9 @@ class EMQEventLoop(QtCore.QObject) :
             rec += [i, mon.det1().signal(evt), mon.det2().signal(evt)] if mon.is_active() else\
                    [None, None, None]
 
-        print 'XXX: EMQEventLoop.proc_event ', rec
+        #print 'XXX: EMQEventLoop.proc_event ', rec
         cp.dataringbuffer.save_record(rec)
-        print 'XXX: EMQEventLoop.proc_event record saved'
+        #print 'XXX: EMQEventLoop.proc_event record saved'
 
 #------------------------------
 

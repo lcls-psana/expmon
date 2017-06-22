@@ -28,6 +28,7 @@ from expmon.PSNameManager import nm
 
 from pyimgalgos.GlobalUtils import table_from_cspad_ndarr, reshape_to_2d, print_ndarr #subtract_bkgd
 from PSCalib.GeometryObject import data2x2ToTwo2x1 #, two2x1ToData2x2
+from expmon.PSEventSupplier import pseventsupplier # singleton PSEventSupplier object
 
 #------------------------------
 
@@ -36,9 +37,11 @@ def detector(src, env) : # src='CxiDs2.0:Cspad.0'
 
 #------------------------------
 
-def dataset(dsname) : # dsname='exp=cxi12316:run=1234', src='CxiDs2.0:Cspad.0'
-    print 'XXX DataSource open in PSUtils dataset %s' % dsname
-    return psana.DataSource(dsname)
+def dataset(dsname, calib_dir=None) : # dsname='exp=cxi12316:run=1234', src='CxiDs2.0:Cspad.0'
+    #print 'XXX DataSource open in PSUtils dataset %s' % dsname
+    #return psana.DataSource(dsname)
+    pseventsupplier.set_dataset(dsname, calib_dir)
+    return pseventsupplier.dataset()
 
 #------------------------------
 
@@ -121,8 +124,10 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
     #print 'expmon.PSUtils.list_of_sources if is passed'
             
-    print 'XXX DataSource open in PSUtils list_of_sources %s' % dsn
-    ds = psana.DataSource(dsn)
+    #print 'XXX DataSource open in PSUtils list_of_sources %s' % dsn
+    #ds = psana.DataSource(dsn)
+    pseventsupplier.set_dataset(dsn, calib_dir=None)
+    ds = pseventsupplier.dataset()
     cfg = ds.env().configStore()
     sources = [str(k.src()) for k in cfg.keys()] # DetInfo(CxiDs2.0:Cspad.0)
     srcs_cfg = set([s[8:-1] for s in sources if s[:7]=='DetInfo']) # selects CxiDs2.0:Cspad.0
@@ -134,7 +139,9 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
         #print "ERROR: failed to get next event: ", reason
     except : # StopIteration, reason:
         print "ERROR: StopIteration for dsname=%s" % dsn
-        ds = psana.DataSource(dsn)
+        pseventsupplier.set_dataset(dsn, calib_dir=None)
+        ds = pseventsupplier.dataset()
+        #ds = psana.DataSource(dsn)
         evt0 = ds.events().next()
 
     sources = [str(k.src()) for k in evt0.keys()] # DetInfo(CxiDs2.0:Cspad.0)
@@ -277,7 +284,9 @@ def test_list_of_sources(tname) :
 
 def test_dataset_times(tname) :
     #ds = DataSource('exp=xpptut15:run=54:smd')
-    ds = psana.DataSource('exp=cxif5315:run=169:smd')
+    #ds = psana.DataSource('exp=cxif5315:run=169:smd')
+    pseventsupplier.set_dataset('exp=cxif5315:run=169:smd', calib_dir=None)
+    ds = pseventsupplier.dataset()
     t0_sec = time()
     dst = dataset_times(ds)
     print 'consumed time(sec) = %.6f' % (time()-t0_sec)
@@ -287,7 +296,9 @@ def test_dataset_times(tname) :
 
 def test_steps(tname) :
     #ds = DataSource('exp=xpptut15:run=54:idx')
-    ds = psana.DataSource('exp=cxif5315:run=169:idx')
+    #ds = psana.DataSource('exp=cxif5315:run=169:idx')
+    pseventsupplier.set_dataset('exp=cxif5315:run=169:idx', calib_dir=None)
+    ds = pseventsupplier.dataset()
     run = ds.runs().next()
     #nsteps = run.nsteps()
     #print 'nsteps = %d' % nsteps

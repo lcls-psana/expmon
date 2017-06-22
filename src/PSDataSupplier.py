@@ -35,7 +35,7 @@ Usage ::
 #------------------------------
 
 from expmon.PSNameManager import nm
-from expmon.PSEventSupplier import PSEventSupplier
+from expmon.PSEventSupplier import pseventsupplier # use singleton PSEventSupplier
 #from Detector.AreaDetector import AreaDetector    
 #from psana import Detector  
 from psana import Detector, Source
@@ -51,7 +51,7 @@ class PSDataSupplier :
         log.debug('In __init__', self._name)
         self.cp  = cp
         self.log = log
-        self.es = None
+        self.es = pseventsupplier
 
         self.set_dataset(dsname)
         self.set_detector(detname)
@@ -61,8 +61,10 @@ class PSDataSupplier :
         self.dsname = nm.dsname() if dsname is None else dsname
         self.calib_dir = nm.dir_calib()
         self.log.debug('dataset: %s dir_calib: %s' % (self.dsname, self.calib_dir), self._name)
-        if self.es is None : self.es = PSEventSupplier(self.cp, self.log, self.dsname, self.calib_dir) 
-        else :               self.es.set_dataset(self.dsname)
+        #if self.es is None : 
+        #    self.es = PSEventSupplier(self.cp, self.log, self.dsname, self.calib_dir)\
+        #              if self.cp.pseventsupplier is None else self.cp.pseventsupplier 
+        self.es.set_dataset(self.dsname, self.calib_dir)
 
 
     def set_detector(self, detname=None) :

@@ -92,12 +92,6 @@ class EMQDetGMD(EMQDetI) :
         if gmd_data is None : return None
         return gmd_data.relativeEnergyPerPulse()
 
-        #from expmon.PSEventSupplier import PSEventSupplier
-        #es = PSEventSupplier(cp, log, 'exp=xpptut15:run=54:idx')
-        #es.set_dataset('exp=cxif5315:run=169:idx')
-        #evt = es.event_for_num(num) # psana.Event - for idx mode
-        #evt = es.event_next()       # psana.Event - for non-idx mode
-
 #------------------------------
 
 if __name__ == "__main__" :
