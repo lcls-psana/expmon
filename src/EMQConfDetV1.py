@@ -79,6 +79,7 @@ class EMQConfDetV1(Frame) :
 
 
     def det_is_set(self):
+        if self.wdet is None : return False
         return self.wdet.is_set()
 
 

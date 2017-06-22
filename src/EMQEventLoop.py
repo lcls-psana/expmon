@@ -108,11 +108,14 @@ class EMQEventLoop(QtCore.QObject) :
 
         count_evt_none = 0
         while cp.flag_do_event_loop :
+ 
+            #print 'XXX EMQEventLoop.event_loop A'
+
             #self.evt   = self.es.event_next()
             #self.evnum = self.es.current_event_number()
             self.evt, self.evnum = self.es.event_next_and_number()
 
-            #print 'XXX %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
+            print 'XXX %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
 
             if self.evt is None :
                 print '%s.%s - evt is None, current evnum: %d'%\
@@ -129,6 +132,8 @@ class EMQEventLoop(QtCore.QObject) :
             if self.evnum>1 and (not self.evnum % self.nevents_update) :
                 cp.flag_nevents_collected = True
                 self.emit(QtCore.SIGNAL('events_collected()'))
+
+            #print 'XXX EMQEventLoop.event_loop E'
 
 #------------------------------
 
@@ -158,16 +163,13 @@ class EMQEventLoop(QtCore.QObject) :
         rec = [cp.exp_name.value(), evt.run(), evnum]
 
         for i, mon in enumerate(cp.monitors) :
+            
             rec += [i, mon.det1().signal(evt), mon.det2().signal(evt)] if mon.is_active() else\
                    [None, None, None]
 
+        print 'XXX: EMQEventLoop.proc_event ', rec
         cp.dataringbuffer.save_record(rec)
-
-#------------------------------
-
-    def __del__(self) :
-        print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
-        #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
+        print 'XXX: EMQEventLoop.proc_event record saved'
 
 #------------------------------
 

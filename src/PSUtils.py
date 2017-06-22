@@ -37,6 +37,7 @@ def detector(src, env) : # src='CxiDs2.0:Cspad.0'
 #------------------------------
 
 def dataset(dsname) : # dsname='exp=cxi12316:run=1234', src='CxiDs2.0:Cspad.0'
+    print 'XXX DataSource open in PSUtils dataset %s' % dsname
     return psana.DataSource(dsname)
 
 #------------------------------
@@ -119,7 +120,8 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
         return None
 
     #print 'expmon.PSUtils.list_of_sources if is passed'
-
+            
+    print 'XXX DataSource open in PSUtils list_of_sources %s' % dsn
     ds = psana.DataSource(dsn)
     cfg = ds.env().configStore()
     sources = [str(k.src()) for k in cfg.keys()] # DetInfo(CxiDs2.0:Cspad.0)

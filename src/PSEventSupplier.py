@@ -92,7 +92,9 @@ class PSEventSupplier :
 
         self.is_idx_mode = False
 
-        try : self.ds = DataSource(dsname)
+        try : 
+            print 'XXX DataSource open in PSEventSupplier.events  %s' % dsname
+            self.ds = DataSource(dsname)
         except : 
             self.ds = None
             self._run = None
@@ -128,7 +130,12 @@ class PSEventSupplier :
         else :
             if self.events is None : return None
             self._evnum += 1
-            return self.events.next()
+
+            print 'XXX PSEventSupplier.event_next A'
+            evt = self.events.next()
+            print 'XXX PSEventSupplier.event_next E'
+
+            return evt
 
 
     def current_event_number(self) :

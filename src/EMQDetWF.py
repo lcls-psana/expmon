@@ -219,7 +219,7 @@ class EMQDetWF(EMQDetI) :
 
 
     def set_info(self):
-        msg = None
+        msg = ''
         if not(self.sig_bmin is None or self.sig_bmax is None) :
             msg = 'S:[%d,%d]' % (self.sig_bmin, self.sig_bmax)
         if not(self.bkg_bmin is None or self.bkg_bmax is None) :
@@ -299,7 +299,9 @@ class EMQDetWF(EMQDetI) :
         self.guview.remove_all_graphs()
 
         indwf = self.par_indwf.value()
-        
+        indwf = int(indwf) if indwf is not None else 0
+        #if indwf<0 : indwf=0
+
         if wf is None : return
 
         ngrp = wf.shape[0]
@@ -328,7 +330,7 @@ class EMQDetWF(EMQDetI) :
 
             self.plot_wf_update(wf, wt)
 
-            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
+            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 10))
             self.set_window_geometry()
             self.guview.show()
 
@@ -351,7 +353,11 @@ class EMQDetWF(EMQDetI) :
             return None
 
         wf, wt, tmin, tmax, fmin, fmax = self.get_wf_event(evt)
-        wf1 = wf[self.tabind]
+
+        indwf = self.par_indwf.value()
+        indwf = int(indwf) if indwf is not None else 0
+        #print 'XXX: EMQDetWF tabind = ', str(indwf)
+        wf1 = wf[indwf]
         sbmin, sbmax, snbins = self.sig_bmin, self.sig_bmax, self.sig_nbins
         bbmin, bbmax, bnbins = self.bkg_bmin, self.bkg_bmax, self.bkg_nbins
 
@@ -363,6 +369,8 @@ class EMQDetWF(EMQDetI) :
     def set_window_geometry(self) :
         win=self.guview
         if self.par_winx.value() is None : return
+        if self.par_winx.is_default() : return
+
         win.setGeometry(self.par_winx.value(),\
                         self.par_winy.value(),\
                         self.par_winw.value(),\

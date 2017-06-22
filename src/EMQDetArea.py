@@ -7,6 +7,7 @@
 from expmon.EMQDetI import *
 from expmon.PSDataSupplier import PSDataSupplier
 from math import floor, ceil
+from pyimgalgos.GlobalUtils import reshape_to_2d, print_ndarr 
 #------------------------------
 
 class EMQDetArea(EMQDetI) :
@@ -105,7 +106,7 @@ class EMQDetArea(EMQDetI) :
         if self.sig_rmin is not None : self.sig_rmin = int(self.sig_rmin)
         if self.sig_rmax is not None : self.sig_rmax = int(self.sig_rmax)
 
-        self.sig_npix = None if self.sig_cmin is None else\
+        self.sig_npix = None if None in (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax) else\
                         (self.sig_cmax - self.sig_cmin)\
                       * (self.sig_rmax - self.sig_rmin)
 
@@ -181,13 +182,16 @@ class EMQDetArea(EMQDetI) :
         log.debug(msg, self._name)
 
         from graphqt.GUViewImage import GUViewImage
+
         #import pyimgalgos.NDArrGenerators as ag
         #self.arrimg = ag.random_standard((500,500), mu=0, sigma=10)
 
         self.arrimg = self.image(self.dso.event_next()) # cp.event_number.value())
+        #print_ndarr(self.arrimg, 'XXX self.arrimg') 
 
         if self.guview is None :
-            self.guview = GUViewImage(None, self.arrimg )
+            self.guview = GUViewImage(None, self.arrimg)
+            print 'EMQDetArea self.pos()', self.pos()
             self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
             self.set_window_geometry()
             self.guview.show()
@@ -203,15 +207,20 @@ class EMQDetArea(EMQDetI) :
 
     def raw(self, evt):
         cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
+        #print 'XXX: EMQDetArea.raw'
         img = self.dso.raw(evt)
         return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
 
         
     def image(self, evt):  
         nda = self.dso.raw(evt)
+        #print 'XXX: EMQDetArea.image', nda         
+        #img = reshape_to_2d(nda)
         if nda is None : return None
-        return self.dso.image(evt, nda)
-        
+        img = self.dso.image(evt, nda)
+        #print_ndarr(img, 'XXX: EMQDetArea.image img')
+        return img
+
 
     def signal(self, evt):  
         scmin, scmax, srmin, srmax, snpix = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax, self.sig_npix        
@@ -227,7 +236,10 @@ class EMQDetArea(EMQDetI) :
 
     def set_window_geometry(self) :
         win=self.guview
+
         if self.par_winx.value() is None : return
+        if self.par_winx.is_default() : return
+
         win.setGeometry(self.par_winx.value(),\
                         self.par_winy.value(),\
                         self.par_winw.value(),\

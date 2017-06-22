@@ -159,6 +159,8 @@ class EMQPresenter(QtCore.QObject) :
 
     def update_presenter(self) :
 
+        #print 'XXX: EMQPresenter.update_presenter'
+
         self.count_updates += 1
 
         nrecs = cp.nevents_update.value()
@@ -180,10 +182,14 @@ class EMQPresenter(QtCore.QObject) :
         #self.print_signals(evnums, mon_sig1, mon_sig2)
         #self.update_info_window()
 
+        #print 'XXX: EMQPresenter.update_presenter A'
+
         for i, mon in enumerate(cp.monitors) :
             if not mon.is_active() : continue
             self.update_scatter(i, np.array(mon_sig1[i]), np.array(mon_sig2[i]))
             self.update_histogr(i)
+
+        #print 'XXX: EMQPresenter.update_presenter B'
 
 #------------------------------
 
