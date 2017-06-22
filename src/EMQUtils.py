@@ -4,10 +4,15 @@
 @version $Id: EMQUtils.py 13119 2017-02-06 18:54:12Z dubrovin@SLAC.STANFORD.EDU $
 
 @author Mikhail S. Dubrovin
+
+Usege ::
+    from expmon.EMQUtils import point_relative_window
+
 """
 #------------------------------
 
 from CalibManager.GUIPopupSelectExp import select_experiment_v3 as popup_select_experiment
+from PyQt4 import QtCore
 
 #------------------------------
 
@@ -16,6 +21,13 @@ def test_popup_select_experiment() :
     lexps = emu.list_of_experiments()
     selexp = popup_select_experiment(None, lexps)
     print 'Selected experiment: %s' % selexp
+
+
+def point_relative_window(win, dp=QtCore.QPoint(0,0)) :
+    point, size = win.mapToGlobal(dp), win.size()
+    x,y,w,h = point.x(), point.y(), size.width(), size.height()
+    #self.guview.move(QtCore.QPoint(x,y) + QtCore.QPoint(w+10, 100))
+    return QtCore.QPoint(x+w, y)
 
 #------------------------------
 #------------------------------

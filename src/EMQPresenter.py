@@ -16,6 +16,7 @@ from PyQt4.QtCore import Qt
 #from expmon.EMQViewGraph import EMQViewGraph
 from expmon.EMQGraphic import EMQGraphic
 from expmon.EMQHistogram import EMQHistogram, image_to_hist_arr
+from expmon.EMQUtils import point_relative_window
 
 from graphqt.Styles    import style
 from expmon.EMConfigParameters import cp
@@ -246,6 +247,11 @@ class EMQPresenter(QtCore.QObject) :
 
             self.draw_scatter(imon, sig1, sig2)
             #w.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
+
+            dx, dy = imon*50, 10
+            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+            w.move(point)
+
             self.set_window_geometry(imon, 0)
             w.show()
         else :
@@ -326,6 +332,7 @@ class EMQPresenter(QtCore.QObject) :
         win, par_winx, par_winy, par_winh, par_winw = self.win_pars(imon, iplot)
 
         if par_winx.value() is None : return
+        if par_winx.is_default() : return
 
         win.setGeometry(par_winx.value(),\
                         par_winy.value(),\
@@ -386,6 +393,11 @@ class EMQPresenter(QtCore.QObject) :
             w.hist.connect_view_is_closed_for_imon_to(self.on_histogr_close)
 
             self.draw_histogr(imon)
+
+            dx, dy = imon*50, 200
+            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+            w.move(point)
+
             self.set_window_geometry(imon, 1)
             w.show()
         else :

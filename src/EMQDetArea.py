@@ -8,6 +8,7 @@ from expmon.EMQDetI import *
 from expmon.PSDataSupplier import PSDataSupplier
 from math import floor, ceil
 from pyimgalgos.GlobalUtils import reshape_to_2d, print_ndarr 
+from expmon.EMQUtils import point_relative_window
 #------------------------------
 
 class EMQDetArea(EMQDetI) :
@@ -141,6 +142,19 @@ class EMQDetArea(EMQDetI) :
                    'background' if self.but_set_bkg.hasFocus() else\
                    'UNKNOWN'
 
+        #print 'arrimg.shape:', self.arrimg.shape
+        h,w = self.arrimg.shape
+
+        if xmin<0      : xmin=0
+        if ymin<0      : ymin=0
+        if not(xmax<w) : xmax=w-1
+        if not(ymax<h) : ymax=h-1
+
+        if xmax<0      : xmax=1
+        if ymax<0      : ymax=1
+        if not(xmin<w) : xmin=w-2
+        if not(ymin<h) : ymin=h-2
+
         msg = None
         if self.but_set_sig.hasFocus() :
             self.par_sig_xmin.setValue(floor(xmin))
@@ -191,8 +205,18 @@ class EMQDetArea(EMQDetI) :
 
         if self.guview is None :
             self.guview = GUViewImage(None, self.arrimg)
-            print 'EMQDetArea self.pos()', self.pos()
-            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
+
+            #win = cp.guimain
+            #point, size = win.mapToGlobal(QtCore.QPoint(0,0)), win.size()
+            #x,y,w,h = point.x(), point.y(), size.width(), size.height()
+            #self.guview.move(QtCore.QPoint(x,y) + QtCore.QPoint(w+10, 100))
+            #self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 100))
+
+            dx, dy = self.tabind*50, self.detind*100
+            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+            self.guview.move(point)
+            #print 'XXX: EMQDetArea point', point
+
             self.set_window_geometry()
             self.guview.show()
             self.guview.connect_view_is_closed_to(self.on_child_close)
@@ -205,11 +229,11 @@ class EMQDetArea(EMQDetI) :
         self.guview.setWindowTitle(tit)
 
 
-    def raw(self, evt):
-        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
-        #print 'XXX: EMQDetArea.raw'
-        img = self.dso.raw(evt)
-        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
+#    def raw(self, evt):
+#        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
+#        #print 'XXX: EMQDetArea.raw'
+#        img = self.dso.raw(evt)
+#        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
 
         
     def image(self, evt):  

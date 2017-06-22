@@ -8,6 +8,7 @@ from expmon.EMQDetI import *
 from expmon.PSDataSupplier import PSDataSupplier
 from pyimgalgos.GlobalUtils import print_ndarr
 import graphqt.QWUtils as qwu
+from expmon.EMQUtils import point_relative_window
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -299,17 +300,18 @@ class EMQDetWF(EMQDetI) :
         self.guview.remove_all_graphs()
 
         indwf = self.par_indwf.value()
-        indwf = int(indwf) if indwf is not None else 0
+        indwf = int(indwf) if indwf is not None else -1
         #if indwf<0 : indwf=0
 
         if wf is None : return
-
         ngrp = wf.shape[0]
+        #print 'XXX: EMQDetWF.plot_wf_update indwf, ngrp:', indwf, ngrp
+
         colors = (Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)
         for gr in range(ngrp) :
             if gr == indwf or indwf<0 :
                 color = colors[gr%5]
-                self.guview.add_graph(wt[gr], wf[gr], QtGui.QPen(color), brush=QtGui.QBrush())
+                self.guview.add_graph(wt[gr,:-2], wf[gr,:-2], QtGui.QPen(color), brush=QtGui.QBrush())
 
 #------------------------------
 
@@ -330,7 +332,16 @@ class EMQDetWF(EMQDetI) :
 
             self.plot_wf_update(wf, wt)
 
-            self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 10))
+            #win = cp.guimain
+            #point, size = win.mapToGlobal(QtCore.QPoint(0,0)), win.size() # Offset (-5,-22) for frame size.
+            #x,y,w,h = point.x(), point.y(), size.width(), size.height()
+            #self.guview.move(QtCore.QPoint(x,y) + QtCore.QPoint(w+10, 10))
+            ##self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 10))
+
+            dx, dy = self.tabind*50, self.detind*100
+            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+            self.guview.move(point)
+
             self.set_window_geometry()
             self.guview.show()
 

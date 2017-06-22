@@ -197,6 +197,7 @@ class PSEventSupplier :
 
 
     def __del__(self) :
+        del self.ds
         self.ds = None
 #        cp.pseventsupplier = None
 
