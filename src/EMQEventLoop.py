@@ -130,7 +130,7 @@ class EMQEventLoop(QtCore.QObject) :
                 print 'XXX: %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
 
             if self.evt is None :
-                print '%s.%s - evt is None, current evnum: %d'%\
+                print 'XXX: %s.%s - evt is None, current evnum: %d'%\
                       (self._name, sys._getframe().f_code.co_name, self.evnum)
                 count_evt_none +=1 
                 if count_evt_none > 10 : 

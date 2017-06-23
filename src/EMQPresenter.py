@@ -24,16 +24,25 @@ from expmon.Logger             import log
 
 #------------------------------
 
+from scipy.stats import pearsonr
 from scipy.optimize import curve_fit
 from scipy.stats import chi2
-import numpy as np
 from pyimgalgos.GlobalUtils import print_ndarr
+
+from expmon.least_squares_fit import *
+
+#------------------------------
 
 def funcy(x, p0, p1) :
     """Function for parameterization of y(x, p1, p2)
        ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
     """
     return p0 + p1*x
+
+#------------------------------
+
+def color_for_imon(imon):
+    return (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
 
 #------------------------------
 
@@ -59,6 +68,7 @@ class EMQPresenter(QtCore.QObject) :
         self.whsig1   = [None] * self.nmonitors
         self.whsig2   = [None] * self.nmonitors
         self.whistogr = [None] * self.nmonitors
+        self.wpearson = [None] * self.nmonitors # [None, None, None, ...]
 
         self.timer = None
 
@@ -118,6 +128,7 @@ class EMQPresenter(QtCore.QObject) :
             if self.whistogr[i] is not None : self.whistogr[i].close()
             if self.whsig1[i]   is not None : self.whsig1[i].close()
             if self.whsig2[i]   is not None : self.whsig2[i].close()
+            if self.wpearson[i] is not None : self.wpearson[i].close()
 
         #self.deleteLater()
 
@@ -189,6 +200,7 @@ class EMQPresenter(QtCore.QObject) :
             if not mon.is_active() : continue
             self.update_scatter(i, np.array(mon_sig1[i]), np.array(mon_sig2[i]))
             self.update_histogr(i)
+            self.update_pearson(i)
 
         #print 'XXX: EMQPresenter.update_presenter B'
 
@@ -197,9 +209,22 @@ class EMQPresenter(QtCore.QObject) :
     def fit_scatter(self, imon, sig1, sig2) :
 
         xn = sig1.astype(dtype=np.double)
-        yn = sig2.astype(dtype=np.double)
+        yn = sig2.astype(dtype=np.double)        
+        #en = np.ones_like(yn) * yn.std()
         en = np.ones_like(xn)
-        p0 = [yn.mean(), 0]
+
+        try :
+            self.pearsr, self.pearsv = pearsonr(xn, yn)
+            #print 'Pearson r=%.6f  pval=%.6f' % (self.pearsr, self.pearsv)
+        except :
+            log.warning('Pearsonr failed...', self._name)
+
+        a, b, cx0, cx1, cx2, cxy, cy1 = least_squares_fit(xn,yn,1)
+        #print 'least_squares_fit: b, a =', b, a
+
+        #p0 = [yn.mean(), 0]
+        p0 = [b, a]
+
         try :
             popt, pcov = curve_fit(funcy, xn, yn, p0, en, absolute_sigma=False)
 
@@ -225,9 +250,10 @@ class EMQPresenter(QtCore.QObject) :
             log.warning('Fit failed...', self._name)
             return None, None
 
+
 #------------------------------
 
-    def update_scatter(self, imon, sig1, sig2):
+    def update_scatter(self, imon, sig1, sig2, iplot=0):
         #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
         w = self.wscatter[imon]
         self.resid = None 
@@ -244,63 +270,52 @@ class EMQPresenter(QtCore.QObject) :
             #                                      margl=0.12, margr=0.01, margt=0.01, margb=0.06)
             #w.connect_view_is_closed_to(self.on_scatter_close)
             w.graph.connect_view_is_closed_for_imon_to(self.on_scatter_close)
+            self.set_window_geometry(imon, iplot)
 
             self.draw_scatter(imon, sig1, sig2)
-            #w.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
-
-            dx, dy = imon*50, 10
-            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
-            w.move(point)
-
-            self.set_window_geometry(imon, 0)
             w.show()
         else :
             self.draw_scatter(imon, sig1, sig2)
-
-            popt, perr = self.fit_scatter(imon, sig1, sig2) #, rectax)
-            if popt is not None :
-                rect = w.graph.rectax
-                xarr = np.linspace(rect.left(), rect.right(), 100)
-                yarr = [funcy(x, *popt) for x in xarr]
-                self.draw_func(imon, xarr, yarr)
-                self.resid = sig2 - funcy(sig1, *popt)
-
-                msg = u'  p0: %3g \u00B1 %3g  \n  p1: %3g \u00B1 %3g  ' % (popt[0], perr[0], popt[1], perr[1])
-                w.draw_info(msg)
-
-                #print_ndarr(self.resid, name='resid', first=0, last=5)
-                #print_ndarr(xarr, name='xarr', first=0, last=10)
-                #print_ndarr(yarr, name='yarr', first=0, last=10)
-
             w.raise_()
 
 #------------------------------
 
-    def on_scatter_close(self, imon): 
+    def on_scatter_close(self, imon, iplot=0): 
         msg = '%s imon=%d' % (sys._getframe().f_code.co_name, imon)
         log.debug(msg, self._name)
         self.wscatter[imon].graph.disconnect_view_is_closed_for_imon_from(self.on_scatter_close)
-        self.save_window_geometry(imon, 0)
+        self.save_window_geometry(imon, iplot)
         self.wscatter[imon] = None
 
 #------------------------------
 
-    def on_histogr_close(self, imon): 
+    def on_histogr_close(self, imon, iplot=1):
         msg = '%s imon=%d' % (sys._getframe().f_code.co_name, imon)
         log.debug(msg, self._name)
         self.whistogr[imon].hist.disconnect_view_is_closed_for_imon_from(self.on_histogr_close)
-        self.save_window_geometry(imon, 1)
+        self.save_window_geometry(imon, iplot)
         self.whistogr[imon] = None
+
+#------------------------------
+
+    def on_pearson_close(self, imon, iplot=2):
+        msg = '%s imon=%d' % (sys._getframe().f_code.co_name, imon)
+        log.debug(msg, self._name)
+        self.wpearson[imon].graph.disconnect_view_is_closed_for_imon_from(self.on_pearson_close)
+        self.save_window_geometry(imon, iplot)
+        self.wpearson[imon] = None
 
 #------------------------------
 #------------------------------
 
     def win_pars(self, imon, iplot) :
         """ imon (int) index of monotor or tab
-            iplot = 0,1,... for scatter, histogram, etc, respectively 
+            iplot = 0,1,2,... for scatter, histogram, pearson, etc. respectively 
         """
-        win = self.wscatter[imon] if iplot==0 else \
-              self.whistogr[imon] 
+        if iplot<0 or iplot>=cp.number_of_mon_winds : return
+        win = (self.wscatter[imon],\
+               self.whistogr[imon],\
+               self.wpearson[imon])[iplot]
 
         iplot0 = iplot*4
         par_winx = cp.mon_win_pars[iplot0+0][imon]
@@ -331,6 +346,10 @@ class EMQPresenter(QtCore.QObject) :
 
         win, par_winx, par_winy, par_winh, par_winw = self.win_pars(imon, iplot)
 
+        dx, dy = imon*50, iplot*50
+        point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+        win.move(point)
+
         if par_winx.value() is None : return
         if par_winx.is_default() : return
 
@@ -345,10 +364,25 @@ class EMQPresenter(QtCore.QObject) :
         w = self.wscatter[imon]
         if w is None : return
         w.graph.remove_all_graphs()
-        color = (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
+        color = color_for_imon(imon)
         #w.graph.add_graph(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush())
         w.graph.add_points(sig1, sig2, QtGui.QPen(color), brush=QtGui.QBrush(color), fsize=0.0075)
         w.setWindowTitle('Scatter plot for %s' % cp.tab_names[imon])
+
+        popt, perr = self.fit_scatter(imon, sig1, sig2) #, rectax)
+        if popt is not None :
+            rect = w.graph.rectax
+            xarr = np.linspace(rect.left(), rect.right(), 100)
+            yarr = [funcy(x, *popt) for x in xarr]
+            self.draw_func(imon, xarr, yarr)
+            self.resid = sig2 - funcy(sig1, *popt)
+
+            msg = u'  p0: %3g \u00B1 %3g  \n  p1: %3g \u00B1 %3g  ' % (popt[0], perr[0], popt[1], perr[1])
+            w.draw_info(msg)
+
+            #print_ndarr(self.resid, name='resid', first=0, last=5)
+            #print_ndarr(xarr, name='xarr', first=0, last=10)
+            #print_ndarr(yarr, name='yarr', first=0, last=10)
 
 #------------------------------
 
@@ -364,7 +398,7 @@ class EMQPresenter(QtCore.QObject) :
         w = self.whistogr[imon]
         if w is None : return
         w.hist.remove_all_graphs()
-        color = (Qt.cyan, Qt.blue, Qt.green, Qt.yellow, Qt.red, Qt.black)[imon%5]
+        color = color_for_imon(imon)
 
         arr = self.resid
         amin, amax, nhbins, values = image_to_hist_arr(arr, vmin=None, vmax=None, nbins=100)
@@ -375,7 +409,7 @@ class EMQPresenter(QtCore.QObject) :
 
 #------------------------------
 
-    def update_histogr(self, imon):
+    def update_histogr(self, imon, iplot=1):
         #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
         if self.resid is None : return 
 
@@ -391,18 +425,77 @@ class EMQPresenter(QtCore.QObject) :
                                                    margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=imon)
 
             w.hist.connect_view_is_closed_for_imon_to(self.on_histogr_close)
+            self.set_window_geometry(imon, iplot)
 
             self.draw_histogr(imon)
-
-            dx, dy = imon*50, 200
-            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
-            w.move(point)
-
-            self.set_window_geometry(imon, 1)
             w.show()
         else :
             self.draw_histogr(imon)
             w.raise_()
+
+#------------------------------
+
+    def update_pearson(self, imon, iplot=2):
+        #print 'XXX In %s.%s imon: %s' % (self._name, sys._getframe().f_code.co_name, cp.tab_names[imon])
+        w = self.wpearson[imon]
+        if w is None :
+            self.dxmove = 20
+            xmin, xmax =  0, 200
+            ymin, ymax = -1.05, 1.05
+            self.xpoint = -1
+            rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
+
+            w = self.wpearson[imon] = EMQGraphic(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
+                                                 margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=imon)
+
+            w.graph.connect_view_is_closed_for_imon_to(self.on_pearson_close)
+            #w.move(self.pos() + QtCore.QPoint(self.width()+80, 0))
+            self.set_window_geometry(imon, iplot)
+
+            self.draw_pearson(imon)
+            w.show()
+        else :
+
+            # drug window for pearson by self.dxmove if necessary
+            wg = w.graph
+            rax = wg.rect_axes()
+            #x, y, width, height = rax.getRect()
+            #if self.xpoint >= x+width :
+            if self.xpoint >= rax.right() :
+                sc = wg.scene()
+                rs = sc.sceneRect()
+                rs.moveCenter(rs.center() + QtCore.QPointF(self.dxmove,0))
+                sc.setSceneRect(rs)
+                wg.update_my_scene()
+
+
+            self.draw_pearson(imon)
+            w.raise_()
+
+#------------------------------
+
+    def draw_pearson(self, imon):
+        w = self.wpearson[imon]
+        if w is None : return
+        #w.graph.remove_all_graphs()
+        color = color_for_imon(imon)
+
+        if self.pearsr is None : return
+
+        self.xpoint += 1
+        xarr = (self.xpoint,)
+        yarr = np.require((self.pearsr,), dtype=np.float)
+
+        #npts = 50
+        #xarr = range(npts)
+        #yarr = np.require(0.2*np.random.standard_normal((npts,)), dtype=np.float)
+        
+        #w.graph.add_graph(xarr, yarr, QtGui.QPen(color), brush=QtGui.QBrush())
+        w.graph.add_points(xarr, yarr, QtGui.QPen(color), brush=QtGui.QBrush(color), fsize=0.0075)
+        w.setWindowTitle('Pearson vs time plot for %s' % cp.tab_names[imon])
+
+        msg = 'Pearson last\n  r=%.6f\n  v=%.6f' % (self.pearsr, self.pearsv)
+        w.draw_info(msg)
 
 #------------------------------
 #------------------------------

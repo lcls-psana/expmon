@@ -34,7 +34,7 @@ class EMConfigParameters(PSConfigParameters) :
 
     number_of_tabs = len(tab_names)
     number_of_det_pars = 16
-    number_of_mon_winds = 2 # scatterplot and histogram
+    number_of_mon_winds = 3 # scatter, histogram, pearson vs time
 
     def __init__(self, fname=None) :
         """fname : str - the file name with configuration parameters, if not specified then use default.

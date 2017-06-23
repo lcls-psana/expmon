@@ -239,9 +239,9 @@ class EMQDetArea(EMQDetI) :
     def image(self, evt):  
         nda = self.dso.raw(evt)
         #print 'XXX: EMQDetArea.image', nda         
-        #img = reshape_to_2d(nda)
         if nda is None : return None
         img = self.dso.image(evt, nda)
+        if img is None : img = reshape_to_2d(nda)
         #print_ndarr(img, 'XXX: EMQDetArea.image img')
         return img
 

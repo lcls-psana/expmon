@@ -4,6 +4,8 @@ Created: 2017-05-15
 Author : Mikhail Dubrovin
 """
 #------------------------------
+import numpy as np
+
 from expmon.EMQDetI import *
 from expmon.PSDataSupplier import PSDataSupplier
 from pyimgalgos.GlobalUtils import print_ndarr
@@ -286,6 +288,13 @@ class EMQDetWF(EMQDetI) :
         self.wf, self.wt = wf, wt = resp
         #print_ndarr(wf, name='wf', first=0, last=10)
         #print_ndarr(wt, name='wt', first=0, last=10)
+
+        # use wt as a bin number in stead of time
+        nch, npt = shape = wt.shape
+        wt = np.array(tuple(range(npt)*nch))
+        wt.shape = shape
+        self.wt = wt
+        #print 'wt.shape', wt.shape
 
         tmin, tmax = wt.min(), wt.max()
         fmean, fstd = wf.mean(), wf.std()

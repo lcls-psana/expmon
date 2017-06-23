@@ -61,6 +61,11 @@ class EMQGraphic(QtGui.QWidget) :
         self.lab_info.setText(txt)
 
 #------------------------------
+ 
+    def graph(self) :
+        return self.graph
+
+#------------------------------
 
     def closeEvent(self, e):
         log.debug('closeEvent', self._name)

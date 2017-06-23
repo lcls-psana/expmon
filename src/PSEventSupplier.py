@@ -44,12 +44,18 @@ class PSEventSupplier :
     _name = 'PSEventSupplier'
 
     def __init__(self, dsname=None, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx', calib_dir='./calib'
-        self._evnum = -1
-        self.is_idx_mode = False
-        self.ds = None
-        self.dsname = None
+        self.reset()
         self.set_dataset(dsname, calib_dir)
         #cp.pseventsupplier = self
+
+
+    def reset(self) : 
+        self.dsname = None
+        self.events = None
+        self._evnum = -1
+        self.is_idx_mode = False
+        self._run = None
+        self.ds = None
 
 
     def event_time(self, evt) : # psana.Event object
@@ -84,10 +90,7 @@ class PSEventSupplier :
         """Sets dataset for direct access idx and regular even mode
         """
         if dsname is None : 
-            self.ds = None
-            self._run = None
-            self.events = None
-            self.dsname = None
+            self.reset()
             return
 
         elif dsname == self.dsname :
@@ -95,6 +98,12 @@ class PSEventSupplier :
 
         if calib_dir is not None : setOption('psana.calib-dir', calib_dir)
         self.calib_dir = calib_dir
+
+        if self.ds is not None : 
+            print 'XXX: delete DataSource in PSEventSupplier.set_dataset  %s' % self.dsname
+            del self.ds
+            self.reset()
+
 
         if 'idx' in dsname :
             self._set_dataset_idx(dsname, calib_dir)
@@ -104,15 +113,11 @@ class PSEventSupplier :
         self.is_idx_mode = False
 
         try : 
-            if self.ds is not None : del self.ds
             print 'XXX: open DataSource in PSEventSupplier.set_dataset  %s' % dsname
             self.ds = DataSource(dsname)
             self.dsname = dsname
         except : 
-            self.ds = None
-            self._run = None
-            self.events = None
-
+            self.reset()
             #raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
         
@@ -145,8 +150,12 @@ class PSEventSupplier :
             self._evnum += 1
 
             #print 'XXX PSEventSupplier.event_next A'
-            evt = self.events.next()
+            try :
+               evt = self.events.next()
             #print 'XXX PSEventSupplier.event_next E'
+            except :                
+               print 'XXX WARNING: PSEventSupplier.event_next returns evt=None'
+               return None
 
             return evt
 
@@ -200,7 +209,7 @@ class PSEventSupplier :
 
     def __del__(self) :
         del self.ds
-        self.ds = None
+        self.reset()
 #        cp.pseventsupplier = None
 
 
