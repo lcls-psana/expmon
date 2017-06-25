@@ -37,6 +37,7 @@ Usage ::
 #------------------------------
 
 from psana import DataSource, EventId, EventTime, setOption
+from expmon.PSNameManager import nm
 
 #------------------------------
 
@@ -79,7 +80,7 @@ class PSEventSupplier :
     def _set_dataset_idx(self, dsname, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx'
         """Sets dictionary of pairs {event_number : psana.EventTime} in :idx mode
         """
-        print 'XXX: open DataSource in PSEventSupplier._set_dataset_idx  %s' % dsname
+        print 'XXX: open DataSource in PSEventSupplier._set_dataset_idx  %s' % dsname        
         self.ds = DataSource(dsname)
         self.dsname = dsname
         self._run = self.ds.runs().next()
@@ -96,8 +97,12 @@ class PSEventSupplier :
         elif dsname == self.dsname :
             return
 
-        if calib_dir is not None : setOption('psana.calib-dir', calib_dir)
-        self.calib_dir = calib_dir
+        
+        self.calib_dir = calib_dir if calib_dir is not None else\
+                         nm.dir_calib()
+        print 'XXX: PSEventSupplier.set_dataset calib_dir: %s' % self.calib_dir        
+        setOption('psana.calib-dir', self.calib_dir)
+
 
         if self.ds is not None : 
             print 'XXX: delete DataSource in PSEventSupplier.set_dataset  %s' % self.dsname
@@ -115,9 +120,11 @@ class PSEventSupplier :
         try : 
             print 'XXX: open DataSource in PSEventSupplier.set_dataset  %s' % dsname
             self.ds = DataSource(dsname)
+
             self.dsname = dsname
         except : 
             self.reset()
+            print 'XXX: WARNING: DataSource is not open in PSEventSupplier.set_dataset  %s' % dsname
             #raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
         

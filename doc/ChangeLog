@@ -13,6 +13,14 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-11
+2017-06-25 Mikhail S. Dubrovin
+- emon - fix issue with access to calib in shmem mode, in EMQDetArea.py subtract pedestals if available.
+        modified:   src/EMQDetArea.py
+        modified:   src/PSConfigParameters.py
+        modified:   src/PSDataSupplier.py
+        modified:   src/PSEventSupplier.py
+
 Tag: V01-00-10
 2017-06-23 Mikhail S. Dubrovin
 - emon - add many protections, add pearson vs time plot with auto scrolling

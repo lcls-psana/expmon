@@ -20,6 +20,7 @@ class EMQDetArea(EMQDetI) :
 
         self.guview = None        
         self.arrimg = None
+        self.ncall = 0
 
         tabind = parent.tabind
         detind = parent.detind
@@ -238,8 +239,13 @@ class EMQDetArea(EMQDetI) :
         
     def image(self, evt):  
         nda = self.dso.raw(evt)
+        self.ncall += 1
+        if self.ncall == 1 :
+            self.peds = self.dso.pedestals(evt)
+            print_ndarr(self.peds, 'XXX: EMQDetArea pedestals')
         #print 'XXX: EMQDetArea.image', nda         
         if nda is None : return None
+        if self.peds is not None : nda = nda.astype(self.peds.dtype) - self.peds
         img = self.dso.image(evt, nda)
         if img is None : img = reshape_to_2d(nda)
         #print_ndarr(img, 'XXX: EMQDetArea.image img')

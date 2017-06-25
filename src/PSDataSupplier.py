@@ -25,9 +25,11 @@ Usage ::
         #evt = dso.event_for_number(n)
         evt = dso.es.event_next()
         #nda = self.raw(evt)
+        peds = self.pedestals(n)
         #img = self.image(n, nda)
         img = self.image(n)
         # or
+        peds = self.pedestals(evt)
         img = self.image(evt)
         img = self.raw(evt)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
@@ -78,6 +80,11 @@ class PSDataSupplier :
     def raw(self, evt) :
         if self.det is None : return None
         return self.det.raw(evt)
+
+
+    def pedestals(self, evt) :
+        if self.det is None : return None
+        return self.det.pedestals(evt)
 
 
     def image(self, par=None, nda=None) :

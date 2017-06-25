@@ -58,7 +58,7 @@ class PSConfigParameters(ConfigParameters) :
         self.instr_dir       = self.declareParameter(name='INSTRUMENT_DIR',  val_def='/reg/d/psdm', type='str') 
         self.instr_name      = self.declareParameter(name='INSTRUMENT_NAME', val_def='SXR',         type='str')
         self.exp_name        = self.declareParameter(name='EXPERIMENT_NAME', val_def='Select',      type='str') # sxr12316'
-        self.str_runnum      = self.declareParameter(name='STR_RUN_NUMBER',  val_def='Last',        type='str')
+        self.str_runnum      = self.declareParameter(name='STR_RUN_NUMBER',  val_def='Select',      type='str')
         self.calib_dir       = self.declareParameter(name='CALIB_DIRECTORY', val_def='./calib',     type='str') # './calib'
         self.data_source     = self.declareParameter(name='DATA_SOURCE',     val_def='None',        type='str') # 'cspad'
         self.dsextension     = self.declareParameter(name='DSET_EXTENSION',  val_def='None',        type='str') # 'shmod'
