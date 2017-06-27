@@ -8,12 +8,12 @@
 import sys
 import os
 from expmon.EMQFrame import Frame
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import graphqt.QWUtils         as qwu
 from graphqt.QWDirName         import QWDirName
 from expmon.QWEventControl     import QWEventControl
-from expmon.QWDataSource       import QWDataSource     
+from expmon.QWDataSource       import QWDataSource
 from expmon.QWDataSetExtension import QWDataSetExtension
 import expmon.EMUtils          as emu
 from expmon.EMQUtils           import popup_select_experiment
@@ -26,6 +26,7 @@ from graphqt.Styles            import style
 class QWDataControl(Frame) :
     """GUI to input instrument, experiment, and run number
     """
+    expname_is_changed = QtCore.pyqtSignal()
 
     def __init__(self, cp, log, parent=None, orient='V', show_mode=1) :
         """cp (ConfigParameters) is passed as a parameter in order to use this widget in different apps
@@ -65,13 +66,13 @@ class QWDataControl(Frame) :
         self.str_runnum = cp.str_runnum
         self.calib_dir  = cp.calib_dir
 
-        self.lab_ins = QtGui.QLabel('Ins:')
-        self.lab_exp = QtGui.QLabel('Exp:')
-        self.lab_run = QtGui.QLabel('Run:')
+        self.lab_ins = QtWidgets.QLabel('Ins:')
+        self.lab_exp = QtWidgets.QLabel('Exp:')
+        self.lab_run = QtWidgets.QLabel('Run:')
 
-        self.but_ins = QtGui.QPushButton(self.instr_name.value()) # + self.char_expand)
-        self.but_exp = QtGui.QPushButton(self.exp_name.value())
-        self.but_run = QtGui.QPushButton(self.str_runnum.value())
+        self.but_ins = QtWidgets.QPushButton(self.instr_name.value()) # + self.char_expand)
+        self.but_exp = QtWidgets.QPushButton(self.exp_name.value())
+        self.but_run = QtWidgets.QPushButton(self.str_runnum.value())
         self.w_dsext = QWDataSetExtension(cp, log)
         self.w_calib = QWDirName(None, butname='Select', label='Clb:',\
                                  path=self.calib_dir.value(), show_frame=False)
@@ -87,9 +88,9 @@ class QWDataControl(Frame) :
         self.set_show_mode(show_mode)
         self.set_tool_tips()
 
-        self.connect(self.but_ins, QtCore.SIGNAL('clicked()'), self.on_but_ins)
-        self.connect(self.but_exp, QtCore.SIGNAL('clicked()'), self.on_but_exp)
-        self.connect(self.but_run, QtCore.SIGNAL('clicked()'), self.on_but_run)
+        self.but_ins.clicked.connect(self.on_but_ins)
+        self.but_exp.clicked.connect(self.on_but_exp)
+        self.but_run.clicked.connect(self.on_but_run)
 
 
     def event_control(self):
@@ -97,7 +98,7 @@ class QWDataControl(Frame) :
 
 
     def set_layout_hor(self):
-        self.box = QtGui.QHBoxLayout(self)
+        self.box = QtWidgets.QHBoxLayout(self)
         self.box.addWidget(self.lab_ins)
         self.box.addWidget(self.but_ins)
         #self.box.addStretch(1)
@@ -114,7 +115,7 @@ class QWDataControl(Frame) :
  
 
     def set_layout_ver(self):
-        self.hbox = QtGui.QHBoxLayout()
+        self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addWidget(self.lab_ins)
         self.hbox.addWidget(self.but_ins)
         #self.hbox.addStretch(1)
@@ -127,10 +128,10 @@ class QWDataControl(Frame) :
         self.hbox.addWidget(self.w_dsext)
         self.hbox.addStretch(1)
 
-        self.w_dset = QtGui.QWidget(self)
+        self.w_dset = QtWidgets.QWidget(self)
         self.w_dset.setLayout(self.hbox)
 
-        self.vbox = QtGui.QVBoxLayout()
+        self.vbox = QtWidgets.QVBoxLayout()
         #self.vbox.addLayout(self.hbox)
         self.vbox.addWidget(self.w_dset)
         self.vbox.addWidget(self.w_calib)
@@ -227,15 +228,15 @@ class QWDataControl(Frame) :
 
         self.set_exp(sel, cmt='experiment')
         self.set_calib(sel)
-        self.emit(QtCore.SIGNAL('expname_is_changed()'))
+        self.expname_is_changed.emit()
 
 
     def connect_expname_is_changed_to(self, slot) :
-        self.connect(self, QtCore.SIGNAL('expname_is_changed()'), slot)
+        self.expname_is_changed.connect(slot)
 
 
     def disconnect_expname_is_changed_from(self, slot) :
-        self.disconnect(self, QtCore.SIGNAL('expname_is_changed()'), slot)
+        self.expname_is_changed.disconnect(slot)
 
 
     def test_expname_is_changed(self) :
@@ -325,7 +326,7 @@ if __name__ == "__main__" :
 
     nm.set_config_pars(cp)
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()

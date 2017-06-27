@@ -12,7 +12,7 @@ Usege ::
 #------------------------------
 
 from CalibManager.GUIPopupSelectExp import select_experiment_v3 as popup_select_experiment
-from PyQt4 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 #------------------------------
 
@@ -34,8 +34,8 @@ def point_relative_window(win, dp=QtCore.QPoint(0,0)) :
 #------------------------------
  
 def test_all(tname) :
-    from PyQt4 import QtGui#, QtCore
-    app = QtGui.QApplication(sys.argv)
+    from PyQt5 import QtCore, QtGui#, QtWidgets
+    app = QtWidgets.QApplication(sys.argv)
     if tname == '0': test_popup_select_experiment()
 
 #------------------------------

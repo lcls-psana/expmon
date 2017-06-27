@@ -9,7 +9,7 @@
 import sys
 import os
 from expmon.EMQFrame import Frame
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import expmon.PSUtils  as psu
 import graphqt.QWUtils as qwu
@@ -31,18 +31,18 @@ class QWDataSource(Frame) :
         self.char_expand = cp.char_expand
         self.data_source = cp.data_source
  
-        self.lab_src = QtGui.QLabel('Src:')
-        self.but_src = QtGui.QPushButton(self.data_source.value())
+        self.lab_src = QtWidgets.QLabel('Src:')
+        self.but_src = QtWidgets.QPushButton(self.data_source.value())
 
         self.set_layout()
         self.set_style()
         self.set_tool_tips()
 
-        self.connect(self.but_src, QtCore.SIGNAL('clicked()'), self.on_but_src)
+        self.but_src.clicked.connect(self.on_but_src)
 
 
     def set_layout(self):
-        self.hbox = QtGui.QHBoxLayout()
+        self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addWidget(self.lab_src)
         self.hbox.addWidget(self.but_src)
         self.hbox.addStretch(1)
@@ -92,7 +92,7 @@ if __name__ == "__main__" :
 
     nm.set_config_pars(cp)
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()

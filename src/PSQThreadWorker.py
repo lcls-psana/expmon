@@ -10,7 +10,7 @@ import os
 import random
 from time import time
 
-from PyQt4 import QtCore # QtGui
+from PyQt5 import QtCore # QtGui
 #from expmon.PSConfigParameters import cp
 import expmon.PSUtils as psu
 #import expmon.EMUtils as emu
@@ -18,6 +18,7 @@ import expmon.PSUtils as psu
 #------------------------------
 
 class PSQThreadWorker(QtCore.QThread) :
+    update = QtCore.pyqtSignal('QString')
 
     def __init__ (self, cp, parent=None, dt_msec=5, pbits=0) :
         """cp (ConfigParameters) object in the list of parameters 
@@ -70,7 +71,7 @@ class PSQThreadWorker(QtCore.QThread) :
 
     def emit_check_status_signal(self) :
         msg = 'from work thread ' + str(self.thread_id) + '  check counter: ' + str(self.counter)
-        self.emit(QtCore.SIGNAL('update(QString)'), msg)
+        self.update.emit(msg)
 
         if self.pbits & 1 : print msg
 
@@ -82,7 +83,7 @@ class PSQThreadWorker(QtCore.QThread) :
 
     def connect_signal_to_slot(self, slot) :
         print '%s.connect_signal_to_slot'%(self._name)
-        self.connect(self, QtCore.SIGNAL('update(QString)'), slot)
+        self.update['QString'].connect(slot)
 
 
     def test_connection(self, text) :

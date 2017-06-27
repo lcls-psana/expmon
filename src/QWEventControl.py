@@ -8,7 +8,7 @@
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 from expmon.EMQFrame import Frame
 from graphqt.Styles import style
 #------------------------------
@@ -16,6 +16,10 @@ from graphqt.Styles import style
 class QWEventControl(Frame) :
     """GUI control on event number
     """
+    new_event_number = QtCore.pyqtSignal(int)
+    start_button = QtCore.pyqtSignal()
+    stop_button = QtCore.pyqtSignal()
+
     def __init__ (self, cp, log, parent=None, show_mode=0) :
         """show_mode & 1 - event number
                      & 2 - step in number of events
@@ -31,37 +35,38 @@ class QWEventControl(Frame) :
         self.event_number = cp.event_number
         self.event_step   = cp.event_step
         self.wait_msec    = cp.wait_msec
+
         self.nevents_update = cp.nevents_update
         self.max_evt_num  = None
 
         #self.char_expand = cp.char_expand
 
-        self.lab_upd = QtGui.QLabel('Events update:')
-        self.lab_evt = QtGui.QLabel('Evt:')
-        self.lab_stp = QtGui.QLabel('  Step:')
-        self.lab_dtw = QtGui.QLabel('  t(ms):')
-        self.but_bwd = QtGui.QPushButton('<')
-        self.but_fwd = QtGui.QPushButton('>')
-        self.but_ctl = QtGui.QPushButton('Start')
-        self.edi_evt = QtGui.QLineEdit(str(self.event_number.value()))
-        self.edi_stp = QtGui.QLineEdit(str(self.event_step.value()))
-        self.edi_dtw = QtGui.QLineEdit(str(self.wait_msec.value()))
-        self.edi_upd = QtGui.QLineEdit(str(self.nevents_update.value()))
+        self.lab_upd = QtWidgets.QLabel('Events update:')
+        self.lab_evt = QtWidgets.QLabel('Evt:')
+        self.lab_stp = QtWidgets.QLabel('  Step:')
+        self.lab_dtw = QtWidgets.QLabel('  t(ms):')
+        self.but_bwd = QtWidgets.QPushButton('<')
+        self.but_fwd = QtWidgets.QPushButton('>')
+        self.but_ctl = QtWidgets.QPushButton('Start')
+        self.edi_evt = QtWidgets.QLineEdit(str(self.event_number.value()))
+        self.edi_stp = QtWidgets.QLineEdit(str(self.event_step.value()))
+        self.edi_dtw = QtWidgets.QLineEdit(str(self.wait_msec.value()))
+        self.edi_upd = QtWidgets.QLineEdit(str(self.nevents_update.value()))
 
         self.set_layout()
         self.set_style()
         self.set_tool_tips()
 
-        self.connect(self.but_bwd, QtCore.SIGNAL('clicked()'), self.on_but_bwd)
-        self.connect(self.but_fwd, QtCore.SIGNAL('clicked()'), self.on_but_fwd)
-        self.connect(self.but_ctl, QtCore.SIGNAL('clicked()'), self.on_but_ctl)
-        self.connect(self.edi_evt, QtCore.SIGNAL('editingFinished()'), self.on_edi_evt)
-        self.connect(self.edi_stp, QtCore.SIGNAL('editingFinished()'), self.on_edi_stp)
-        self.connect(self.edi_dtw, QtCore.SIGNAL('editingFinished()'), self.on_edi_dtw)
-        self.connect(self.edi_upd, QtCore.SIGNAL('editingFinished()'), self.on_edi_upd)
+        self.but_bwd.clicked.connect(self.on_but_bwd)
+        self.but_fwd.clicked.connect(self.on_but_fwd)
+        self.but_ctl.clicked.connect(self.on_but_ctl)
+        self.edi_evt.editingFinished.connect(self.on_edi_evt)
+        self.edi_stp.editingFinished.connect(self.on_edi_stp)
+        self.edi_dtw.editingFinished.connect(self.on_edi_dtw)
+        self.edi_upd.editingFinished.connect(self.on_edi_upd)
 
         self.timer = QtCore.QTimer()
-        self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.on_timeout)
+        self.timer.timeout.connect(self.on_timeout)
 
         self.set_show_mode(show_mode)
 
@@ -87,7 +92,7 @@ class QWEventControl(Frame) :
 
 
     def set_layout(self):
-        self.hbox = QtGui.QHBoxLayout()
+        self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addWidget(self.lab_upd)
         self.hbox.addWidget(self.edi_upd)
         self.hbox.addSpacing(10)
@@ -193,15 +198,15 @@ class QWEventControl(Frame) :
         self.event_number.setValue(num)
         self.edi_evt.setText('%d'%num)
         self.log.info('Set event number: %d' % num, __name__)
-        self.emit(QtCore.SIGNAL('new_event_number(int)'), num)
+        self.new_event_number.emit(num)
 
 
     def connect_new_event_number_to(self, recip) :
-        self.connect(self, QtCore.SIGNAL('new_event_number(int)'), recip)
+        self.new_event_number[int].connect(recip)
 
 
     def disconnect_new_event_number_from(self, recip) :
-        self.disconnect(self, QtCore.SIGNAL('new_event_number(int)'), recip)
+        self.new_event_number[int].disconnect(recip)
 
 
     def test_new_event_number_reception(self, evnum) :
@@ -220,23 +225,23 @@ class QWEventControl(Frame) :
     def on_but_ctl(self):
         s = self.but_ctl.text()
         if s=='Start' :
-            self.emit(QtCore.SIGNAL('start_button()'))
+            self.start_button.emit()
             self.but_ctl.setText('Stop')
             self.but_ctl.setStyleSheet(style.styleButtonBad)
             #self.on_timeout() # connected on signal
         else :
-            self.emit(QtCore.SIGNAL('stop_button()'))
+            self.stop_button.emit()
             self.but_ctl.setText('Start')
             self.but_ctl.setStyleSheet(style.styleButtonGood)
             #self.timer_stop() # connected on signal
 
 
     def connect_start_button_to(self, recip) :
-        self.connect(self, QtCore.SIGNAL('start_button()'), recip)
+        self.start_button.connect(recip)
 
 
     def disconnect_start_button_from(self, recip) :
-        self.disconnect(self, QtCore.SIGNAL('start_button()'), recip)
+        self.start_button.disconnect(recip)
 
 
     def test_start_button_reception(self) :
@@ -244,11 +249,11 @@ class QWEventControl(Frame) :
 
 
     def connect_stop_button_to(self, recip) :
-        self.connect(self, QtCore.SIGNAL('stop_button()'), recip)
+        self.stop_button.connect(recip)
 
 
     def disconnect_stop_button_from(self, recip) :
-        self.disconnect(self, QtCore.SIGNAL('stop_button()'), recip)
+        self.stop_button.disconnect(recip)
 
 
     def test_stop_button_reception(self) :
@@ -267,7 +272,7 @@ if __name__ == "__main__" :
     from expmon.Logger             import log
     from expmon.EMConfigParameters import cp
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = QWEventControl(cp, log, parent=None, show_mode=0377)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))

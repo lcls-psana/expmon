@@ -63,6 +63,7 @@ class PSConfigParameters(ConfigParameters) :
         self.data_source     = self.declareParameter(name='DATA_SOURCE',     val_def='None',        type='str') # 'cspad'
         self.dsextension     = self.declareParameter(name='DSET_EXTENSION',  val_def='None',        type='str') # 'shmod'
         self.event_number    = self.declareParameter(name='EVENT_NUMBER',    val_def=0,             type='int')
+        self.nevents_update  = self.declareParameter(name='NEVENTS_UPDATE',    val_def=100,             type='int')
         self.event_step      = self.declareParameter(name='EVENT_STEP',      val_def=1,             type='int')
         self.wait_msec       = self.declareParameter(name='EVENT_DELAY_MSEC',val_def=500,           type='int')
  
