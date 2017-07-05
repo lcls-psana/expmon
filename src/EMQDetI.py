@@ -29,9 +29,8 @@ class EMQDetI(QtGui.QWidget) :
         self._name = 'EMQDetI'
 
         self.parent = parent
-        if parent is not None :
-            self.tabind = parent.tabind
-            self.detind = parent.detind
+        self.tabind = parent.tabind if parent is not None else 0
+        self.detind = parent.detind if parent is not None else 0
 
         self.set_source(src)
 

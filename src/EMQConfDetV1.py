@@ -141,7 +141,7 @@ class EMQConfDetV1(Frame) :
 
     def set_style(self):
         #self.setGeometry(10, 25, 400, 600)
-        self.setMinimumSize(300,50)
+        self.setMinimumSize(350,50)
 
         #self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
         #self.vsplit.setMinimumHeight(700)        
@@ -149,7 +149,7 @@ class EMQConfDetV1(Frame) :
 
         self.lab_src.setStyleSheet(style.styleLabel)
         self.but_src.setMinimumWidth(200)
-        self.wdet.setMinimumWidth(300)
+        self.wdet.setMinimumWidth(350)
 
     #def moveEvent(self, e):
         #log.debug('%s.moveEvent' % self._name) 
@@ -169,7 +169,7 @@ class EMQConfDetV1(Frame) :
 
 if __name__ == "__main__" :
     app = QtGui.QApplication(sys.argv)
-    w = EMQConfDetV1()
+    w = EMQConfDetV1(None)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
     w.show()

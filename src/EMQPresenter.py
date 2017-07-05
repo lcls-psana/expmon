@@ -440,7 +440,7 @@ class EMQPresenter(QtCore.QObject) :
         w = self.wpearson[imon]
         if w is None :
             self.dxmove = 20
-            xmin, xmax =  0, 200
+            xmin, xmax = -0.5, 50.5
             ymin, ymax = -1.05, 1.05
             self.xpoint = -1
             rectax=QtCore.QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
@@ -461,13 +461,14 @@ class EMQPresenter(QtCore.QObject) :
             rax = wg.rect_axes()
             #x, y, width, height = rax.getRect()
             #if self.xpoint >= x+width :
-            if self.xpoint >= rax.right() :
-                sc = wg.scene()
-                rs = sc.sceneRect()
-                rs.moveCenter(rs.center() + QtCore.QPointF(self.dxmove,0))
-                sc.setSceneRect(rs)
-                wg.update_my_scene()
 
+            if self.xpoint >= (rax.right() - 0.05*rax.width()) :
+                #sc = wg.scene()
+                #rs = sc.sceneRect()
+                #rs.moveCenter(rs.center() + QtCore.QPointF(self.dxmove,0))
+                #sc.setSceneRect(rs)
+                #wg.update_my_scene()
+                wg.move_scene(QtCore.QPointF(self.dxmove,0))
 
             self.draw_pearson(imon)
             w.raise_()

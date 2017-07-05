@@ -32,8 +32,8 @@ class EMQDetWF(EMQDetI) :
         self.wt = None        
 
         #self.parent = parent
-        tabind = parent.tabind
-        detind = parent.detind
+        tabind = parent.tabind if parent is not None else 0
+        detind = parent.detind if parent is not None else 0
 
         det_list_of_pars = cp.det1_list_of_pars if detind == 1 else\
                            cp.det2_list_of_pars
@@ -54,8 +54,12 @@ class EMQDetWF(EMQDetI) :
         self.par_bkg_bmin = det_list_of_pars[11][tabind]
         self.par_bkg_bmax = det_list_of_pars[12][tabind]
 
+        self.item_roi_sig = None
+        self.item_roi_bkg = None
+        self.set_pen_brush()
         self.set_roi_sig()
         self.set_roi_bkg()
+
 
         #self.w = QtGui.QTextEdit(self._name)
         #self.lab_info = QtGui.QLabel('Use EMQDetWF for "%s"' % src)
@@ -110,11 +114,26 @@ class EMQDetWF(EMQDetI) :
         self.but_set_bkg.setToolTip('Select visible window for background\nand click on "Bkgd"')
 
 
+
+    def set_pen_brush(self):
+        alpha = 50
+        col_sig = QtGui.QColor(QtCore.Qt.red)
+        col_bkg = QtGui.QColor(QtCore.Qt.white)
+
+        self.pen_sig = QtGui.QPen(col_sig,0)
+        self.pen_bkg = QtGui.QPen(col_bkg,0)
+        col_sig.setAlpha(alpha)
+        col_bkg.setAlpha(alpha)
+        self.brush_sig = QtGui.QBrush(col_sig)
+        self.brush_bkg = QtGui.QBrush(col_bkg)
+
+
+
     def set_style(self):
         EMQDetI.set_style(self)
         self.lab_roi.setStyleSheet(style.styleLabel)
 
-        #self.lab_info.setMinimumWidth(300)
+        self.lab_info.setMinimumWidth(350)
         #self.lab_info.setStyleSheet(style.styleLabel)
         #self.setContentsMargins(QtCore.QMargins(-9,-9,-9,-9))
         #self.setGeometry(10, 25, 400, 600)
@@ -136,6 +155,51 @@ class EMQDetWF(EMQDetI) :
             except : pass
         QtGui.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
+
+#------------------------------
+
+    def roi_sig_xywh(self):
+        gv = self.guview
+        if gv is None : return None, None, None, None
+        rs = gv.scene().sceneRect()
+
+        x, y = self.par_sig_bmin.value(), rs.y()
+        w = self.par_sig_bmax.value()-x if x is not None else None
+        h = rs.height() if y is not None else None
+        return x, y, w, h
+
+
+    def roi_bkg_xywh(self):
+        gv = self.guview
+        if gv is None : return None, None, None, None
+        rs = gv.scene().sceneRect()
+
+        x, y = self.par_bkg_bmin.value(), rs.y()
+        w = self.par_bkg_bmax.value()-x if x is not None else None
+        h = rs.height() if y is not None else None
+        return x, y, w, h
+
+
+    def draw_roi(self):
+        gv = self.guview
+        if gv is not None :
+            sc = gv.scene()
+            #print 'XXX: draw ROI on scene', sc
+            if self.item_roi_sig is not None : 
+                sc.removeItem(self.item_roi_sig)
+                self.item_roi_sig = None
+            x, y, w, h = self.roi_sig_xywh()
+            if x is not None :
+                self.item_roi_sig = sc.addRect(x, y, w, h, self.pen_sig, self.brush_sig)
+                self.item_roi_sig.setZValue(0.5)
+
+            if self.item_roi_bkg is not None : 
+                sc.removeItem(self.item_roi_bkg)
+                self.item_roi_bkg = None
+            x, y, w, h = self.roi_bkg_xywh()
+            if x is not None :
+                self.item_roi_bkg = sc.addRect(x, y, w, h, self.pen_bkg, self.brush_bkg)
+                self.item_roi_bkg.setZValue(0.5)
 
 #------------------------------
 
@@ -242,6 +306,7 @@ class EMQDetWF(EMQDetI) :
 
         self.sig_nbins = None if self.sig_bmin is None or self.sig_bmax is None else\
                          (self.sig_bmax - self.sig_bmin)
+        self.draw_roi()
 
 #------------------------------
 
@@ -256,6 +321,7 @@ class EMQDetWF(EMQDetI) :
 
         self.bkg_nbins = None if self.bkg_bmin is None or self.bkg_bmax is None else\
                          (self.bkg_bmax - self.bkg_bmin)
+        self.draw_roi()
 
 #------------------------------
 
@@ -348,8 +414,9 @@ class EMQDetWF(EMQDetI) :
             ##self.guview.move(self.pos() + QtCore.QPoint(self.width()+80, 10))
 
             dx, dy = self.tabind*50, self.detind*100
-            point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
-            self.guview.move(point)
+            if cp.guimain is not None :
+                point = point_relative_window(cp.guimain, QtCore.QPoint(dx, dy))
+                self.guview.move(point)
 
             self.set_window_geometry()
             self.guview.show()
@@ -363,6 +430,8 @@ class EMQDetWF(EMQDetI) :
 
         tit = '%s  %s' % (cp.tab_names[self.tabind], self.src)
         self.guview.setWindowTitle(tit)
+
+        self.draw_roi()
 
 
     def signal(self, evt):  

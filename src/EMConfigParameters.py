@@ -50,6 +50,7 @@ class EMConfigParameters(PSConfigParameters) :
         self.declareParameters()
         self.readParametersFromFile()
 
+        self.guimain = None
         self.emqmain = None
         #self.emqthreadworker = None
         self.emqpresenter = None
@@ -83,8 +84,8 @@ class EMConfigParameters(PSConfigParameters) :
 
         self.main_win_pos_x  = self.declareParameter(name='MAIN_WIN_POS_X',  val_def=5,   type='int')
         self.main_win_pos_y  = self.declareParameter(name='MAIN_WIN_POS_Y',  val_def=5,   type='int')
-        self.main_win_width  = self.declareParameter(name='MAIN_WIN_WIDTH',  val_def=800, type='int')
-        self.main_win_height = self.declareParameter(name='MAIN_WIN_HEIGHT', val_def=700, type='int')
+        self.main_win_width  = self.declareParameter(name='MAIN_WIN_WIDTH',  val_def=900, type='int')
+        self.main_win_height = self.declareParameter(name='MAIN_WIN_HEIGHT', val_def=600, type='int')
 
         # LISTS of parameters
 

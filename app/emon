@@ -42,8 +42,8 @@ class EM_GUI :
         #gui = QtGui.QWidget()
         gui.show()
 	stat = app.exec_()
-	statt1 = t1.quit() # t1.exit(0)
 	statt2 = t2.quit()
+	statt1 = t1.quit() # t1.exit(0)
         sys.exit(stat)
 
 #------------------------------

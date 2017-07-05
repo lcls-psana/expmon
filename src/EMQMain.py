@@ -37,6 +37,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
         #log.setPrintBits(0377)
         self.log_rec_on_start()
+        self.save_log_file()
 
         self.init_parameters(parser)
 
@@ -221,6 +222,11 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
         #cp.printParameters()
         cp.saveParametersInFile()
+
+        self.save_log_file()
+
+
+    def save_log_file(self):
 
         if cp.save_log_at_exit.value() :
             #log.saveLogInFile(cp.log_file.value())

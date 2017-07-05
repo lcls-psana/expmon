@@ -13,6 +13,19 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-12
+2017-07-05 Mikhail S. Dubrovin
+- add visualization for signal and background windows; save log at start; do common mode correction for View.
+	modified:   app/emon
+	modified:   src/EMConfigParameters.py
+	modified:   src/EMQConfDetV1.py
+	modified:   src/EMQDetArea.py
+	modified:   src/EMQDetI.py
+	modified:   src/EMQDetWF.py
+	modified:   src/EMQMain.py
+	modified:   src/EMQPresenter.py
+	modified:   src/PSDataSupplier.py
+
 Tag: V01-00-11
 2017-06-25 Mikhail S. Dubrovin
 - emon - fix issue with access to calib in shmem mode, in EMQDetArea.py subtract pedestals if available.

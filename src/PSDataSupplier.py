@@ -26,6 +26,7 @@ Usage ::
         evt = dso.es.event_next()
         #nda = self.raw(evt)
         peds = self.pedestals(n)
+        cmpars = self.common_mode(n)
         #img = self.image(n, nda)
         img = self.image(n)
         # or
@@ -85,6 +86,11 @@ class PSDataSupplier :
     def pedestals(self, evt) :
         if self.det is None : return None
         return self.det.pedestals(evt)
+
+
+    def common_mode(self, evt) :
+        if self.det is None : return None
+        return self.det.common_mode(evt)
 
 
     def image(self, par=None, nda=None) :

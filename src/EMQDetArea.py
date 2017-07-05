@@ -42,7 +42,10 @@ class EMQDetArea(EMQDetI) :
         self.par_bkg_xmax  = det_list_of_pars[9][tabind]
         self.par_bkg_ymin  = det_list_of_pars[10][tabind]
         self.par_bkg_ymax  = det_list_of_pars[11][tabind]
-
+            
+        self.item_roi_sig = None
+        self.item_roi_bkg = None
+        self.set_pen_brush()
         self.set_roi_sig()
         self.set_roi_bkg()
 
@@ -70,6 +73,21 @@ class EMQDetArea(EMQDetI) :
         self.arrimg = self.image(self.dso.event_next()) # cp.event_number.value())
 
 
+
+    def set_pen_brush(self):
+        alpha = 100
+        col_sig = QtGui.QColor(QtCore.Qt.red)
+        col_bkg = QtGui.QColor(QtCore.Qt.white)
+
+        self.pen_sig = QtGui.QPen(col_sig,4)
+        self.pen_bkg = QtGui.QPen(col_bkg,4)
+        col_sig.setAlpha(alpha)
+        col_bkg.setAlpha(alpha)
+        self.brush_sig = QtGui.QBrush(col_sig)
+        self.brush_bkg = QtGui.QBrush(col_bkg)
+
+
+ 
     def set_style(self):
         EMQDetI.set_style(self)
         self.lab_roi.setStyleSheet(style.styleLabel)
@@ -96,6 +114,43 @@ class EMQDetArea(EMQDetI) :
         QtGui.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
+#------------------------------
+
+    def roi_sig_xywh(self):
+        x, y = self.par_sig_xmin.value(), self.par_sig_ymin.value()
+        w = self.par_sig_xmax.value()-x if x is not None else None
+        h = self.par_sig_ymax.value()-y if y is not None else None
+        return x, y, w, h
+
+
+    def roi_bkg_xywh(self):
+        x, y = self.par_bkg_xmin.value(), self.par_bkg_ymin.value()
+        w = self.par_bkg_xmax.value()-x if x is not None else None
+        h = self.par_bkg_ymax.value()-y if y is not None else None
+        return x, y, w, h
+
+
+    def draw_roi(self):
+        gv = self.guview
+        if gv is not None :
+            sc = gv.scene()
+            #print 'XXX: draw ROI on scene', sc
+            if self.item_roi_sig is not None : 
+                sc.removeItem(self.item_roi_sig)
+                self.item_roi_sig = None
+            x, y, w, h = self.roi_sig_xywh()
+            if x is not None :
+                self.item_roi_sig = sc.addRect(x, y, w, h, self.pen_sig, self.brush_sig)
+                self.item_roi_sig.setZValue(0.5)
+
+            if self.item_roi_bkg is not None : 
+                sc.removeItem(self.item_roi_bkg)
+                self.item_roi_bkg = None
+            x, y, w, h = self.roi_bkg_xywh()
+            if x is not None :
+                self.item_roi_bkg = sc.addRect(x, y, w, h, self.pen_bkg, self.brush_bkg)
+                self.item_roi_bkg.setZValue(0.5)
+
 
     def set_roi_sig(self):
         self.sig_cmin = self.par_sig_xmin.value()
@@ -111,6 +166,7 @@ class EMQDetArea(EMQDetI) :
         self.sig_npix = None if None in (self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax) else\
                         (self.sig_cmax - self.sig_cmin)\
                       * (self.sig_rmax - self.sig_rmin)
+        self.draw_roi()
 
 
     def set_roi_bkg(self):
@@ -127,6 +183,7 @@ class EMQDetArea(EMQDetI) :
         self.bkg_npix = None if self.bkg_cmin is None else\
                         (self.bkg_cmax - self.bkg_cmin)\
                       * (self.bkg_rmax - self.bkg_rmin)
+        self.draw_roi()
 
 #------------------------------
 
@@ -201,7 +258,7 @@ class EMQDetArea(EMQDetI) :
         #import pyimgalgos.NDArrGenerators as ag
         #self.arrimg = ag.random_standard((500,500), mu=0, sigma=10)
 
-        self.arrimg = self.image(self.dso.event_next()) # cp.event_number.value())
+        self.arrimg = self.image(self.dso.event_next(), do_cmod=True) # cp.event_number.value())
         #print_ndarr(self.arrimg, 'XXX self.arrimg') 
 
         if self.guview is None :
@@ -229,6 +286,8 @@ class EMQDetArea(EMQDetI) :
         tit = '%s  %s' % (cp.tab_names[self.tabind], self.src)
         self.guview.setWindowTitle(tit)
 
+        self.draw_roi()
+
 
 #    def raw(self, evt):
 #        cmin, cmax, rmin, rmax = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax        
@@ -237,26 +296,29 @@ class EMQDetArea(EMQDetI) :
 #        return img.sum() if cmin is None else img[rmin:rmax, cmin:cmax].sum()
 
         
-    def image(self, evt):  
+    def image(self, evt, do_cmod=False):  
         nda = self.dso.raw(evt)
         self.ncall += 1
         if self.ncall == 1 :
             self.peds = self.dso.pedestals(evt)
             print_ndarr(self.peds, 'XXX: EMQDetArea pedestals')
+            self.cmpars = self.dso.common_mode(evt)
+            print_ndarr(self.cmpars, 'XXX: EMQDetArea common_mode')
         #print 'XXX: EMQDetArea.image', nda         
         if nda is None : return None
         if self.peds is not None : nda = nda.astype(self.peds.dtype) - self.peds
+        if do_cmod and (self.cmpars is not None) : self.dso.detector().common_mode_apply(evt, nda, self.cmpars)
         img = self.dso.image(evt, nda)
         if img is None : img = reshape_to_2d(nda)
         #print_ndarr(img, 'XXX: EMQDetArea.image img')
         return img
 
 
-    def signal(self, evt):  
+    def signal(self, evt, do_cmod=False):  
         scmin, scmax, srmin, srmax, snpix = self.sig_cmin, self.sig_cmax, self.sig_rmin, self.sig_rmax, self.sig_npix        
         bcmin, bcmax, brmin, brmax, bnpix = self.bkg_cmin, self.bkg_cmax, self.bkg_rmin, self.bkg_rmax, self.bkg_npix       
         #print 'XXX %s.signal before image' % self._name
-        img = self.image(evt)
+        img = self.image(evt, do_cmod)
         if img is None : return None
         #print 'XXX %s.signal after image' % self._name
         bb = 0 if bnpix is None else img[brmin:brmax, bcmin:bcmax].sum()/bnpix
