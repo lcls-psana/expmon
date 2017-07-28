@@ -56,7 +56,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
     def __del__(self) :
         print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
         #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
-        self.timer.stop()
+        #self.timer.stop()
         self.do_check_flags = False
         self.emqeventloop.__del__()
 

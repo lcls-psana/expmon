@@ -13,6 +13,20 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-13
+2017-07-28 Mikhail S. Dubrovin
+- add source selector GUI for Sioan
+modified:
+    EMQThreadEventLoop.py
+    PSConfigParameters.py
+    PSEventSupplier.py
+    PSUtils.py
+    QWDataControl.py
+add:
+    examples/ex_select_sources.py
+    SSConfigParameters.py
+    SSQSourceSelector.py
+
 Tag: V01-00-12
 2017-07-05 Mikhail S. Dubrovin
 - add visualization for signal and background windows; save log at start; do common mode correction for View.

@@ -110,6 +110,21 @@ def event_for_time(run, et) :
 
 #------------------------------
 
+def list_of_pv_names(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
+    """ returns a list of tuples (Full-Name, DAQ-Alias, User-Alias)
+    """
+    dsn = nm.dsname() if dsname is None else dsname
+    pseventsupplier.set_dataset(dsn, calib_dir=None)
+    ds = pseventsupplier.dataset()
+    return psana.DetNames('epics') # list of ('HX2:SB1:IPM:01:ChargeAmpRangeCH0', 'ipm1_gain', '')
+
+
+#------------------------------
+
+#def list_of_sources_test(dsname=None) : 
+#    return ['SxrBeamline.0:Opal1000.0', 'SxrEndstation.0:Acqiris.2', 'NoDetector.0:Evr.0']
+
+
 def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
     """Returns list of (str) sources like 'CxiDs2.0:Cspad.0'"""
 
@@ -378,6 +393,8 @@ def create_path(path, depth=5, mode=0777) :
 
     return os.path.exists(cpath)
  
+#------------------------------
+
 #------------------------------
 
 def test_all(tname) :

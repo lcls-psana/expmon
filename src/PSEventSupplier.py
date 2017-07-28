@@ -80,7 +80,7 @@ class PSEventSupplier :
     def _set_dataset_idx(self, dsname, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx'
         """Sets dictionary of pairs {event_number : psana.EventTime} in :idx mode
         """
-        print 'XXX: open DataSource in PSEventSupplier._set_dataset_idx  %s' % dsname        
+        #print 'XXX: open DataSource in PSEventSupplier._set_dataset_idx  %s' % dsname
         self.ds = DataSource(dsname)
         self.dsname = dsname
         self._run = self.ds.runs().next()
@@ -100,12 +100,12 @@ class PSEventSupplier :
         
         self.calib_dir = calib_dir if calib_dir is not None else\
                          nm.dir_calib()
-        print 'XXX: PSEventSupplier.set_dataset calib_dir: %s' % self.calib_dir        
+        #print 'XXX: PSEventSupplier.set_dataset calib_dir: %s' % self.calib_dir
         setOption('psana.calib-dir', self.calib_dir)
 
 
         if self.ds is not None : 
-            print 'XXX: delete DataSource in PSEventSupplier.set_dataset  %s' % self.dsname
+            #print 'XXX: delete DataSource in PSEventSupplier.set_dataset  %s' % self.dsname
             del self.ds
             self.reset()
 
@@ -118,7 +118,7 @@ class PSEventSupplier :
         self.is_idx_mode = False
 
         try : 
-            print 'XXX: open DataSource in PSEventSupplier.set_dataset  %s' % dsname
+            #print 'XXX: open DataSource in PSEventSupplier.set_dataset  %s' % dsname
             self.ds = DataSource(dsname)
 
             self.dsname = dsname
@@ -156,10 +156,8 @@ class PSEventSupplier :
             if self.events is None : return None
             self._evnum += 1
 
-            #print 'XXX PSEventSupplier.event_next A'
             try :
                evt = self.events.next()
-            #print 'XXX PSEventSupplier.event_next E'
             except :                
                print 'XXX WARNING: PSEventSupplier.event_next returns evt=None'
                return None

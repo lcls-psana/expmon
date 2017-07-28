@@ -65,6 +65,7 @@ class PSConfigParameters(ConfigParameters) :
         self.event_number    = self.declareParameter(name='EVENT_NUMBER',    val_def=0,             type='int')
         self.event_step      = self.declareParameter(name='EVENT_STEP',      val_def=1,             type='int')
         self.wait_msec       = self.declareParameter(name='EVENT_DELAY_MSEC',val_def=500,           type='int')
+        self.nevents_update  = self.declareParameter(name='EVENTS_UPDATE',   val_def=100,           type='int')
  
 #------------------------------
 

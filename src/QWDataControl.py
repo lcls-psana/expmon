@@ -278,12 +278,28 @@ class QWDataControl(Frame) :
 
 
     def set_run(self, val=None, cmt=''):
+        but_txt_old = str(self.but_run.text())
         if val != self.str_runnum.value() and val is not None :
             # set flag to evaluate list of sources in separate thread
             #self.log.info('set request to find sources for run: %s'% val, self._name)
             #cp.emqthreadworker.set_request_find_sources()
             self.cp.list_of_sources = None # to initiate ThreadWorker to evaluate it
         self.set_but_for_par(self.but_run, self.str_runnum, val, cmt)
+
+        if str(self.but_run.text()) != but_txt_old :
+            self.emit(QtCore.SIGNAL('runnum_is_changed()'))
+
+
+    def connect_runnum_is_changed_to(self, slot) :
+        self.connect(self, QtCore.SIGNAL('runnum_is_changed()'), slot)
+
+
+    def disconnect_runnum_is_changed_from(self, slot) :
+        self.disconnect(self, QtCore.SIGNAL('runnum_is_changed()'), slot)
+
+
+    def test_runnum_is_changed(self) :
+        print 'XXX %s.runnum_is_changed to %s' % (self._name, self.str_runnum.value())
 
 
     def set_exp(self, val=None, cmt=''):
@@ -330,8 +346,10 @@ if __name__ == "__main__" :
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()
 
-    w = QWDataControl(cp, log, show_mode=0377) 
-    w.event_control().set_show_mode(show_mode=010)
+    w = QWDataControl(cp, log, show_mode=0) 
+    #w = QWDataControl(cp, log, show_mode=0377) 
+    #w.event_control().set_show_mode(show_mode=0)
+    #w.event_control().set_show_mode(show_mode=010)
     w.move(QtCore.QPoint(50,50))
     w.show()
     
