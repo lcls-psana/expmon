@@ -6,6 +6,7 @@
 #------------------------------
 
 import sys
+import collections
 
 from time import time
 from PyQt4 import QtGui, QtCore
@@ -131,8 +132,12 @@ class SSQSourceSelector(QtGui.QWidget) :
 
         lst_tot = list(lst_srcs) + lst_pvs
 
+        #print 'lst_tot\n'
+        #for i,s in enumerate(lst_tot) : print '  XXX: %03d  %s' % (i,s)
+
         # make dictionary for GUI
-        self.dic_srcs = dict(zip(lst_tot, len(lst_tot)*[False]))
+        #self.dic_srcs = dict(zip(lst_tot, len(lst_tot)*[False]))
+        self.dic_srcs = collections.OrderedDict(zip(lst_tot, len(lst_tot)*[False]))
 
         for p in self.cp.det_src_list :
             src = p.value()
@@ -197,13 +202,13 @@ class SSQSourceSelector(QtGui.QWidget) :
 #------------------------------
 #------------------------------
 
-def select_data_sources(verb=1) :
-
-    from expmon.SSConfigParameters import cp # !!! PASSED AS PARAMETER
+def select_data_sources(fname=None, verb=1, bwlog=0) :
+    from expmon.SSConfigParameters import cp
     from expmon.Logger import log
     global app # to fix issue with message "QObject::startTimer: QTimer can only be used..."
 
-    #log.setPrintBits(0377)
+    log.setPrintBits(bwlog)
+    if fname is not None : cp.readParametersFromFile(fname=fname)
 
     nm.set_config_pars(cp)
 
@@ -216,7 +221,7 @@ def select_data_sources(verb=1) :
 
     app.exec_()
 
-    cp.saveParametersInFile(fname=None)
+    cp.saveParametersInFile(fname)
     if verb : print 'Configuration parameters saved in file: %s' % cp.fname
 
     if cp.save_log_at_exit.value() : 
@@ -227,7 +232,7 @@ def select_data_sources(verb=1) :
 #------------------------------
 
 if __name__ == "__main__" :
-    lst_srcs = select_data_sources(verb=0377)
+    lst_srcs = select_data_sources(fname='sourse-selector-confpars-my.txt', verb=0377, bwlog=0377)
     print 'List of selected sources:'
     for s in lst_srcs : print s
     sys.exit()

@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-14
+2017-07-31 Mikhail S. Dubrovin
+- use OrderedDic to order GUI list for data sources then PVs; ex_select_sources.py- add examples for non-default fname.
+
 Tag: V01-00-13
 2017-07-28 Mikhail S. Dubrovin
 - add source selector GUI for Sioan
