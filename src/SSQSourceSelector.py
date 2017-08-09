@@ -110,6 +110,10 @@ class SSQSourceSelector(QtGui.QWidget) :
     def update_sources(self):
         t0_sec = time()
         lst_srcs = psu.list_of_sources() # get sources from data
+        #lst_det_names = psu.list_of_sources_v1() # get sources from data
+        #lst_srcs = ['%s %32s'%(rec[0].ljust(32),rec[1].ljust(32)) for rec in lst_det_names]
+        #lst_srcs = ['%s   %s'%(rec[0],rec[1]) for rec in lst_det_names]
+        #lst_srcs = [rec[0] for rec in lst_det_names]
         msg = 'Get sources from dataset %s, consumed time (sec) = %.6f' % (nm.dsname(), time()-t0_sec)
         self.log.info(msg, self._name)    
 
@@ -118,14 +122,16 @@ class SSQSourceSelector(QtGui.QWidget) :
             return
 
         lst_pv_names = psu.list_of_pv_names()
+        #lst_pvs = ['%s %32s'%(rec[0].ljust(32),rec[1]) for rec in lst_pv_names]
         lst_pvs = [rec[0] for rec in lst_pv_names]
         msg = 'List of epics names in dataset %s\n' % nm.dsname()
-        #for i,s in enumerate(lst_pv_names) : msg += '  %03d  %s\n' % (i,str(s))
-        for i,s in enumerate(lst_pvs) : msg += '  %03d  %s\n' % (i,str(s))
+        for i,s in enumerate(lst_pv_names) : msg += '  %03d  %s\n' % (i,str(s))
+        #for i,s in enumerate(lst_pvs) : msg += '  %03d  %s\n' % (i,str(s))
         self.log.debug(msg, self._name)
 
         msg = 'List of sources in dataset %s\n' % nm.dsname()
         for i,s in enumerate(lst_srcs) : msg += '  %02d  %s\n' % (i,s)
+        #for i,s in enumerate(lst_det_names) : msg += '  %02d  %s\n' % (i,str(s))
         self.log.info(msg, self._name)    
 
         self.print_list_of_sources_in_cp()
@@ -216,6 +222,7 @@ def select_data_sources(fname=None, verb=1, bwlog=0) :
 
     w = SSQSourceSelector(cp, log) 
     w.setWindowTitle('Data source selector')
+    w.setMinimumWidth(350)
     w.move(QtCore.QPoint(50,50))
     w.show()
 

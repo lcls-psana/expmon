@@ -121,6 +121,23 @@ def list_of_pv_names(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
 #------------------------------
 
+def list_of_sources_v1(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
+    """ returns a list of tuples (Full-Name, DAQ-Alias, User-Alias)
+    """
+    dsn = nm.dsname() if dsname is None else dsname
+
+    if dsn is None\
+    or ('Select' in dsn)\
+    or ('Last' in dsn) :
+        #print 'Exit expmon.PSUtils.list_of_sources dsn: %s' % dsn
+        return None
+
+    pseventsupplier.set_dataset(dsn, calib_dir=None)
+    ds = pseventsupplier.dataset()
+    return psana.DetNames() # list of ('HX2:SB1:IPM:01:ChargeAmpRangeCH0', 'ipm1_gain', '')
+
+#------------------------------
+
 #def list_of_sources_test(dsname=None) : 
 #    return ['SxrBeamline.0:Opal1000.0', 'SxrEndstation.0:Acqiris.2', 'NoDetector.0:Evr.0']
 
