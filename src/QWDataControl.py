@@ -346,8 +346,8 @@ if __name__ == "__main__" :
     t1 = PSQThreadWorker(cp, parent=None, dt_msec=5000, pbits=0) #0177777)
     t1.start()
 
-    w = QWDataControl(cp, log, show_mode=0) 
-    #w = QWDataControl(cp, log, show_mode=0377) 
+    #w = QWDataControl(cp, log, show_mode=0) 
+    w = QWDataControl(cp, log, show_mode=017) 
     #w.event_control().set_show_mode(show_mode=0)
     #w.event_control().set_show_mode(show_mode=010)
     w.move(QtCore.QPoint(50,50))
