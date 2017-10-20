@@ -195,6 +195,33 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
 #------------------------------
 
+def list_of_sources_for_dataset(dsname, evts_max=10) : # dsname i.e. 'exp=cxi12316:run=1234:...'
+    """Returns list of (str) sources like 'CxiDs2.0:Cspad.0'
+
+       Differs from list_of_sources: defines ds=psana.DataSource(dsname) directly, not a singleton, no caching
+    """
+    #print 'XXX DataSource open in PSUtils list_of_sources %s' % dsname
+    ds = psana.DataSource(dsname)
+    cfg = ds.env().configStore()
+    sources = [str(k.src()) for k in cfg.keys()] # DetInfo(CxiDs2.0:Cspad.0)
+    srcs_cfg = set([s[8:-1] for s in sources if s[:7]=='DetInfo']) # selects CxiDs2.0:Cspad.0
+
+    event_keys = []
+    for i,evt in enumerate(ds.events()) :
+        if evt is None : continue
+        if i>evts_max : break
+        event_keys += evt.keys()
+
+    sources = [str(k.src()) for k in event_keys] # DetInfo(CxiDs2.0:Cspad.0)
+    srcs_evt = set([s[8:-1] for s in sources if s[:7] in ('BldInfo','DetInfo')]) # selects CxiDs2.0:Cspad.0
+
+    del ds
+    #return srcs_cfg
+    #return srcs_evt
+    return srcs_cfg.union(srcs_evt) 
+
+#------------------------------
+
 def load_arr_from_f5(fname):
     import h5py
     f = h5py.File(fname, 'r')
@@ -314,6 +341,14 @@ def test_list_of_sources(tname) :
 
 #------------------------------
 
+def test_list_of_sources_for_dataset() :
+    dsname = 'exp=xpptut15:run=54:smd'
+    print '%s dsname "%s"' % (sys._getframe().f_code.co_name, dsname)
+    list_of_sources = list_of_sources_for_dataset(dsname, evts_max=10)
+    for i,s in enumerate(list_of_sources) : print '%4d  %s' % (i+1,s)
+
+#------------------------------
+
 def test_dataset_times(tname) :
     #ds = DataSource('exp=xpptut15:run=54:smd')
     #ds = psana.DataSource('exp=cxif5315:run=169:smd')
@@ -411,24 +446,20 @@ def create_path(path, depth=5, mode=0777) :
     return os.path.exists(cpath)
  
 #------------------------------
-
-#------------------------------
-
-def test_all(tname) :
-    lexps = []
-    if   tname == '0': test_list_of_sources(tname)
-    elif tname == '1': test_list_of_sources(tname) 
-    elif tname == '2': test_dataset_times(tname) 
-    elif tname == '3': test_steps(tname) 
-    else : return
-
 #------------------------------
 
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
     print 50*'_', '\nTest %s' % tname
-    test_all(tname)
+    t0_sec = time()
+    if   tname == '0': test_list_of_sources(tname)
+    elif tname == '1': test_list_of_sources(tname) 
+    elif tname == '2': test_dataset_times(tname) 
+    elif tname == '3': test_steps(tname) 
+    elif tname == '4': test_list_of_sources_for_dataset()
+    else : print 'WARNING: Test %s is not defined' % tname
+    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
     sys.exit('End of Test %s' % tname)
 
 #------------------------------

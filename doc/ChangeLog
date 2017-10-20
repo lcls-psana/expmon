@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-17
+2017-10-19 Mikhail S. Dubrovin
+- add PSUtils.list_of_sources_for_dataset
+
 Tag: V01-00-16
 2017-09-01 Mikhail S. Dubrovin
 - Restrore PSImageProducer.py from tag V01-00-03 for graphqt.IV* project
