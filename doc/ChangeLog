@@ -14,6 +14,9 @@ reverse time order.
 #------------------------------
 
 Tag: V01-00-17
+2017-10-31 Mikhail S. Dubrovin
+- add forgotten tag
+
 2017-10-19 Mikhail S. Dubrovin
 - add PSUtils.list_of_sources_for_dataset
 
