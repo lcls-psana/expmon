@@ -13,6 +13,14 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-18
+2017-11-10 Mikhail S. Dubrovin
+- add HexDataIO.py with examples
+	new file:   examples/ex_acqiris_hex_amod3814-85.py
+	new file:   examples/ex_acqiris_ipython.py
+	modified:   examples/test_evt_access_rate.py
+	new file:   src/HexDataIO.py
+
 Tag: V01-00-17
 2017-10-31 Mikhail S. Dubrovin
 - add forgotten tag

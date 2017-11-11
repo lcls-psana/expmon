@@ -13,7 +13,8 @@ Author : Mikhail Dubrovin
 from psana import DataSource, EventId, EventTime, setOption
 from time import time
 
-dsname = 'exp=sxro5916:run=24'
+#dsname = 'exp=sxro5916:run=24'
+dsname = 'exp=xpptut15:run=390'
 ds = DataSource(dsname)
 events = ds.events()
 
@@ -25,11 +26,11 @@ t0_sec = time()
 #------------------------------
 
 if True :
-  print 'Test  evt in ds.events()'
+  print 'Test evt = ds.events().next()'
   t0_sec = tt_sec = time()
-  for n, evt in enumerate(events) :
-    if n > nevmax : break
-    if not n%nevbuf : 
+  for n in range(nevmax) :
+    evt = events.next()
+    if not n%nevbuf :
       print 'evt %6d   dt(sec/evt) = %.6f'%\
             (n, (time()-t0_sec)/nevbuf)
       t0_sec = time()
@@ -38,11 +39,11 @@ if True :
 #------------------------------
 
 if True :
-  print 'Test evt = ds.events().next()'
+  print 'Test  evt in ds.events()'
   t0_sec = tt_sec = time()
-  for n in range(nevmax) :
-    evt = events.next()
-    if not n%nevbuf :
+  for n, evt in enumerate(events) :
+    if n > nevmax : break
+    if not n%nevbuf : 
       print 'evt %6d   dt(sec/evt) = %.6f'%\
             (n, (time()-t0_sec)/nevbuf)
       t0_sec = time()
