@@ -13,6 +13,12 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-19
+2017-11-20 Mikhail S. Dubrovin
+- HexDataIO.py - multiple changes to pass parameters thrugh **kwargs
+- add method exp_run_from_dsname in PSUtils.py
+- add examples/ex_submit_jobs_in_batch.py
+
 Tag: V01-00-18
 2017-11-10 Mikhail S. Dubrovin
 - add HexDataIO.py with examples

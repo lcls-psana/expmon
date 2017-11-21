@@ -10,8 +10,11 @@ Usage ::
     --------------------------------
     from expmon.HexDataIO import HexDataIO
 
-    o = HexDataIO(dic_src_channels={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
+    o = HexDataIO(srcchs={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}, numchs=7, numhits=16)
+
     o.open_input_dataset('exp=xpptut15:run=390')
+    # OR:
+    o.open_input_h5file(ofname='./test.h5')
 
     status = o.read_next_event()           # gets next event from dataset, returns True if event is available
 
@@ -21,8 +24,10 @@ Usage ::
     wf      = o.get_wf(channel=1)          # per channel array of intensities
     wt      = o.get_wt(channel=1)          # per channel array of times [s]
     nch     = o.get_number_of_channels()   # returns a number of channels
-    tstamp  = o.tdc_resolution()           # returns TDC bin width in ns
+    t_ns    = o.tdc_resolution()           # returns TDC bin width in ns
 
+    t_sec   = o.start_time_sec()           # returns (loatr) run start time
+    t_sec   = o.stop_time_sec()            # returns (float) run start time
     tstamp  = o.start_time()               # returns (str) time stamp like '2017-10-23T17:00:00'
     tstamp  = o.stop_time()                # returns (str) time stamp like '2017-10-23T17:00:00'
 
@@ -31,8 +36,6 @@ Usage ::
     o.close_input_h5file()
     o.add_event_to_h5file()
 
-    o.open_input_h5file(ofname='./test.h5')
-
     o.print_tdc_data()
     o.print_times()
 
@@ -40,6 +43,7 @@ Created on 2017-10-23 by Mikhail Dubrovin
 """
 #------------------------------
 
+from time import time
 import numpy as np
 import psana
 from Detector.WFDetector import WFDetector
@@ -49,69 +53,74 @@ import Detector.PyDataAccess as pda
 #------------------------------
 from pypsalg import find_edges
 
-from PSCalib.DCUtils import env_time, str_tstamp
+from PSCalib.DCUtils import env_time, evt_time, evt_fiducials, str_tstamp
+from expmon.PSUtils import exp_run_from_dsname # event_time, 
 
 #------------------------------
-# Waveform hit-finder parameters
 
-BASE = 0.
-THR = -0.04
-CFR = 0.9
-DEADTIME = 5.0
-LEADINGEDGE = True # False
-IOFFSETBEG = 0
-IOFFSETEND = 1000
+def do_print(nev) :
+    return nev<10\
+       or (nev<50 and (not nev%10))\
+       or (nev<500 and (not nev%100))\
+       or not nev%1000
 
-#------------------------------
-# IO array shape parameters:
-
-NUM_CHANNELS = 7 #  (int) - number of channels for u1,u2,v1,v2,w1,w2,mcp signals
-NUM_HITS    = 16 # (int) - maximal number of time signals per channel 
-#------------------------------
-# Test parameters
-EVSKIP = 0
-EVENTS = EVSKIP + 100
-#------------------------------
+#------------------------------    
 
 class HexDataIO :
-    def __init__(self, dic_src_channels={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),\
-                                         'AmoITOF.0:Acqiris.0':(0,)}) :
+
+    def __init__(self, **kwargs) :
         """Parameters
 
-           - dic_src_channels (dict) - dictionary of pairs (source:list-of-channels)
+           - srcchs={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}
+             (dict) - dictionary of pairs (source:list-of-channels)
              where list-of-channels should be for u1,u2,v1,v2,w1,w2,mcp signals
+           - numchs=7 (int) - total number of channels in sources 
+           - numhits=16 (int) - maximal number of hits in waveforms
         """
-        self._dic_src_channels = dic_src_channels
         self._tdc_resolution = None
         self._env = None
+        self._events = None
+        self._oh5file = None
+        self._ih5file = None
+        self.ds = None
+        self._evnum =-1
+        self._evt = None
+        self.t0_sec = time()
+        self._size_increment = 4096
+
+        self.set_wf_hit_finder_parameters(**kwargs) 
+        self._set_parameters(**kwargs)
         self._init_arrays()
-        self._ofile = None
-        self._ifile = None
-        self.evnum = 0
+
+
+    def _set_parameters(self, **kwargs) :
+        """Parameters - see __init__
+        """
+        keys = kwargs.keys()
+        self._dic_src_channels = kwargs.get('srcchs',
+                                            {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),\
+                                             'AmoITOF.0:Acqiris.0':(0,)})
+        self.NUM_CHANNELS = kwargs.get('numchs',7) #  (int) - number 
+        self.NUM_HITS     = kwargs.get('numhits',16) # (int) - maximal
 
 
     def _init_arrays(self) :
-        self.error_flag = 0
+        self._error_flag = 0
         self._event_is_processed = False
-        self._number_of_hits = np.zeros((NUM_CHANNELS),   dtype=np.int)
-        self._tdc_ns  = np.zeros((NUM_CHANNELS, NUM_HITS), dtype=np.double)
-        self._tdc_ind = np.zeros((NUM_CHANNELS, NUM_HITS), dtype=np.int)
+        self._number_of_hits = np.zeros((self.NUM_CHANNELS),    dtype=np.int)
+        self._tdc_ns  = np.zeros((self.NUM_CHANNELS, self.NUM_HITS), dtype=np.double)
+        self._tdc_ind = np.zeros((self.NUM_CHANNELS, self.NUM_HITS), dtype=np.int)
         self._dic_wf = {}
         self._dic_wt = {}
 
 
-    def events(self) : return self._events
-
-    def env(self) :    return self._env
-
-
-    def open_input_dataset(self, dsname='exp=xpptut15:run=390', pbits=1022, do_mpids=False) :
-        self.ds = psana.MPIDataSource(dsname) if do_mpids else psana.DataSource(dsname)
+    def open_input_dataset(self, dsname='exp=xpptut15:run=390:smd', pbits=1022, do_mpids=False) :
+        self.ds = psana.MPIDataSource(dsname) if do_mpids else\
+                  psana.DataSource(dsname)
         self._env = self.ds.env()
 
-        self.evt = None
         self._events = self.ds.events()
-        self.pbits = pbits
+        self._pbits = pbits
 
         #nrun = evt.run()
         #evt = ds.events().next()
@@ -126,67 +135,107 @@ class HexDataIO :
         if pbits & 1 :
             for wfd in self.wfdets :
                 wfd.print_attributes()
+            self.print_wf_hit_finder_parameters()
 
         co = pda.get_acqiris_config_object(self._env, self.wfdets[0].source)
         self._tdc_resolution = co.horiz().sampInterval() * 1e9 # sec -> ns
 
+        self._start_time_sec = env_time(self._env)
+        self._stop_time_sec = self._start_time_sec + 1234
+
+        self._exp, self._run = exp_run_from_dsname(dsname)
+
 
     def open_output_h5file(self, fname='./test.h5') :
         import h5py
-        self._nevmax = 1000
-        self._ofile = h5py.File(fname,'w')
+        self._nevmax = self._size_increment
+        self._oh5file = h5py.File(fname,'w')
+        dtype_str = h5py.special_dtype(vlen=str)
+        self.h5ds_run           = self._oh5file.create_dataset('run',          (1,), dtype=dtype_str)
+        self.h5ds_exp           = self._oh5file.create_dataset('experiment',   (1,), dtype=dtype_str)
+        self.h5ds_start_time    = self._oh5file.create_dataset('start_time',   (1,), dtype='f')
+        self.h5ds_stop_time     = self._oh5file.create_dataset('stop_time',    (1,), dtype='f')
+        self.h5ds_tdc_res_ns    = self._oh5file.create_dataset('tdc_res_ns',   (1,), dtype='f')
+        self.h5ds_proc_time_sec = self._oh5file.create_dataset('proc_time_sec',(1,), dtype='f')
+        self.h5ds_nevents       = self._oh5file.create_dataset('nevents',      (1,), dtype='i')
+        self.h5ds_event_number  = self._oh5file.create_dataset('event_number', (self._nevmax,), dtype='i', maxshape=(None,))
+        self.h5ds_event_time    = self._oh5file.create_dataset('event_time',   (self._nevmax,), dtype='f', maxshape=(None,))
+        self.h5ds_fiducials     = self._oh5file.create_dataset('fiducials',    (self._nevmax,), dtype='i', maxshape=(None,))
+        self.h5ds_nhits = self._oh5file.create_dataset('nhits', (self._nevmax, self.NUM_CHANNELS), dtype='i', maxshape=(None, self.NUM_CHANNELS))
+        self.h5ds_tdcns = self._oh5file.create_dataset('tdcns', (self._nevmax, self.NUM_CHANNELS, self.NUM_HITS), dtype='f',\
+                                                               maxshape=(None, self.NUM_CHANNELS, self.NUM_HITS))
 
-        self.h5ds_nhits = self._ofile.create_dataset('nhits', (self._nevmax, NUM_CHANNELS), dtype='i', maxshape=(None, NUM_HITS))
-        self.h5ds_tdcns = self._ofile.create_dataset('tdcns', (self._nevmax, NUM_CHANNELS, NUM_HITS), dtype='f',\
-                                                             maxshape=(None, NUM_CHANNELS, NUM_HITS))
 
     def close_output_h5file(self, pbits=0) :
-        if self._ofile is None : return
-        if pbits : print 'Close output file: %s' % self._ofile.filename
-        self._ofile.close()
-        self._ofile = None
+        if self._oh5file is None : return
+        start_time_sec = env_time(self._env)
+        nevents = self.nevents_processed()
+        self._resize_h5_datasets(nevents)
+        self.h5ds_start_time[0] = self.start_time_sec()
+        self.h5ds_stop_time[0]  = self.stop_time_sec()
+        self.h5ds_nevents[0]    = nevents
+        self.h5ds_tdc_res_ns[0] = self.tdc_resolution()
+        self.h5ds_run[0]        = self._run
+        self.h5ds_exp[0]        = self._exp
+        self.h5ds_proc_time_sec[0] = time() - self.t0_sec
+
+        if self._oh5file is None : return
+        if pbits : print 'Close output file: %s' % self._oh5file.filename
+        self._oh5file.close()
+        self._oh5file = None
 
 
-    def close_input_h5file(self, pbits=0) :
-        if self._ifile is None : return
-        if pbits : print 'Close input file: %s' % self._ifile.filename
-        self._ifile.close()
-        self._ifile = None
-
-
-    def _resize_h5_datasets(self) :
-        self._nevmax *= 2
-        self._ofile.flush()
+    def _resize_h5_datasets(self, size=None) :
+        self._nevmax = self._nevmax + self._size_increment if size is None else size
+        self._oh5file.flush()
         self.h5ds_nhits.resize(self._nevmax, axis=0)   # or dset.resize((20,1024))
         self.h5ds_tdcns.resize(self._nevmax, axis=0)   # or dset.resize((20,1024))
+        self.h5ds_event_number.resize(self._nevmax, axis=0) 
+        self.h5ds_event_time  .resize(self._nevmax, axis=0) 
+        self.h5ds_fiducials   .resize(self._nevmax, axis=0)
 
 
     def add_event_to_h5file(self) :
-        i = self.evnum-1
+        i = self.event_number()
         if i >= self._nevmax : self._resize_h5_datasets()
         self._proc_waveforms()
 
-        #gu.print_ndarr(self._number_of_hits, '  _number_of_hits')
-        #gu.print_ndarr(self._tdc_ns, '  _tdc_ns')
-
         self.h5ds_nhits[i] = self._number_of_hits
         self.h5ds_tdcns[i] = self._tdc_ns
-        self.h5ds_nhits.attrs['events'] = i
+        self.h5ds_event_number[i] = i
+        self.h5ds_event_time[i] = evt_time(self._evt)
+        self.h5ds_fiducials[i] = evt_fiducials(self._evt)
+        #gu.print_ndarr(self._number_of_hits, '  _number_of_hits')
+        #gu.print_ndarr(self._tdc_ns, '  _tdc_ns')
+        #self.h5ds_nhits.attrs['events'] = i
 
 
     def open_input_h5file(self, fname='./test.h5') :
         import h5py
-        self._ifile = h5py.File(fname,'r')
-        self.h5ds_nhits = self._ifile['nhits']
-        self.h5ds_tdcns = self._ifile['tdcns']
-        print 'File %s has %d records in "nhits" and "tdcns" datasets' % (fname, self.h5ds_nhits.attrs['events']+1)
+        self._ih5file = h5py.File(fname,'r')
+        self.h5ds_nhits = self._ih5file['nhits']
+        self.h5ds_tdcns = self._ih5file['tdcns']
+        self.h5ds_nevents = self._ih5file['nevents'][0]
+        print 'File %s has %d records' % (fname, self.h5ds_nevents)
+        #self.h5ds_nevents = self.h5ds_nhits.attrs['events']
+        self._exp = self._ih5file['experiment'][0]
+        self._run = self._ih5file['run'][0]
+        self._tdc_resolution = self._ih5file['tdc_res_ns'][0]
+        self._start_time_sec = self._ih5file['start_time'][0]
+        self._stop_time_sec  = self._ih5file['stop_time'][0]
+
+
+    def close_input_h5file(self, pbits=0) :
+        if self._ih5file is None : return
+        if pbits : print 'Close input file: %s' % self._ih5file.filename
+        self._ih5file.close()
+        self._ih5file = None
 
 
     def fetch_event_data_from_h5file(self) :
-        i = self.evnum-1
-        if i>self.h5ds_nhits.attrs['events'] : 
+        i = self.event_number()
+        if not (i<self.h5ds_nevents) : 
              return False
-
         self._number_of_hits = self.h5ds_nhits[i]
         self._tdc_ns         = self.h5ds_tdcns[i]
         return True
@@ -197,41 +246,86 @@ class HexDataIO :
         self.close_input_h5file()
 
 
+    def events(self) : 
+        return self._events
+
+
+    def env(self) : 
+        return self._env
+
+
+    def experiment(self) :
+        return self._exp
+
+
+    def run(self) :
+        return self._run
+
+
     def tdc_resolution(self) :
         return self._tdc_resolution
 
 
+    def start_time_sec(self) :
+        return self._start_time_sec
+
+
+    def stop_time_sec(self) :
+        return self._stop_time_sec
+
+
     def start_time(self) :
-        #return '2017-10-23T17:00:00'
-        tsec = env_time(self._env)
+        """Returns (str) timestamp, e.g. '2017-10-23T17:00:00'
+        """
+        tsec = self.start_time_sec()
         return str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=int(tsec))
 
 
     def stop_time(self) :
-        tsec = env_time(self._env) + 1234
+        tsec = self.stop_time_sec()
         return str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=int(tsec))
 
 
+    def proc_time_sec(self) :
+        """ONLY For h5 input"""
+        return self._ih5file['proc_time_sec'][0] if self._ih5file is not None else\
+               None
+
+
+    def number_of_events(self) :
+        """ONLY For h5 input"""
+        return self._ih5file['nevents'][0] if self._ih5file is not None else\
+               self.nevents_processed()
+
+
     def get_number_of_channels(self) :
-        return self.numch
+        return self.NUM_CHANNELS
 
 
     def read_next_event(self) :
-        self.evnum += 1
+        self._evnum += 1
 
-        if self._ifile is not None :
-            if self.evt is None : 
-                self._init_arrays()
-                self.evt = self._events.next()
+        if self._ih5file is not None :
+            #if self._evt is None : 
+            #    self._init_arrays()
+            #    self._evt = self._events.next()
             return self.fetch_event_data_from_h5file()
 
         self._init_arrays()
-        self.evt = self._events.next()
-        return self.evt is not None
+        self._evt = self._events.next()
+        return self._evt is not None
+
+
+    def event_number(self) :
+        return self._evnum
 
 
     def get_event_number(self) :
-        return self.evnum
+        return self._evnum
+
+
+    def nevents_processed(self) :
+        return self.event_number() + 1
 
 
     def get_number_of_hits_array(self, arr=None) :
@@ -264,14 +358,36 @@ class HexDataIO :
 
 
     def _proc_waveforms(self) :
-        if self._ifile is not None  : return
+        if self._ih5file is not None : return
         if self._event_is_processed : return
-        self.proc_waveforms_for_evt(self.evt)
+        self.proc_waveforms_for_evt(self._evt)
         self._event_is_processed = True
 
 
+    def set_wf_hit_finder_parameters(self, **kwargs) :
+        self.BASE        = kwargs.get('cfd_base',        0.)
+        self.THR         = kwargs.get('cfd_thr',        -0.04)
+        self.CFR         = kwargs.get('cfd_cfr',         0.9)
+        self.DEADTIME    = kwargs.get('cfd_deadtime',    5.0)
+        self.LEADINGEDGE = kwargs.get('cfd_leadingedge', True)
+        self.IOFFSETBEG  = kwargs.get('cfd_ioffsetbeg',  0)
+        self.IOFFSETEND  = kwargs.get('cfd_ioffsetend',  1000)
+
+
+    def print_wf_hit_finder_parameters(self) :
+        msg = '%s\nCFD parameters:' % (40*'_')\
+            + '\n  cfd_base         %.1f' % self.BASE\
+            + '\n  cfd_thr          %.3f' % self.THR\
+            + '\n  cfd_cfr          %.3f' % self.CFR\
+            + '\n  cfd_deadtime     %.3f' % self.DEADTIME\
+            + '\n  cfd_leadingedge    %s' % self.LEADINGEDGE\
+            + '\n  cfd_ioffsetbeg     %d' % self.IOFFSETBEG\
+            + '\n  cfd_ioffsetend     %d' % self.IOFFSETEND\
+            + '\n%s' % (40*'_')
+        print msg
+
+
     def proc_waveforms_for_evt(self, evt) :
-        ch_max, nhits_max = NUM_CHANNELS, NUM_HITS
         ch_tdc = -1
         for src, wfd, channels in self.srcs_dets_channels :
             res = wfd.raw(evt)
@@ -279,27 +395,27 @@ class HexDataIO :
             wf,wt = res
             for ch in channels :
                 ch_tdc+=1
-                if ch_tdc == ch_max :
+                if ch_tdc == self.NUM_CHANNELS :
                     raise IOError('HexDataIO._proc_waveforms: input tdc_ns shape=%s ' % str(tdc_ns.shape)\
                                   +' does not have enough rows for quad-/hex-anode channels')
 
                 wfch = wf[ch,:]
-                wfch -= wfch[IOFFSETBEG:IOFFSETEND].mean()
+                wfch -= wfch[self.IOFFSETBEG:self.IOFFSETEND].mean()
                 self._dic_wf[ch_tdc] = wfch
                 self._dic_wt[ch_tdc] = wtch = wt[ch,:] * 1e9 # sec -> ns
 
-                edges = find_edges(wfch, BASE, THR, CFR, DEADTIME, LEADINGEDGE)
+                edges = find_edges(wfch, self.BASE, self.THR, self.CFR, self.DEADTIME, self.LEADINGEDGE)
 
                 nedges = len(edges)
-                if nedges >= nhits_max :
-                    if self.pbits :
+                if nedges >= self.NUM_HITS :
+                    if self._pbits :
                         msg = 'HexDataIO._proc_waveforms: input tdc_ns shape=%s ' % str(self._tdc_ns.shape)\
                             + ' does not have enough columns for %d time records,' % nedges\
                             + '\nWARNING: NUMBER OF SIGNAL TIME RECORDS TRANCATED'
                         print msg
                     continue
 
-                nhits = min(nhits_max, nedges) 
+                nhits = min(self.NUM_HITS, nedges) 
                 self._number_of_hits[ch_tdc] = nhits
 
                 for i in range(nhits):
@@ -311,7 +427,7 @@ class HexDataIO :
     def print_tdc_data(self) :
         for src, wfd, channels in self.srcs_dets_channels :
             print 'source: %s channels: %s' % (src, str(channels))
-            res = wfd.raw(self.evt)
+            res = wfd.raw(self._evt)
             if res is None : continue
             wf,wt = res
             gu.print_ndarr(wf, '    waveform')
@@ -335,25 +451,28 @@ class HexDataIO :
             print ''
 
 
-    def get_error_text(self, error_flag) :
-        #self.error_flag = 0
-        return 'no-error'
+    def error_flag(self) :
+        return self._error_flag
 
+
+    def get_error_text(self, error_flag) :
+        #self._error_flag = 0
+        return 'no-error'
 
 #------------------------------
 #------------ TEST ------------
 #------------------------------
 
 def hexdataio(pbits=1022) :
-    o = HexDataIO(dic_src_channels={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
+    o = HexDataIO(srcchs={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}, numchs=7, numhits=16)
     o.open_input_dataset('exp=xpptut15:run=390', pbits)
     return o
 
 #------------------------------
 
-def test_hexdataio() :
+def test_hexdataio(EVENTS=10) :
     o = hexdataio()
-    while o.get_event_number() < 10 :
+    while o.get_event_number() < EVENTS :
         print '%s\nEvent %d' % (80*'_', o.get_event_number())
         o.read_next_event()
         o.print_tdc_data()
@@ -376,7 +495,7 @@ def draw_times(ax, wf, wt, nhits, hit_inds) :
 
 #------------------------------
 
-def test_hexdataio_graph() :
+def test_hexdataio_graph(EVENTS=10, EVSKIP=0) :
 
     import pyimgalgos.Graphics       as gr; global gr
     import pyimgalgos.GlobalGraphics as gg; global gg
@@ -426,11 +545,12 @@ def test_hexdataio_graph() :
             wfsel = wf[:-1]
 
             ax[c].plot(wtsel, wfsel, gfmt[c], linewidth=lw)
-            gg.drawLine(ax[c], ax[c].get_xlim(), (THR,THR), s=10, linewidth=1, color='k')
+            gg.drawLine(ax[c], ax[c].get_xlim(), (o.THR, o.THR), s=10, linewidth=1, color='k')
             draw_times(ax[c], wfsel, wtsel, nhits[c], hit_inds[c,:])
         gr.draw_fig(fig)
         gr.show(mode='non-hold')
     gr.show()
+    o.print_wf_hit_finder_parameters()
 
 #------------------------------
 
@@ -446,5 +566,3 @@ if __name__ == "__main__" :
 
 #------------------------------
 #------------------------------
-#------------------------------
- 

@@ -45,6 +45,21 @@ def dataset(dsname, calib_dir=None) : # dsname='exp=cxi12316:run=1234', src='Cxi
 
 #------------------------------
 
+def exp_run_from_dsname(dsname='exp=xpptut15:run=390:smd'):
+    """Returns (str) experiment and (str) run from dataset name,
+       e.g. returns 'xpptut15' and '390' from 'exp=xpptut15:run=390:smd'
+    """
+    exp, run = None, None
+    fields = dsname.split(':')
+    for f in fields :
+        s = f.split('=')
+        if len(s)==2 :
+            if s[0]=='exp' : exp=s[1]
+            if s[0]=='run' : run=s[1].lstrip('0')
+    return exp, run
+
+#------------------------------
+
 def event_time(evt) :
     evtId = evt.get(psana.EventId)
     (sec, nsec), fid = evtId.time(), evtId.fiducials()
