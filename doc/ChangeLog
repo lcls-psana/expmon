@@ -1,6 +1,6 @@
 #------------------------------
 # File and Version Information:
-#  $Id: ChangeLog 13201 2017-03-13 16:31:00Z dubrovin@SLAC.STANFORD.EDU $
+#  Last svn update: 13201 2017-03-13 16:31:00Z
 #
 # Description:
 #  ChangeLog file for package expmon
@@ -12,6 +12,11 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 #------------------------------
+
+Tag: V01-00-20
+2017-12-05 Mikhail S. Dubrovin
+- add app/hex_data_proc and src/HexDataProc.py
+- PSImageProducer - image use raw-pedestals in det.image in stead of det.calib
 
 Tag: V01-00-19
 2017-11-20 Mikhail S. Dubrovin

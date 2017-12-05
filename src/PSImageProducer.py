@@ -1,6 +1,7 @@
 #------------------------------
 """
-Class :py:class:`PSImageProducer'
+Class :py:class:`PSImageProducer' - supplies image for dataset
+==============================================================
 
 Usage ::
     from expmon.PSImageProducer import PSImageProducer
@@ -21,13 +22,24 @@ Usage ::
         img = ip.image(n)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 
+See:
+    - :class:`PSConfigParameters`
+    - :class:`PSDataSupplier`
+    - :class:`PSEventSupplier`
+    - :class:`PSImageProducer`
+    - :class:`PSNameManager`
+    - :class:`PSQThreadWorker`
+    - :class:`PSUtils`
+    - `go to top<https://lcls-psana.github.io/graphqt/py-modindex.html>`_.
+
 Author: Mikhail Dubrovin
 """
 #------------------------------
 
+import numpy as np
 from expmon.PSNameManager import nm
 from expmon.PSEventSupplier import PSEventSupplier
-from Detector.AreaDetector import AreaDetector    
+from Detector.AreaDetector import AreaDetector
 
 #------------------------------
 
@@ -65,7 +77,19 @@ class PSImageProducer :
 
     def image(self, evnum=None, nda=None) :
         evt = self.es.event_for_number(evnum)
-        return self.det.image(evt, nda)
+        _nda = nda
+        if nda is None :
+            raw = self.det.raw(evt)
+            if raw is not None :
+                _nda = np.array(raw, dtype=np.float32)
+                #t0_sec = time()
+                peds = self.det.pedestals(evt)
+                #print 'det.pedestals time(sec) = %.6f' % (time()-t0_sec)
+                _nda -= peds
+                #print_ndarr(raw,  'XXX raw ', first=0, last=5)
+                #print_ndarr(peds, 'XXX peds', first=0, last=5)
+                #print_ndarr(_nda, 'XXX _nda', first=0, last=5)
+        return self.det.image(evt, _nda)
 
 
     def detector(self) :
