@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-21
+2017-12-06 Mikhail S. Dubrovin
+- PSImageProducer add protection for peds=None
+
 Tag: V01-00-20
 2017-12-05 Mikhail S. Dubrovin
 - add app/hex_data_proc and src/HexDataProc.py

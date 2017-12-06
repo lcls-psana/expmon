@@ -85,7 +85,7 @@ class PSImageProducer :
                 #t0_sec = time()
                 peds = self.det.pedestals(evt)
                 #print 'det.pedestals time(sec) = %.6f' % (time()-t0_sec)
-                _nda -= peds
+                if peds is not None : _nda -= peds
                 #print_ndarr(raw,  'XXX raw ', first=0, last=5)
                 #print_ndarr(peds, 'XXX peds', first=0, last=5)
                 #print_ndarr(_nda, 'XXX _nda', first=0, last=5)
