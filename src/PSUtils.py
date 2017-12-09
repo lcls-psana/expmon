@@ -210,7 +210,7 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
 #------------------------------
 
-def list_of_sources_for_dataset(dsname, evts_max=10) : # dsname i.e. 'exp=cxi12316:run=1234:...'
+def list_of_sources_for_dataset(dsname, evts_max=50) : # dsname i.e. 'exp=cxi12316:run=1234:...'
     """Returns list of (str) sources like 'CxiDs2.0:Cspad.0'
 
        Differs from list_of_sources: defines ds=psana.DataSource(dsname) directly, not a singleton, no caching

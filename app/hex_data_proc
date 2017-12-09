@@ -3,6 +3,7 @@
 
 import os
 import sys
+import expmon.HexUtils as hu
 from expmon.HexDataProc import proc_data
 
 #------------------------------
@@ -11,32 +12,6 @@ def usage():
     return 'Use command: mpirun -n 8 python hex_data_proc -n 1200 \n'\
            '   or:\n'\
            '   bsub -o log-mpi-n08-%J.log -q psnehq -n 8 mpirun python hex_data_proc -n 500000'
-
-#------------------------------
-
-def dict_from_str_srcchs(s) :
-    """Converts string like
-       "{'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}"
-       to the dictionary
-    """
-    #print 'srcchs:', s
-    fields = s.lstrip('{').rstrip('}').split("),'")
-    d = {}
-    for f in fields :
-       #print 'f:', f
-       flds2 = f.split("':(")
-       f0 = flds2[0].strip("'")
-       f1 = flds2[1].lstrip('(').rstrip(')')
-       #print 'f0: %s    f1: %s' % (f0, f1)
-       d[f0] = [int(n) for n in f1.split(',') if n]
-    return d
-
-#------------------------------
-
-def print_kwargs(d) :
-    print '%s\n  kwargs:' % (40*'_')
-    for k,v in d.iteritems() : print '  %10s : %10s' % (k,v)
-    print 40*'_'
 
 #------------------------------
 
@@ -57,9 +32,9 @@ def hex_data_proc(parser) :
     #    print 'options  : %s' % str(popts)
     #    for k,v in vars(popts).iteritems() : print '  %10s : %10s' % (k,v)
 
-    opts['srcchs'] = dict_from_str_srcchs(popts.srcchs)
+    opts['srcchs'] = hu.dict_from_str_srcchs(popts.srcchs)
     kwargs = opts
-    print_kwargs(kwargs)
+    hu.print_kwargs(kwargs)
     proc_data(**kwargs)
 
 #------------------------------
