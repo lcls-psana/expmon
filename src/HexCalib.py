@@ -14,7 +14,6 @@ from pyimgalgos.GlobalUtils import print_ndarr
 from pyimgalgos.HBins import HBins
 from expmon.HexDataIO import HexDataIO, do_print
 
-OSQRT3 = 1./sqrt(3.)
 #------------------------------
 
 class Store :
@@ -514,6 +513,8 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
 
 def calib_on_data(**kwargs) :
 
+    OSQRT3 = 1./sqrt(3.)
+
     print usage()
 
     SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
@@ -597,6 +598,23 @@ def calib_on_data(**kwargs) :
     print 'DIO start time : %s' % DIO.start_time()
     print 'DIO stop time  : %s' % DIO.stop_time()
     print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
+
+    print 'DIO calib_dir   : %s' % DIO.calib_dir()
+    print 'DIO calib_src   : %s' % DIO.calib_src()
+    print 'DIO calib_group : %s' % DIO.calib_group()
+    print 'DIO ctype_dir   : %s' % DIO.calibtype_dir()
+    print 'DIO make_calib_file_path : %s' % DIO.make_calib_file_path(type='hex_config', rnum=0)
+
+
+
+    #=====================
+    #=====================
+    #=====================
+    #=====================
+    #=====================
+    #=====================
+    sys.exit('TEST EXIT')
+    #=====================
 
     print "init sorter... "
 

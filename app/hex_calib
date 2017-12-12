@@ -83,13 +83,13 @@ def input_option_parser() :
     h_numhts = 'maximal number of hits per channel, default = %s' % d_numhts
     h_verbos = 'verbosity, default = %s' % d_verbos
 
-    h_cfd_base           = 'CFD: , default = %s' % d_cfd_base          
-    h_cfd_thr            = 'CFD: , default = %s' % d_cfd_thr           
-    h_cfd_cfr            = 'CFD: , default = %s' % d_cfd_cfr           
-    h_cfd_deadtime       = 'CFD: , default = %s' % d_cfd_deadtime      
-    h_cfd_leadingedge    = 'CFD: , default = %s' % d_cfd_leadingedge   
-    h_cfd_ioffsetbeg     = 'CFD: , default = %s' % d_cfd_ioffsetbeg    
-    h_cfd_ioffsetend     = 'CFD: , default = %s' % d_cfd_ioffsetend    
+    h_cfd_base           = 'CFD waveform baseline: , default = %s' % d_cfd_base          
+    h_cfd_thr            = 'CFD threshold for hit search: , default = %s' % d_cfd_thr           
+    h_cfd_cfr            = 'CFD constant fraction of the peak value to set hit time: , default = %s' % d_cfd_cfr           
+    h_cfd_deadtime       = 'CFD dead time for searching of the next peak: , default = %s' % d_cfd_deadtime
+    h_cfd_leadingedge    = 'CFD search for the hit time on leading edge: , default = %s' % d_cfd_leadingedge   
+    h_cfd_ioffsetbeg     = 'CFD waveform begin index for baseline evaluation: , default = %s' % d_cfd_ioffsetbeg    
+    h_cfd_ioffsetend     = 'CFD waveform end index for baseline evaluation: , default = %s' % d_cfd_ioffsetend    
 
     h_PLOT_NHITS         = ', default = %s' % d_PLOT_NHITS        
     h_PLOT_TIME_CH       = ', default = %s' % d_PLOT_TIME_CH      

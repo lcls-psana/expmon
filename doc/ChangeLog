@@ -13,6 +13,12 @@ reverse time order.
 
 #------------------------------
 
+2017-12-11 Mikhail S. Dubrovin
+- work in progress on hex_calib
+	modified:   app/hex_calib
+	modified:   src/HexCalib.py
+	modified:   src/HexDataIO.py
+
 Tag: V01-00-22
 2017-12-08 Mikhail S. Dubrovin
 - move essential code from examples to src/Hex*, add hex_calib

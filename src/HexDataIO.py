@@ -459,6 +459,50 @@ class HexDataIO :
         #self._error_flag = 0
         return 'no-error'
 
+
+#------------------------------
+#------------------------------
+#------------------------------
+
+    def calib_dir(self) :
+        import PSCalib.GlobalUtils as gu; global gu
+        #ctype = 'hex_table'
+        #ctype = 'hex_config'        
+        #run = self.run()
+        exp = self.experiment()
+        return gu.calib_dir_for_exp(exp)
+
+
+    def calib_src(self) :
+        return self._dic_src_channels.keys()[0]
+
+
+    def calib_group(self) :
+        src = self.calib_src()
+        dettype = gu.det_type_from_source(src)
+        return gu.dic_det_type_to_calib_group[dettype]
+
+
+    def calibtype_dir(self) :
+        cdir = self.calib_dir()
+        grp  = self.calib_group()
+        src  = self.calib_src()
+        return '%s/%s/%s' % (cdir, grp, src)
+
+
+    def find_calib_file(self, type='hex_config', rnum=0) :
+        import PSCalib.CalibFileFinder as cff
+        cdir = self.calib_dir()
+        src  = self.calib_src()
+        return cff.find_calib_file(cdir, src, type, rnum, pbits=1)
+
+
+    def make_calib_file_path(self, type='hex_config', rnum=0) : 
+        import PSCalib.CalibFileFinder as cff
+        cdir = self.calib_dir()
+        src  = self.calib_src()
+        return cff.make_calib_file_name(cdir, src, type, rnum, run_end=None, pbits=1)
+
 #------------------------------
 #------------ TEST ------------
 #------------------------------
