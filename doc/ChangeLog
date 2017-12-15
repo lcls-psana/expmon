@@ -13,6 +13,22 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-23
+2017-12-15 Mikhail S. Dubrovin
+- finalizing hexanode project - add "3-line example" ex-hex-data-proc.py
+  	modified:   app/hex_calib
+	renamed:    app/hex_data_proc -> app/hex_data_preproc
+	modified:   doc/ChangeLog
+	new file:   examples/ex-hex-data-proc.py
+	modified:   src/HexCalib.py
+	modified:   src/HexDataIO.py
+	new file:   src/HexDataIOExt.py
+	renamed:    src/HexDataProc.py -> src/HexDataPreProc.py
+
+2017-12-14 Mikhail S. Dubrovin
+- renamed:    hex_data_proc -> hex_data_preproc
+  renamed:    HexDataProc.py -> HexDataPreProc.py
+
 2017-12-11 Mikhail S. Dubrovin
 - work in progress on hex_calib
 	modified:   app/hex_calib

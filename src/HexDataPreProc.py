@@ -20,7 +20,7 @@ def usage():
 
 #------------------------------
 
-def proc_data(**kwargs):
+def preproc_data(**kwargs):
 
     DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
     SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
@@ -112,6 +112,6 @@ if __name__ == "__main__" :
           '\nand application expmon/app/hex_data_proc'
 
     #kwargs = {'events':1500,}
-    #proc_data(**kwargs)
+    #preproc_data(**kwargs)
 
 #------------------------------

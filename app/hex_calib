@@ -9,9 +9,19 @@ from expmon.HexCalib import calib_on_data
 #------------------------------
 
 def usage():
-    return 'Use command: python hex_calib -n 1200 \n'\
-           '   or:\n'\
-           '   bsub -o log-hex-calib-%J.log -q psnehq python hex_calib -n 500000'
+    return '\n  CLI:\n'\
+           '    hex_calib -d <dataset> -M <command-number> [options]\n'\
+           '\n  command=2 - calibrate time sum offsets:\n'\
+           '    hex_calib -d xpptut15-r0390-e300000-n16-mpi.h5 -M 2 -n 1000000\n'\
+           '      then apply correction to configuration file hex_config in the calib directory.\n'\
+           '      Iterate on this command untill correction is stable.\n'\
+           '\n  command=3 - calibrate non-linearity:\n'\
+           '    hex_calib -d xpptut15-r0390-e300000-n16-mpi.h5 -M 3 -n 1000000\n'\
+           '      non-linearity correction table hex_table is saved in the calib directory at the end of processing.\n'\
+           '\n  command=1 - test of calibration on data:\n'\
+           '    hex_calib -d xpptut15-r0390-e300000-n16-mpi.h5 -M 1 -n 1200\n'\
+           '\n  or run it in batch:\n'\
+           '    bsub -o log-hex-calib-%J.log -q psnehq hex_calib -d xpptut15-r0390-e300000-n16-mpi.h5 -M 1 <other-parameters>'
 
 #------------------------------
 
@@ -51,8 +61,9 @@ def input_option_parser() :
     d_numchs = 7
     d_numhts = 16
     d_verbos = True
-    d_calibtab = 'calibration_table_data.txt'
+    d_calibtab = None # use calib dir 'calibration_table_data.txt'
     d_plot_his = True
+    d_command  = 1
 
     d_cfd_base            = 0.
     d_cfd_thr             =-0.05
@@ -82,14 +93,17 @@ def input_option_parser() :
     h_numchs = 'number of channels, default = %s' % d_numchs
     h_numhts = 'maximal number of hits per channel, default = %s' % d_numhts
     h_verbos = 'verbosity, default = %s' % d_verbos
+    h_calibtab= 'calibration table file name, default = %s' % d_calibtab
+    h_plot_his= 'plot hiostograms, default = %s' % d_plot_his
+    h_command= '1-sort, 2-calibrate fu,fv,fw,w_offset, 3-generate correction tables and write them to disk, default = %d' % d_command
 
     h_cfd_base           = 'CFD waveform baseline: , default = %s' % d_cfd_base          
-    h_cfd_thr            = 'CFD threshold for hit search: , default = %s' % d_cfd_thr           
-    h_cfd_cfr            = 'CFD constant fraction of the peak value to set hit time: , default = %s' % d_cfd_cfr           
-    h_cfd_deadtime       = 'CFD dead time for searching of the next peak: , default = %s' % d_cfd_deadtime
-    h_cfd_leadingedge    = 'CFD search for the hit time on leading edge: , default = %s' % d_cfd_leadingedge   
-    h_cfd_ioffsetbeg     = 'CFD waveform begin index for baseline evaluation: , default = %s' % d_cfd_ioffsetbeg    
-    h_cfd_ioffsetend     = 'CFD waveform end index for baseline evaluation: , default = %s' % d_cfd_ioffsetend    
+    h_cfd_thr            = 'CFD threshold for hit search, default = %s' % d_cfd_thr           
+    h_cfd_cfr            = 'CFD constant fraction of the peak value to set hit time, default = %s' % d_cfd_cfr           
+    h_cfd_deadtime       = 'CFD dead time for searching of the next peak, default = %s' % d_cfd_deadtime
+    h_cfd_leadingedge    = 'CFD search for the hit time on leading edge, default = %s' % d_cfd_leadingedge   
+    h_cfd_ioffsetbeg     = 'CFD waveform begin index for baseline evaluation, default = %s' % d_cfd_ioffsetbeg    
+    h_cfd_ioffsetend     = 'CFD waveform end index for baseline evaluation, default = %s' % d_cfd_ioffsetend    
 
     h_PLOT_NHITS         = ', default = %s' % d_PLOT_NHITS        
     h_PLOT_TIME_CH       = ', default = %s' % d_PLOT_TIME_CH      
@@ -104,16 +118,18 @@ def input_option_parser() :
     h_PLOT_PHYSICS       = ', default = %s' % d_PLOT_PHYSICS      
     #h_ = ', default = %s' % d_
 
-    parser = OptionParser(description='Calibrate hexanode detector on data from hdf5 or xtc', usage=usage())
+    parser = OptionParser(description='Calibrate hexanode detector on data from hdf5 or xtc.', usage=usage())
 
-    parser.add_option('-s', '--srcchs', default=d_srcchs, action='store', type='string', help=h_srcchs)
-    parser.add_option('-d', '--dsname', default=d_dsname, action='store', type='string', help=h_dsname)
-    parser.add_option('-m', '--evskip', default=d_evskip, action='store', type='int',    help=h_evskip)
-    parser.add_option('-n', '--events', default=d_events, action='store', type='int',    help=h_events)
-    parser.add_option('-o', '--ofpref', default=d_ofpref, action='store', type='string', help=h_ofpref)
-    parser.add_option('-C', '--numchs', default=d_numchs, action='store', type='int',    help=h_numchs)
-    parser.add_option('-H', '--numhts', default=d_numhts, action='store', type='int',    help=h_numhts)
-    parser.add_option('-v', '--verbos', default=d_verbos, action='store_false',          help=h_verbos)
+    parser.add_option('-s', '--srcchs',   default=d_srcchs,   action='store', type='string', help=h_srcchs)
+    parser.add_option('-d', '--dsname',   default=d_dsname,   action='store', type='string', help=h_dsname)
+    parser.add_option('-m', '--evskip',   default=d_evskip,   action='store', type='int',    help=h_evskip)
+    parser.add_option('-n', '--events',   default=d_events,   action='store', type='int',    help=h_events)
+    parser.add_option('-o', '--ofpref',   default=d_ofpref,   action='store', type='string', help=h_ofpref)
+    parser.add_option('-C', '--numchs',   default=d_numchs,   action='store', type='int',    help=h_numchs)
+    parser.add_option('-H', '--numhts',   default=d_numhts,   action='store', type='int',    help=h_numhts)
+    parser.add_option('-v', '--verbos',   default=d_verbos,   action='store_false',          help=h_verbos)
+    parser.add_option('-p', '--plot_his', default=d_plot_his, action='store_false',          help=h_plot_his)
+    parser.add_option('-M', '--command',  default=d_command,  action='store', type='int',    help=h_command)
 
     parser.add_option('--cfd_base',        default=d_cfd_base,        action='store', type='float', help=h_cfd_base)
     parser.add_option('--cfd_thr',         default=d_cfd_thr,         action='store', type='float', help=h_cfd_thr)

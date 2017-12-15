@@ -114,6 +114,19 @@ class HexDataIO :
         self._dic_wt = {}
 
 
+    def open_input_data(self, DSNAME='exp=xpptut15:run=390:smd', **kwargs) :
+        #DSNAME   = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
+        do_mpids = kwargs.get('do_mpids', False)
+        pbits    = kwargs.get('pbits', 0)
+
+        if '.h5' in DSNAME : 
+            self.open_input_h5file(DSNAME)
+        else :
+            self.open_input_dataset(DSNAME, pbits)
+            self.set_wf_hit_finder_parameters(**kwargs)
+            self.print_wf_hit_finder_parameters()
+
+
     def open_input_dataset(self, dsname='exp=xpptut15:run=390:smd', pbits=1022, do_mpids=False) :
         self.ds = psana.MPIDataSource(dsname) if do_mpids else\
                   psana.DataSource(dsname)
@@ -260,6 +273,10 @@ class HexDataIO :
 
     def run(self) :
         return self._run
+
+
+    def runnum(self) :
+        return int(self._run.lstrip('0'))
 
 
     def tdc_resolution(self) :
@@ -459,7 +476,6 @@ class HexDataIO :
         #self._error_flag = 0
         return 'no-error'
 
-
 #------------------------------
 #------------------------------
 #------------------------------
@@ -490,18 +506,20 @@ class HexDataIO :
         return '%s/%s/%s' % (cdir, grp, src)
 
 
-    def find_calib_file(self, type='hex_config', rnum=0) :
+    def find_calib_file(self, type='hex_config', run=None, pbits=1) :
         import PSCalib.CalibFileFinder as cff
         cdir = self.calib_dir()
         src  = self.calib_src()
-        return cff.find_calib_file(cdir, src, type, rnum, pbits=1)
+        rnum = run if run is not None else self.runnum()
+        return cff.find_calib_file(cdir, src, type, rnum, pbits=pbits)
 
 
-    def make_calib_file_path(self, type='hex_config', rnum=0) : 
+    def make_calib_file_path(self, type='hex_config', run=None, pbits=1) : 
         import PSCalib.CalibFileFinder as cff
         cdir = self.calib_dir()
         src  = self.calib_src()
-        return cff.make_calib_file_name(cdir, src, type, rnum, run_end=None, pbits=1)
+        rnum = run if run is not None else self.runnum()
+        return cff.make_calib_file_name(cdir, src, type, rnum, run_end=None, pbits=pbits)
 
 #------------------------------
 #------------ TEST ------------

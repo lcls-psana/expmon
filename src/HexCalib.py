@@ -514,9 +514,12 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
 def calib_on_data(**kwargs) :
 
     OSQRT3 = 1./sqrt(3.)
+    CTYPE_HEX_CONFIG = 'hex_config'
+    CTYPE_HEX_TABLE  = 'hex_table'
 
     print usage()
 
+    COMMAND      = kwargs.get('command', 0)
     SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
     DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
     EVSKIP       = kwargs.get('evskip', 0)
@@ -524,7 +527,7 @@ def calib_on_data(**kwargs) :
     OFPREFIX     = kwargs.get('ofprefix','./figs-hexanode/plot')
     NUM_CHANNELS = kwargs.get('numchs', 7)
     NUM_HITS     = kwargs.get('numhits', 16)
-    CALIBTAB     = kwargs.get('calibtab', 'calibration_table_data.txt')
+    calibtab     = kwargs.get('calibtab', None)
     PLOT_HIS     = kwargs.get('plot_his', True)
     VERBOSE      = kwargs.get('verbose', False)
 
@@ -532,6 +535,36 @@ def calib_on_data(**kwargs) :
     for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
 
     sp.set_parameters(**kwargs)
+
+    #=====================
+
+    DIO = HexDataIO(srcchs=SRCCHS, numchs=NUM_CHANNELS, numhits=NUM_HITS)
+    DIO.open_input_data(DSNAME, **kwargs)
+
+    #=====================
+
+    CALIBTAB = calibtab if calibtab is not None else\
+               DIO.find_calib_file(type=CTYPE_HEX_TABLE)
+    CALIBCFG = DIO.find_calib_file(type=CTYPE_HEX_CONFIG)
+
+    #=====================
+
+    print 'DIO experiment : %s' % DIO.experiment()
+    print 'DIO run        : %s' % DIO.run()
+    print 'DIO start time : %s' % DIO.start_time()
+    print 'DIO stop time  : %s' % DIO.stop_time()
+    print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
+
+    print 'DIO calib_dir   : %s' % DIO.calib_dir()
+    print 'DIO calib_src   : %s' % DIO.calib_src()
+    print 'DIO calib_group : %s' % DIO.calib_group()
+    print 'DIO ctype_dir   : %s' % DIO.calibtype_dir()
+    print 'DIO find_calib_file config: %s' % CALIBCFG
+    print 'DIO find_calib_file  table: %s' % CALIBTAB
+
+    #=====================
+    #sys.exit('TEST EXIT')
+    #=====================
 
     tdc_ns = np.zeros((NUM_CHANNELS, NUM_HITS), dtype=np.float64)
     number_of_hits = np.zeros((NUM_CHANNELS,), dtype=np.int32)
@@ -546,10 +579,11 @@ def calib_on_data(**kwargs) :
 
 #   // create the sorter:
     sorter = hexanode.py_sort_class()
-    fname_cfg = "sorter_data_cfg.txt"
-    status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=\
-        hexanode.py_read_config_file(fname_cfg, sorter)
-    print 'read_config_file status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=',\
+    status, command_cfg, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=\
+        hexanode.py_read_config_file(CALIBCFG, sorter)
+    command = COMMAND # command_cfg
+
+    print 'read_config_file status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=',\
                             status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y
 
     if not status :
@@ -582,38 +616,8 @@ def calib_on_data(**kwargs) :
     incr_of_consistence = (  1,   2,   4,   8,  16,  32)
     inds_incr = zip(inds_of_channels, incr_of_consistence)
     
-    DIO = HexDataIO(srcchs=SRCCHS, numchs=NUM_CHANNELS, numhits=NUM_HITS)
-
-    #=====================
-    if '.h5' in DSNAME : DIO.open_input_h5file(DSNAME)
-    else :
-        DIO.open_input_dataset(DSNAME, pbits=0)
-
-        DIO.set_wf_hit_finder_parameters(**kwargs)
-        DIO.print_wf_hit_finder_parameters()
-    #=====================
-
-    print 'DIO experiment : %s' % DIO.experiment()
-    print 'DIO run        : %s' % DIO.run()
-    print 'DIO start time : %s' % DIO.start_time()
-    print 'DIO stop time  : %s' % DIO.stop_time()
-    print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
-
-    print 'DIO calib_dir   : %s' % DIO.calib_dir()
-    print 'DIO calib_src   : %s' % DIO.calib_src()
-    print 'DIO calib_group : %s' % DIO.calib_group()
-    print 'DIO ctype_dir   : %s' % DIO.calibtype_dir()
-    print 'DIO make_calib_file_path : %s' % DIO.make_calib_file_path(type='hex_config', rnum=0)
-
-
-
     #=====================
     #=====================
-    #=====================
-    #=====================
-    #=====================
-    #=====================
-    sys.exit('TEST EXIT')
     #=====================
 
     print "init sorter... "
@@ -888,14 +892,21 @@ def calib_on_data(**kwargs) :
         print "ok - after do_calibration"
         sfco = hexanode.py_scalefactors_calibration_class(sorter)
         if sfco :
+
+
             print "Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
                   (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset)
 
+            print 'CALIBRATION: These parameters and time sum offsets from histograms should be set in the file\n  %s' % CALIBCFG
 
     if command == 3 : # generate and print correction tables for sum- and position-correction
         print "creating calibration tables..."
+
+        CALIBTAB = calibtab if calibtab is not None else\
+                   DIO.make_calib_file_path(type=CTYPE_HEX_TABLE)
         status = hexanode.py_create_calibration_tables(CALIBTAB, sorter)
-        print "finished creating calibration tables: %s status %s" % (CALIBTAB, status)
+
+        print "CALIBRATION: finished creating calibration tables: %s status %s" % (CALIBTAB, status)
 
 
     print "consumed time (sec) = %.6f\n" % (time() - t_sec)

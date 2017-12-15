@@ -4,23 +4,32 @@
 import os
 import sys
 import expmon.HexUtils as hu
-from expmon.HexDataProc import proc_data
+from expmon.HexDataPreProc import preproc_data
 
 #------------------------------
 
 def usage():
-    return 'Use command: mpirun -n 8 python hex_data_proc -n 1200 \n'\
-           '   or:\n'\
-           '   bsub -o log-mpi-n08-%J.log -q psnehq -n 8 mpirun python hex_data_proc -n 500000'
+    return 'command examples\n'\
+           '  mpirun -n 8 hex_data_preproc -n 2000 <other-options>\n'\
+           '  bsub -o log-mpi-n08-%J.log -q psnehq -n 8 mpirun hex_data_preproc -n 1000000 <other-options>\n'\
+           '  hex_data_preproc -d exp=xpptut15:run=390:smd -n 1200 <other-options>\n'\
+           '  hex_data_preproc -h'
 
 #------------------------------
 
-def hex_data_proc(parser) :
+def hex_data_preproc() :
     """
     """
-    if False :
-	parser.print_usage()
-	parser.print_help()
+    parser = input_option_parser()
+
+    if len(sys.argv) == 1 : 
+        parser.print_help()
+	print 80*'_'
+        parser.print_usage()
+	print 80*'_'
+        msg = 'WARNING: ALL DEFAULT PARAMETERS ARE USELESS...'
+	#print msg
+	sys.exit(msg)
 
     (popts, pargs) = parser.parse_args()
     opts = vars(popts)
@@ -35,7 +44,7 @@ def hex_data_proc(parser) :
     opts['srcchs'] = hu.dict_from_str_srcchs(popts.srcchs)
     kwargs = opts
     hu.print_kwargs(kwargs)
-    proc_data(**kwargs)
+    preproc_data(**kwargs)
 
 #------------------------------
 
@@ -57,10 +66,9 @@ def input_option_parser() :
     h_evskip = 'number of events to skip before start processing, default = %s' % d_evskip
     h_events = 'number of events to process, default = %s' % d_events
     h_ofpref = 'output file prefix, default = %s' % d_ofpref
-    h_numchs = 'number of channels, default = %s' % d_numchs
+    h_numchs = 'number of waveform detector channels, default = %s' % d_numchs
     h_numhts = 'maximal number of hits per channel, default = %s' % d_numhts
     h_verbos = 'verbosity, default = %s' % d_verbos
-    #h_ = ', default = %s' % d_
 
     parser = OptionParser(description='Process hexanode xtc data and creates "small data" hdf5', usage=usage())
 
@@ -80,15 +88,7 @@ def input_option_parser() :
 #------------------------------
 
 if __name__ == "__main__" :
-
-    parser = input_option_parser()
-
-    if len(sys.argv) == 1 : 
-        parser.print_help()
-        print 'WARNING: using ALL default parameters...'
-
-    hex_data_proc(parser)
+    hex_data_preproc()
     sys.exit(0)
 
-#------------------------------
 #------------------------------
