@@ -10,6 +10,11 @@ expmon documentation
    :maxdepth: 2
    :caption: Contents: 
 
+.. automodule:: HexUtils
+   :members:
+   :show-inheritance:
+   :special-members:
+
 .. automodule:: HexCalib
    :members:
    :show-inheritance:
@@ -26,11 +31,6 @@ expmon documentation
    :special-members:
 
 .. automodule:: HexDataPreProc
-   :members:
-   :show-inheritance:
-   :special-members:
-
-.. automodule:: HexUtils
    :members:
    :show-inheritance:
    :special-members:
