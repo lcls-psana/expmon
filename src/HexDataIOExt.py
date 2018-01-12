@@ -4,9 +4,44 @@ Class :py:class:`HexDataIOExt` - extension of HexDataIO for data processing with
 
 Usage ::
 
-    # Example
-    #---------
-    from expmon.HexDataIOExt import HexDataIOExt
+    # Example 1 - dataset created outside object
+    #-------------------------------------------
+    from expmon.HexDataIOExt import HexDataIOExt  # Line 0 - import
+
+    # dictionary of input parameters
+    kwargs = {'command'  : 1,
+              'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
+              'numchs'   : 7,
+              'numhits'  : 16,
+              'dsname'   : 'exp=xpptut15:run=390:smd',
+              'evskip'   : 0,
+              'events'   : 500,
+              'verbose'  : False,
+              'cfd_base'        :  0.  ,        
+              'cfd_thr'         : -0.04,         
+              'cfd_cfr'         :  0.9 ,         
+              'cfd_deadtime'    :  5.0 ,    
+              'cfd_leadingedge' :  True, 
+              'cfd_ioffsetbeg'  :  0   ,  
+              'cfd_ioffsetend'  :  1000, 
+             }
+
+    ds = psana.MPIDataSource(kwargs['dsname'])
+    o = HexDataIOExt(ds, **kwargs)                # Line 1 - initialization
+
+    for evt in ds.events() :
+        if o.skip_event(evt) : continue           # Line 2 - loop control method passes evt to the object
+        if o.event_number() > o.EVENTS : break
+
+        #x, y, t = o.hits_xyt()                   # Line 3 - get arrays x, y, t of hits' coordinates and time
+        o.print_hits()                            # prints x, y, time for all hits in the event
+
+    o.print_summary() # print total number of events, processing time, frequency, etc
+
+
+    # Example 2 - dataset created inside object
+    #------------------------------------------
+    from expmon.HexDataIOExt import HexDataIOExt # Line 0 - import
 
     # dictionary of input (non-default) parameters
     kwargs = {'srcchs' : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
@@ -15,23 +50,25 @@ Usage ::
               'dsname' : 'exp=xpptut15:run=390:smd',
              }
 
-    o = HexDataIOExt(**kwargs)             # Line # 1
-    while o.read_next_event() :            # Line # 2
+    o = HexDataIOExt(**kwargs)             # Line 1 - initialization, dataset is defined inside the object 
+    while o.read_next_event() :            # Line 2 - event loop
         o.print_sparsed_event_info()       # print sparsed event number and time consumption 
         if o.skip_event()       : continue # event loop control, skip events with zero hits
         if o.break_event_loop() : break    # event loop control, break ate teh end or when smth went wrong
         o.print_hits()                     # prints x, y, time, method for found in event hits
-        x, y, t = o.hits_xyt()             # Line # 3 get arrays of x, y, z hit coordinates
+        x, y, t = o.hits_xyt()             # Line 3 - get arrays x, y, t of hits' coordinates and time
 
+    #-------------
     # Make object
     #-------------
-    o = HexDataIOExt(**kwargs)
+    o = HexDataIOExt(ds=None, **kwargs)
 
     # Event loop control methods
     #---------------------------
     status = o.read_next_event()
-    stat = o.skip_event()
     stat = o.break_event_loop(
+    stat = o.skip_event()
+    stat = o.skip_event(evt) # pass evt for external dataset
 
     # Methods per event
     #-------------------
@@ -76,43 +113,51 @@ def create_output_directory(prefix) :
 
 class HexDataIOExt(HexDataIO) :
 
-    def __init__(self, **kwargs) :
+    def __init__(self, ds=None, **kwargs) :
         """See kwargs description in expmon.HexDataIO
         """
         self._name = self.__class__.__name__
         print 'In %s.__init__' % self._name
 
-        self._init_parameters(**kwargs)
-
         HexDataIO.__init__(self, **kwargs)
+
         DIO = self
-        DIO.open_input_data(self.DSNAME, **kwargs)
+        if ds is None :
+            DIO.open_input_data(self.DSNAME, **kwargs)
+        else :
+            DIO.use_psana_dataset(ds, pbits=0377 if self.VERBOSE else 0)
     
         self._init_calib_and_sorter()
 
         self.t0_sec = self.t1_sec = time()
 
 
-    def _init_parameters(self, **kwargs) :
-        print 'In %s._init_parameters' % self._name
+    def _set_parameters(self, **kwargs) :
+        """Overrides HexDataIO._set_parameters
+        """
+        HexDataIO._set_parameters(self, **kwargs)
 
-        self.CTYPE_HEX_CONFIG = 'hex_config'
-        self.CTYPE_HEX_TABLE  = 'hex_table'
-    
+        # set in HexDataIO
+        #self.SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
+        #self.DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
+        #self.NUM_CHANNELS = kwargs.get('numchs', 7)
+        #self.NUM_HITS     = kwargs.get('numhits', 16)
+
         self.COMMAND      = kwargs.get('command', 1)
-        self.SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
-        self.DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
         self.EVSKIP       = kwargs.get('evskip', 0)
         self.EVENTS       = kwargs.get('events', 1000000) + self.EVSKIP
         self.OFPREFIX     = kwargs.get('ofprefix','./figs-hexanode/plot')
-        self.NUM_CHANNELS = kwargs.get('numchs', 7)
-        self.NUM_HITS     = kwargs.get('numhits', 16)
         self.PLOT_HIS     = kwargs.get('plot_his', True)
         self.VERBOSE      = kwargs.get('verbose', False)
         self.calibtab     = kwargs.get('calibtab', None)
     
         print '%s: Input parameters:' % self._name
         for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
+
+        self.CTYPE_HEX_CONFIG = 'hex_config'
+        self.CTYPE_HEX_TABLE  = 'hex_table'
+    
+        self.event_status = None
 
     
     def _init_calib_and_sorter(self) :
@@ -230,15 +275,30 @@ class HexDataIOExt(HexDataIO) :
     
 #------------------------------
 
+    def set_next_event(self, evt) :
+        """Re-implemented method from HexDataIO adding per event processing
+        """
+        status = HexDataIO.set_next_event(self, evt)
+        if status : self.proc_event()
+        return status
+
+
     def read_next_event(self) :
         """Re-implemented method from HexDataIO adding per event processing
         """
         status = HexDataIO.read_next_event(self)
 
         if not status : 
-            self.event_status = 0
+            self.event_status = 0 # to break the event loop
             return False
 
+        self.proc_event()
+        return True
+
+
+    def proc_event(self) :
+        """Process event data
+        """
         DIO     = self
         sorter  = self.sorter
         command = self.COMMAND
@@ -325,7 +385,6 @@ class HexDataIOExt(HexDataIO) :
 
         if self.number_of_particles<1 : 
             self.event_status = 2 # to skip event
-            return True
     
         #=====================
         # Access to calibrated data after sorter: 
@@ -336,8 +395,7 @@ class HexDataIOExt(HexDataIO) :
         #time_sum_w_corr = tdc_ns[Cw1,0] + tdc_ns[Cw2,0] - 2*tdc_ns[Cmcp,0]
     
         #=====================
-        self.event_status = 1 # good event event
-        return True
+        self.event_status = 1 # good event
         #=====================
 
 #------------------------------
@@ -390,7 +448,7 @@ class HexDataIOExt(HexDataIO) :
         print "  %s: Event %5i number_of_particles: %i" % (self._name, self.event_number(), self.number_of_particles)
         for i in range(self.number_of_particles) :
             hco= hexanode.py_hit_class(self.sorter, i)
-            print "    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)    
+            print "    p:%2i x:%7.2f y:%7.2f t:%.2f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)    
 
 
     def hits_xyt(self) : 
@@ -418,7 +476,20 @@ class HexDataIOExt(HexDataIO) :
 
 #------------------------------
 
-    def skip_event(self) : 
+    def skip_event(self, evt=0) :
+        """psana.Event can be None, so evt=0 is set to destinguish case w/o evt.
+        """
+        if evt!=0 : 
+            # if parameter evt is passed (new version)
+            status = self.set_next_event(evt)
+            self.print_sparsed_event_info()     # print sparsed event number and time consumption 
+            if evt is None :
+                print '  Event: %4d WARNING: evt is None, rank: %d' % (self.event_number(), self.ds.rank)
+                return True
+
+            if not status : 
+                return True
+
         return (self.event_number() < self.EVSKIP) or (self.event_status==2)
 
 
@@ -431,7 +502,7 @@ class HexDataIOExt(HexDataIO) :
 #------------------------------    
 #------------------------------    
 
-def test_HexDataIOExt() :
+def test2_HexDataIOExt() :
 
     # Parameters for initialization of the data source, channels, number of events etc.
     kwargs = {'command'  : 1,
@@ -466,13 +537,52 @@ def test_HexDataIOExt() :
     o.print_summary() # print number of events, processing time total, instant and frequency
 
 #------------------------------
+#------------------------------    
+
+def test1_HexDataIOExt() :
+
+    # Parameters for initialization of the data source, channels, number of events etc.
+    kwargs = {'command'  : 1,
+              'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
+              'numchs'   : 7,
+              'numhits'  : 16,
+              'dsname'   : 'exp=xpptut15:run=390:smd',
+              'evskip'   : 0,
+              'events'   : 500,
+              'ofprefix' : './',
+              'verbose'  : False,
+              'cfd_base'        :  0.  ,        
+              'cfd_thr'         : -0.04,         
+              'cfd_cfr'         :  0.9 ,         
+              'cfd_deadtime'    :  5.0 ,    
+              'cfd_leadingedge' :  True, 
+              'cfd_ioffsetbeg'  :  0   ,  
+              'cfd_ioffsetend'  :  1000, 
+             }
+
+    ds = psana.MPIDataSource(kwargs['dsname'])
+    o = HexDataIOExt(ds, **kwargs)                # Line 1 - object initialization
+    o.print_wf_hit_finder_parameters()
+
+    for evt in ds.events() :
+        if o.skip_event(evt)           : continue # Line 2 - loop control method passes evt to the object
+        if o.event_number() > o.EVENTS : break
+
+        #x, y, t = o.hits_xyt()                   # Line 3 - get arrays x, y, t of hits' coordinates and time
+        o.print_hits()                            # prints x, y, time for all hits in the event
+
+    o.print_summary() # print number of events, processing time total, instant and frequency
+
+#------------------------------
 
 if __name__ == "__main__" :
     import sys; global sys
     import numpy as np; global np
     tname = sys.argv[1] if len(sys.argv) > 1 else '1'
     print '%s\nTest %s' % (50*'_', tname)
-    test_HexDataIOExt()
+    if   tname=='1' : test1_HexDataIOExt()
+    elif tname=='2' : test2_HexDataIOExt()
+    else : print 'WARNING: Test %s is not defined' % tname
     sys.exit('End of Test %s' % tname)
 
 #------------------------------

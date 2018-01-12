@@ -13,6 +13,21 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-24
+2018-01-12 Mikhail S. Dubrovin
+- HexDataIO* - add example for expernal psana dataset
+- add doc/web
+- app/hex_data_preproc - add input for CFD parameters
+	modified:   ../../README.md
+	modified:   ../../app/hex_data_preproc
+	new file:   Makefile
+	new file:   _static/my_theme.css
+	new file:   conf.py
+	new file:   index.rst
+	new file:   make.bat
+	modified:   ../../src/HexDataIO.py
+	modified:   ../../src/HexDataIOExt.py
+
 Tag: V01-00-23
 2017-12-15 Mikhail S. Dubrovin
 - finalizing hexanode project - add "3-line example" ex-hex-data-proc.py

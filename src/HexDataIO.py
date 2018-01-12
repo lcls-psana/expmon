@@ -13,8 +13,14 @@ Usage ::
     o = HexDataIO(srcchs={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}, numchs=7, numhits=16)
 
     o.open_input_dataset('exp=xpptut15:run=390')
+
     # OR:
     o.open_input_h5file(ofname='./test.h5')
+
+    # OR:
+    ds = psana.MPIDataSource('exp=xpptut15:run=390')
+    o.use_psana_dataset(ds, pbits=1022)
+
 
     status = o.read_next_event()           # gets next event from dataset, returns True if event is available
 
@@ -94,14 +100,12 @@ class HexDataIO :
 
 
     def _set_parameters(self, **kwargs) :
-        """Parameters - see __init__
+        """Sets parameters from kwargs
         """
-        keys = kwargs.keys()
-        self._dic_src_channels = kwargs.get('srcchs',
-                                            {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),\
-                                             'AmoITOF.0:Acqiris.0':(0,)})
+        self.SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
         self.NUM_CHANNELS = kwargs.get('numchs',7) #  (int) - number 
         self.NUM_HITS     = kwargs.get('numhits',16) # (int) - maximal
+        self.DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
 
 
     def _init_arrays(self) :
@@ -114,22 +118,31 @@ class HexDataIO :
         self._dic_wt = {}
 
 
-    def open_input_data(self, DSNAME='exp=xpptut15:run=390:smd', **kwargs) :
-        #DSNAME   = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
+    def open_input_data(self, dsname='exp=xpptut15:run=390:smd', **kwargs) :
+        #dsname   = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
         do_mpids = kwargs.get('do_mpids', False)
         pbits    = kwargs.get('pbits', 0)
 
-        if '.h5' in DSNAME : 
-            self.open_input_h5file(DSNAME)
+        if '.h5' in dsname : 
+            self.open_input_h5file(dsname)
         else :
-            self.open_input_dataset(DSNAME, pbits)
-            self.set_wf_hit_finder_parameters(**kwargs)
-            self.print_wf_hit_finder_parameters()
+            self.open_input_dataset(dsname, pbits, do_mpids)
+            # already done in __init__
+            #self.set_wf_hit_finder_parameters(**kwargs)
+            #self.print_wf_hit_finder_parameters()
 
 
     def open_input_dataset(self, dsname='exp=xpptut15:run=390:smd', pbits=1022, do_mpids=False) :
-        self.ds = psana.MPIDataSource(dsname) if do_mpids else\
-                  psana.DataSource(dsname)
+        ds = psana.MPIDataSource(dsname) if do_mpids else\
+             psana.DataSource(dsname)
+
+        self.use_psana_dataset(ds, pbits)
+
+
+    def use_psana_dataset(self, ds, pbits=1022) :
+        """This method is used directly for external defenition of psana dataset and regular event loop.
+        """
+        self.ds = ds
         self._env = self.ds.env()
 
         self._events = self.ds.events()
@@ -139,8 +152,8 @@ class HexDataIO :
         #evt = ds.events().next()
         #for key in evt.keys() : print key
 
-        self.sources  = self._dic_src_channels.keys()
-        self.channels = self._dic_src_channels.values()
+        self.sources  = self.SRCCHS.keys()
+        self.channels = self.SRCCHS.values()
 
         self.wfdets = [WFDetector(src, self._env, pbits) for src in self.sources]
         self.srcs_dets_channels = zip(self.sources, self.wfdets, self.channels)
@@ -156,7 +169,7 @@ class HexDataIO :
         self._start_time_sec = env_time(self._env)
         self._stop_time_sec = self._start_time_sec + 1234
 
-        self._exp, self._run = exp_run_from_dsname(dsname)
+        self._exp, self._run = exp_run_from_dsname(self.DSNAME)
 
 
     def open_output_h5file(self, fname='./test.h5') :
@@ -319,6 +332,18 @@ class HexDataIO :
         return self.NUM_CHANNELS
 
 
+    def set_next_event(self, evt) :
+        """The same as read_next_event, but for external event loop
+        """
+        if evt==self._evt : return  False # if call it twice
+
+        self._evnum += 1
+        if evt is None : return False
+        self._init_arrays()
+        self._evt = evt
+        return True
+
+
     def read_next_event(self) :
         self._evnum += 1
 
@@ -392,7 +417,8 @@ class HexDataIO :
 
 
     def print_wf_hit_finder_parameters(self) :
-        msg = '%s\nCFD parameters:' % (40*'_')\
+        msg = '%s\nIn HexDataIO.print_wf_hit_finder_parameters' % (50*'_')\
+            + '\nCFD parameters:'\
             + '\n  cfd_base         %.1f' % self.BASE\
             + '\n  cfd_thr          %.3f' % self.THR\
             + '\n  cfd_cfr          %.3f' % self.CFR\
@@ -400,7 +426,7 @@ class HexDataIO :
             + '\n  cfd_leadingedge    %s' % self.LEADINGEDGE\
             + '\n  cfd_ioffsetbeg     %d' % self.IOFFSETBEG\
             + '\n  cfd_ioffsetend     %d' % self.IOFFSETEND\
-            + '\n%s' % (40*'_')
+            + '\n%s' % (50*'_')
         print msg
 
 
@@ -490,7 +516,7 @@ class HexDataIO :
 
 
     def calib_src(self) :
-        return self._dic_src_channels.keys()[0]
+        return self.SRCCHS.keys()[0]
 
 
     def calib_group(self) :
