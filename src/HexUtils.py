@@ -18,8 +18,8 @@ See:
     - :class:`HexUtils`
 
 References:
-    * `Index of expmon <https://lcls-psana.github.io/expmon/py-modindex.html>`_.
-    * `Quad- and Hex-anode on confluence <https://confluence.slac.stanford.edu/display/PSDMInternal/Quad-+and+hex-+anode+detector+monitoring+software>`_.
+    - `Index of expmon <https://lcls-psana.github.io/expmon/py-modindex.html>`_.
+    - `Quad- and Hex-anode on confluence <https://confluence.slac.stanford.edu/display/PSDMInternal/Quad-+and+hex-+anode+detector+monitoring+software>`_.
 
 Created on 2017-12-08 by Mikhail Dubrovin
 """
