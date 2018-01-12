@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HexCalib &#8212; expmon-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">expmon-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for HexCalib</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module :py:class:`HexCalib` a set of generic methods for hexanode project</span>
+<span class="sd">=========================================================================</span>
+
+<span class="sd">Created on 2017-12-08 by Mikhail Dubrovin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#------------------------------</span>
+<span class="k">def</span> <span class="nf">usage</span><span class="p">():</span> <span class="k">return</span> <span class="s1">&#39;Use command: python hexanode/examples/ex-09-sort-graph-data.py&#39;</span>
+<span class="c1">#------------------------------</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">hexanode</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">sqrt</span>
+
+<span class="kn">from</span> <span class="nn">pyimgalgos.GlobalUtils</span> <span class="k">import</span> <span class="n">print_ndarr</span>
+<span class="kn">from</span> <span class="nn">pyimgalgos.HBins</span> <span class="k">import</span> <span class="n">HBins</span>
+<span class="kn">from</span> <span class="nn">expmon.HexDataIO</span> <span class="k">import</span> <span class="n">HexDataIO</span><span class="p">,</span> <span class="n">do_print</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="Store"><a class="viewcode-back" href="../index.html#HexCalib.Store">[docs]</a><span class="k">class</span> <span class="nc">Store</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Store of shared parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_NHITS</span>         <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_NHITS&#39;</span>        <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_TIME_CH</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_TIME_CH&#39;</span>      <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_UVW</span>           <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_UVW&#39;</span>          <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_TIME_SUMS</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_TIME_SUMS&#39;</span>    <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span>  <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_CORRELATIONS&#39;</span> <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_COMPONENTS</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_XY_COMPONENTS&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_2D</span>         <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_XY_2D&#39;</span>        <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_RESOLUTION</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_XY_RESOLUTION&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_MISC</span>          <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_MISC&#39;</span>         <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_REFLECTIONS</span>   <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_REFLECTIONS&#39;</span>  <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_PHYSICS</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PLOT_PHYSICS&#39;</span>      <span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span>
+
+        <span class="c1"># set default parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_TIME_CH</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_u1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_u2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_v1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_v2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_w1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_w2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_mcp</span><span class="o">=</span> <span class="p">[]</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_NHITS</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_u1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_u2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_v1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_v2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_w1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_w2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_nhits_mcp</span><span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_UVW</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_u_ns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_v_ns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_w_ns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_u</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_w</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_TIME_SUMS</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_u</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_w</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_u_corr</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_v_corr</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_time_sum_w_corr</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_COMPONENTS</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Xuv</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Xuw</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Xvw</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Yuv</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Yuw</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Yvw</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_MISC</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_Deviation</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_consist_indicator</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_rec_method</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_RESOLUTION</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_binx</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_biny</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_resol_fwhm</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_REFLECTIONS</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_u1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_u2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_v1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_v2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_w1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lst_refl_w2</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_XY_2D</span> <span class="p">:</span>
+            <span class="c1"># images </span>
+            <span class="n">nbins</span> <span class="o">=</span> <span class="mi">360</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_x_bins</span> <span class="o">=</span> <span class="n">HBins</span><span class="p">((</span><span class="o">-</span><span class="mf">45.</span><span class="p">,</span> <span class="mf">45.</span><span class="p">),</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_y_bins</span> <span class="o">=</span> <span class="n">HBins</span><span class="p">((</span><span class="o">-</span><span class="mf">45.</span><span class="p">,</span> <span class="mf">45.</span><span class="p">),</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_xy_uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_xy_uw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_xy_vw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_xy_1</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_xy_2</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLOT_PHYSICS</span> <span class="p">:</span>
+            <span class="n">t_ns_nbins</span> <span class="o">=</span> <span class="mi">300</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t_ns_bins</span> <span class="o">=</span> <span class="n">HBins</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6000.</span><span class="p">),</span> <span class="n">t_ns_nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t1_vs_t0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">t_ns_nbins</span><span class="p">,</span> <span class="n">t_ns_nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+            <span class="n">x_mm_nbins</span> <span class="o">=</span> <span class="mi">200</span>
+            <span class="n">y_mm_nbins</span> <span class="o">=</span> <span class="mi">200</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_mm_bins</span> <span class="o">=</span> <span class="n">HBins</span><span class="p">((</span><span class="o">-</span><span class="mf">50.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">),</span> <span class="n">x_mm_nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_mm_bins</span> <span class="o">=</span> <span class="n">HBins</span><span class="p">((</span><span class="o">-</span><span class="mf">50.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">),</span> <span class="n">y_mm_nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_vs_t0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">x_mm_nbins</span><span class="p">,</span> <span class="n">t_ns_nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_vs_t0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">y_mm_nbins</span><span class="p">,</span> <span class="n">t_ns_nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="n">sp</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span> 
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">create_output_directory</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Output directory: &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">dirname</span>
+    <span class="k">if</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;./&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="k">return</span>
+    <span class="kn">from</span> <span class="nn">CalibManager.GlobalUtils</span> <span class="k">import</span> <span class="n">create_directory</span> <span class="c1"># , create_path, </span>
+    <span class="c1">#create_path(dirname, depth=2, mode=0775)</span>
+    <span class="n">create_directory</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">0775</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+<span class="kn">from</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">import</span> <span class="n">hist1d</span><span class="p">,</span> <span class="n">show</span><span class="p">,</span> <span class="n">move_fig</span><span class="p">,</span> <span class="n">save_fig</span><span class="p">,</span> <span class="n">move</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">plotImageLarge</span><span class="p">,</span> <span class="n">plotGraph</span>
+
+<div class="viewcode-block" id="plot_image"><a class="viewcode-back" href="../index.html#HexCalib.plot_image">[docs]</a><span class="k">def</span> <span class="nf">plot_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.88</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;inferno&#39;</span><span class="p">,</span>\
+               <span class="n">title</span><span class="o">=</span><span class="s1">&#39;x-y image&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;img.png&#39;</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;upper&#39;</span><span class="p">)</span> <span class="p">:</span> <span class="c1">#&#39;gray_r&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">_img_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">img_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">img_range</span>
+    <span class="n">imgnb</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">_amp_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">imgnb</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">imgnb</span><span class="o">.</span><span class="n">std</span><span class="p">())</span> <span class="k">if</span> <span class="n">amp_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">amp_range</span>
+    <span class="c1">#_amp_range = (0, 0.2*img.max())</span>
+    <span class="n">axim</span> <span class="o">=</span> <span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">_img_range</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">_amp_range</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>\
+                          <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">axwin</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span> <span class="c1"># &#39;Greys&#39;) #&#39;gray_r&#39;</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span>   <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+    <span class="n">move</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">fnm</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">do_save</span><span class="p">)</span></div>
+    <span class="c1">#show()</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="h1d"><a class="viewcode-back" href="../index.html#HexCalib.h1d">[docs]</a><span class="k">def</span> <span class="nf">h1d</span><span class="p">(</span><span class="n">hlst</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_stat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>\
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;hist.png&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for hist1d, move, and save methods, using common store parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axhi</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">hist1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hlst</span><span class="p">),</span> <span class="n">bins</span><span class="p">,</span> <span class="n">amp_range</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">show_stat</span><span class="p">,</span>\
+                           <span class="n">log</span><span class="p">,</span> <span class="n">figsize</span><span class="p">,</span> <span class="n">axwin</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">titwin</span><span class="p">)</span>
+
+    <span class="n">move</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">fnm</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">do_save</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axhi</span><span class="p">,</span> <span class="n">hi</span></div>
+
+
+<span class="k">def</span> <span class="nf">plot_graph</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> \
+               <span class="n">title</span><span class="o">=</span><span class="s1">&#39;py vs. px&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;px&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;py&#39;</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;graph.png&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plotGraph</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">pfmt</span><span class="o">=</span><span class="n">pfmt</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">lw</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlimits</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylimits</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span>   <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+    <span class="n">move</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">fnm</span><span class="p">),</span> <span class="n">sp</span><span class="o">.</span><span class="n">do_save</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="plot_histograms"><a class="viewcode-back" href="../index.html#HexCalib.plot_histograms">[docs]</a><span class="k">def</span> <span class="nf">plot_histograms</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="n">do_save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hwin_x0y0</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">400</span><span class="p">))</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Plots/saves histograms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sp</span><span class="o">.</span><span class="n">prefix</span>    <span class="o">=</span> <span class="n">prefix</span>
+    <span class="n">sp</span><span class="o">.</span><span class="n">do_save</span>   <span class="o">=</span> <span class="n">do_save</span>
+    <span class="n">sp</span><span class="o">.</span><span class="n">hwin_x0y0</span> <span class="o">=</span> <span class="n">hwin_x0y0</span>
+    <span class="c1">#---------</span>
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_NHITS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">19.5</span><span class="p">)</span>
+        <span class="n">is_log</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_u1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits U1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits U1&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_u1.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_u2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits U2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits U2&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_u2.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_v1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits V1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits V1&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_v1.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_v2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits V2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits V2&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_v2.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_w1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits W1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits W1&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_w1.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_w2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits W2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits W2&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_w2.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_mcp</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">is_log</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Number of hits MCP&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Number of hits MCP&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;nhits_mcp.png&#39;</span><span class="p">)</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_TIME_CH</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">6000</span><span class="p">)</span>
+        <span class="c1">#limits = (0,10000)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_u1, &#39;U1&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time U1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_u1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_u2, &#39;U2&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time U2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_u2_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time V1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_v1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time V2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_v2_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time W1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_w1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time W2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_w2_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_mcp, &#39;MCP&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_mcp</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time MCP&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;MCP (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_mcp_ns.png&#39;</span><span class="p">)</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_TIME_SUMS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#nbins = 200</span>
+        <span class="c1">#limits = (20,120)</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">260</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">180</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_time_sum_u, &#39;U&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum U&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum U (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_u_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_time_sum_v, &#39;V&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum V&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum V (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_v_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#print_ndarr(sp.lst_time_sum_w, &#39;W&#39;)</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum W&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum W (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_w_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_TIME_SUMS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">160</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span><span class="mi">80</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u_corr</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum U corrected&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum U (ns) corrected&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_u_ns_corr.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v_corr</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum V corrected&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum V (ns) corrected&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_v_ns_corr.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w_corr</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Time sum W corrected&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time sum W (ns) corrected&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;time_sum_w_ns_corr.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_UVW</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;U (mm)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;u_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;V (mm)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;v_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;W (mm)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;w_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_UVW</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u_ns</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;U (ns)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;u_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v_ns</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;V (ns)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;v_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w_ns</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;W (ns)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;w_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+         <span class="c1">#print_ndarr(sp.lst_time_sum_u, &#39;time_sum_u&#39;)</span>
+         <span class="c1">#print_ndarr(sp.lst_u_ns,      &#39;lst_u_ns &#39;)</span>
+         <span class="n">xlimits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+         <span class="c1">#ylimits=(20,120)</span>
+         <span class="n">ylimits</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">180</span><span class="p">)</span>
+
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum vs. U&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum U (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_vs_u_ns.png&#39;</span><span class="p">)</span>
+
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum vs. V&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum V (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_vs_v_ns.png&#39;</span><span class="p">)</span>
+
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum vs. W&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum W (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_vs_w_ns.png&#39;</span><span class="p">)</span>
+
+         <span class="c1">#---------</span>
+         <span class="n">xlimits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+         <span class="n">ylimits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+         <span class="c1">#---------</span>
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_u_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u_corr</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum corrected vs. U&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;U (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum corrected U (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_corr_vs_u_ns.png&#39;</span><span class="p">)</span>
+
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_v_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v_corr</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum_corrected vs. V&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;V (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum corrected V (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_corr_vs_v_ns.png&#39;</span><span class="p">)</span>
+
+         <span class="n">plot_graph</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_w_ns</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w_corr</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;b, &#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlimits</span><span class="o">=</span><span class="n">xlimits</span><span class="p">,</span> <span class="n">ylimits</span><span class="o">=</span><span class="n">ylimits</span><span class="p">,</span>\
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t sum_corrected vs. W&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;W (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t sum corrected W (ns)&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t_sum_corr_vs_w_ns.png&#39;</span><span class="p">)</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_COMPONENTS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Xuv</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Xuv&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Xuv (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Xuv_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Xuw</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Xuw&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Xuw (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Xuw_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Xvw</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Xvw&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Xvw (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Xvw_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Yuv</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Yuv&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Yuv (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Yuv_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Yuw</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Yuw&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Yuw (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Yuw_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Yvw</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Yvw&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Yvw (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;Yvw_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_REFLECTIONS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="c1">#nbins = 150</span>
+        <span class="c1">#limits = (-100, 5900)</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="mi">160</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3900</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_u1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection U1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection U1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_u1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_u2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection U2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection U2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_u2_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_v1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection V1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection V1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_v1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_v2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection V2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection V2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_v2_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_w1</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection W1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection W1 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_w1_ns.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_w2</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reflection W2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Reflection W2 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;refl_w2_ns.png&#39;</span><span class="p">)</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_MISC</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_Deviation</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">40</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Deviation&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Deviation (mm)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;deviation_mm.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_consist_indicator</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">64</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Consistence indicator&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Consistence indicator (bit)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;consistence_indicator.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+        <span class="n">h1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_rec_method</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">32</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>\
+            <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Reconstruction method&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Method id (bit)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Events&#39;</span><span class="p">,</span>\
+            <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;reconstruction_method.png&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_2D</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">amp_limits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">imrange</span><span class="o">=</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_x_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">img_x_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">img_y_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">img_y_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">())</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_uv</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_uv.png&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;XY_uv image&#39;</span><span class="p">,</span>   <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;XY_uv image&#39;</span><span class="p">)</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_uw</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_uw.png&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;XY_uw image&#39;</span><span class="p">,</span>   <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;XY_uw image&#39;</span><span class="p">)</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_vw</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_vw.png&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;XY_vw image&#39;</span><span class="p">,</span>   <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;XY_vw image&#39;</span><span class="p">)</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_1</span><span class="p">,</span>  <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_1.png&#39;</span><span class="p">,</span>  <span class="n">title</span><span class="o">=</span><span class="s1">&#39;XY image hit1&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;XY image hit1&#39;</span><span class="p">)</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_2</span><span class="p">,</span>  <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_2.png&#39;</span><span class="p">,</span>  <span class="n">title</span><span class="o">=</span><span class="s1">&#39;XY image hit2&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;XY image hit2&#39;</span><span class="p">)</span>
+    <span class="c1">#---------</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_PHYSICS</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">amp_limits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">imrange</span><span class="o">=</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">())</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">t1_vs_t0</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;t1_vs_t0.png&#39;</span><span class="p">,</span>  <span class="n">title</span><span class="o">=</span><span class="s1">&#39;t1 vs t0&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;t0 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;t1 (ns)&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;PIPICO&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+        <span class="n">imrange</span><span class="o">=</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">x_mm_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">x_mm_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">())</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">x_vs_t0</span><span class="p">,</span>  <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;x_vs_t0.png&#39;</span><span class="p">,</span>  <span class="n">title</span><span class="o">=</span><span class="s1">&#39;x vs t0&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;t0 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;x (mm)&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;x vs t0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+        <span class="n">imrange</span><span class="o">=</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">y_mm_bins</span><span class="o">.</span><span class="n">vmin</span><span class="p">(),</span> <span class="n">sp</span><span class="o">.</span><span class="n">y_mm_bins</span><span class="o">.</span><span class="n">vmax</span><span class="p">())</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">y_vs_t0</span><span class="p">,</span>  <span class="n">amp_range</span><span class="o">=</span><span class="n">amp_limits</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">imrange</span><span class="p">,</span> <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;y_vs_t0.png&#39;</span><span class="p">,</span>  <span class="n">title</span><span class="o">=</span><span class="s1">&#39;y vs t0&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;t0 (ns)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y (mm)&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;y vs t0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+    <span class="c1">#---------</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_RESOLUTION</span> <span class="p">:</span>
+    <span class="c1">#---------</span>
+        <span class="n">npa_binx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_binx</span><span class="p">)</span>
+        <span class="n">npa_biny</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">lst_biny</span><span class="p">)</span>
+        <span class="n">max_binx</span> <span class="o">=</span> <span class="n">npa_binx</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">max_biny</span> <span class="o">=</span> <span class="n">npa_biny</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="s1">&#39;binx.min/max: </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">npa_binx</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">max_binx</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s1">&#39;biny.min/max: </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">npa_biny</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">max_biny</span><span class="p">)</span>
+        <span class="n">max_bins</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_binx</span><span class="p">,</span> <span class="n">max_biny</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        
+        <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_bins</span><span class="p">,</span> <span class="n">max_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_sta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_bins</span><span class="p">,</span> <span class="n">max_bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_res</span><span class="p">[</span><span class="n">npa_biny</span><span class="p">,</span> <span class="n">npa_binx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_resol_fwhm</span> <span class="c1"># np.maximum(arr_max, nda)</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_res</span><span class="p">[</span><span class="n">npa_biny</span><span class="p">,</span> <span class="n">npa_binx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_res</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_sta</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plot_image</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">img_xy_res</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_bins</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="n">max_bins</span><span class="p">),</span>\
+                   <span class="n">fnm</span><span class="o">=</span><span class="s1">&#39;xy_res.png&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Resolution FWHM (mm)&#39;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x bins&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y bins&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="s1">&#39;Resolution FWHM&#39;</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">calib_on_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="p">:</span>
+
+    <span class="n">OSQRT3</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span>
+    <span class="n">CTYPE_HEX_CONFIG</span> <span class="o">=</span> <span class="s1">&#39;hex_config&#39;</span>
+    <span class="n">CTYPE_HEX_TABLE</span>  <span class="o">=</span> <span class="s1">&#39;hex_table&#39;</span>
+
+    <span class="nb">print</span> <span class="n">usage</span><span class="p">()</span>
+
+    <span class="n">COMMAND</span>      <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">SRCCHS</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;srcchs&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;AmoETOF.0:Acqiris.0&#39;</span><span class="p">:(</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">),</span><span class="s1">&#39;AmoITOF.0:Acqiris.0&#39;</span><span class="p">:(</span><span class="mi">0</span><span class="p">,)})</span>
+    <span class="n">DSNAME</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dsname&#39;</span><span class="p">,</span> <span class="s1">&#39;exp=xpptut15:run=390:smd&#39;</span><span class="p">)</span>
+    <span class="n">EVSKIP</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;evskip&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">EVENTS</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;events&#39;</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span> <span class="o">+</span> <span class="n">EVSKIP</span>
+    <span class="n">OFPREFIX</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ofprefix&#39;</span><span class="p">,</span><span class="s1">&#39;./figs-hexanode/plot&#39;</span><span class="p">)</span>
+    <span class="n">NUM_CHANNELS</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;numchs&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+    <span class="n">NUM_HITS</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;numhits&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">calibtab</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;calibtab&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">PLOT_HIS</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plot_his&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">VERBOSE</span>      <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;Input parameters:&#39;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%20s</span><span class="s1"> : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+
+    <span class="n">sp</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1">#=====================</span>
+
+    <span class="n">DIO</span> <span class="o">=</span> <span class="n">HexDataIO</span><span class="p">(</span><span class="n">srcchs</span><span class="o">=</span><span class="n">SRCCHS</span><span class="p">,</span> <span class="n">numchs</span><span class="o">=</span><span class="n">NUM_CHANNELS</span><span class="p">,</span> <span class="n">numhits</span><span class="o">=</span><span class="n">NUM_HITS</span><span class="p">)</span>
+    <span class="n">DIO</span><span class="o">.</span><span class="n">open_input_data</span><span class="p">(</span><span class="n">DSNAME</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1">#=====================</span>
+
+    <span class="n">CALIBTAB</span> <span class="o">=</span> <span class="n">calibtab</span> <span class="k">if</span> <span class="n">calibtab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>\
+               <span class="n">DIO</span><span class="o">.</span><span class="n">find_calib_file</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">CTYPE_HEX_TABLE</span><span class="p">)</span>
+    <span class="n">CALIBCFG</span> <span class="o">=</span> <span class="n">DIO</span><span class="o">.</span><span class="n">find_calib_file</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">CTYPE_HEX_CONFIG</span><span class="p">)</span>
+
+    <span class="c1">#=====================</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;DIO experiment : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">experiment</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO run        : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO start time : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">start_time</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO stop time  : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">stop_time</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO tdc_resolution : </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">tdc_resolution</span><span class="p">()</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;DIO calib_dir   : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">calib_dir</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO calib_src   : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">calib_src</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO calib_group : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">calib_group</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO ctype_dir   : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">DIO</span><span class="o">.</span><span class="n">calibtype_dir</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO find_calib_file config: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">CALIBCFG</span>
+    <span class="nb">print</span> <span class="s1">&#39;DIO find_calib_file  table: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">CALIBTAB</span>
+
+    <span class="c1">#=====================</span>
+    <span class="c1">#sys.exit(&#39;TEST EXIT&#39;)</span>
+    <span class="c1">#=====================</span>
+
+    <span class="n">tdc_ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">NUM_CHANNELS</span><span class="p">,</span> <span class="n">NUM_HITS</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">number_of_hits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">NUM_CHANNELS</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+ 
+<span class="c1">#   // The &quot;command&quot;-value is set in the first line of &quot;sorter.txt&quot;</span>
+<span class="c1">#   // 0 = only convert to new file format</span>
+<span class="c1">#   // 1 = sort and write new file </span>
+<span class="c1">#   // 2 = calibrate fv, fw, w_offset</span>
+<span class="c1">#   // 3 = create calibration table files</span>
+
+<span class="c1">#   // create the sorter:</span>
+    <span class="n">sorter</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_sort_class</span><span class="p">()</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">command_cfg</span><span class="p">,</span> <span class="n">offset_sum_u</span><span class="p">,</span> <span class="n">offset_sum_v</span><span class="p">,</span> <span class="n">offset_sum_w</span><span class="p">,</span> <span class="n">w_offset</span><span class="p">,</span> <span class="n">pos_offset_x</span><span class="p">,</span> <span class="n">pos_offset_y</span><span class="o">=</span>\
+        <span class="n">hexanode</span><span class="o">.</span><span class="n">py_read_config_file</span><span class="p">(</span><span class="n">CALIBCFG</span><span class="p">,</span> <span class="n">sorter</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">COMMAND</span> <span class="c1"># command_cfg</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;read_config_file status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=&#39;</span><span class="p">,</span>\
+                            <span class="n">status</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">offset_sum_u</span><span class="p">,</span> <span class="n">offset_sum_v</span><span class="p">,</span> <span class="n">offset_sum_w</span><span class="p">,</span> <span class="n">w_offset</span><span class="p">,</span> <span class="n">pos_offset_x</span><span class="p">,</span> <span class="n">pos_offset_y</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: can&#39;t read config file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fname_cfg</span>
+        <span class="k">del</span> <span class="n">sorter</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;use_sum_correction&#39;</span><span class="p">,</span> <span class="n">sorter</span><span class="o">.</span><span class="n">use_sum_correction</span>
+    <span class="nb">print</span> <span class="s1">&#39;use_pos_correction&#39;</span><span class="p">,</span> <span class="n">sorter</span><span class="o">.</span><span class="n">use_pos_correction</span>
+    <span class="k">if</span> <span class="n">sorter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="n">sorter</span><span class="o">.</span><span class="n">use_sum_correction</span> <span class="ow">or</span> <span class="n">sorter</span><span class="o">.</span><span class="n">use_pos_correction</span> <span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_read_calibration_tables</span><span class="p">(</span><span class="n">CALIBTAB</span><span class="p">,</span> <span class="n">sorter</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">:</span>
+   	<span class="nb">print</span> <span class="s2">&quot;no config file was read. Nothing to do.&quot;</span>
+        <span class="k">if</span> <span class="n">sorter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">:</span> <span class="k">del</span> <span class="n">sorter</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">Cu1</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cu1</span> 
+    <span class="n">Cu2</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cu2</span> 
+    <span class="n">Cv1</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cv1</span> 
+    <span class="n">Cv2</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cv2</span> 
+    <span class="n">Cw1</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cw1</span> 
+    <span class="n">Cw2</span>  <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cw2</span> 
+    <span class="n">Cmcp</span> <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">cmcp</span>
+    <span class="nb">print</span> <span class="s2">&quot;Numeration of channels - u1:</span><span class="si">%i</span><span class="s2">  u2:</span><span class="si">%i</span><span class="s2">  v1:</span><span class="si">%i</span><span class="s2">  v2:</span><span class="si">%i</span><span class="s2">  w1:</span><span class="si">%i</span><span class="s2">  w2:</span><span class="si">%i</span><span class="s2">  mcp:</span><span class="si">%i</span><span class="s2">&quot;</span><span class="o">%</span>\
+          <span class="p">(</span><span class="n">Cu1</span><span class="p">,</span> <span class="n">Cu2</span><span class="p">,</span> <span class="n">Cv1</span><span class="p">,</span> <span class="n">Cv2</span><span class="p">,</span> <span class="n">Cw1</span><span class="p">,</span> <span class="n">Cw2</span><span class="p">,</span> <span class="n">Cmcp</span><span class="p">)</span>
+
+    <span class="n">inds_of_channels</span>    <span class="o">=</span> <span class="p">(</span><span class="n">Cu1</span><span class="p">,</span> <span class="n">Cu2</span><span class="p">,</span> <span class="n">Cv1</span><span class="p">,</span> <span class="n">Cv2</span><span class="p">,</span> <span class="n">Cw1</span><span class="p">,</span> <span class="n">Cw2</span><span class="p">)</span>
+    <span class="n">incr_of_consistence</span> <span class="o">=</span> <span class="p">(</span>  <span class="mi">1</span><span class="p">,</span>   <span class="mi">2</span><span class="p">,</span>   <span class="mi">4</span><span class="p">,</span>   <span class="mi">8</span><span class="p">,</span>  <span class="mi">16</span><span class="p">,</span>  <span class="mi">32</span><span class="p">)</span>
+    <span class="n">inds_incr</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inds_of_channels</span><span class="p">,</span> <span class="n">incr_of_consistence</span><span class="p">)</span>
+    
+    <span class="c1">#=====================</span>
+    <span class="c1">#=====================</span>
+    <span class="c1">#=====================</span>
+
+    <span class="nb">print</span> <span class="s2">&quot;init sorter... &quot;</span>
+
+    <span class="c1">#sorter.set_tdc_resolution_ns(0.025)</span>
+    <span class="n">sorter</span><span class="o">.</span><span class="n">set_tdc_resolution_ns</span><span class="p">(</span><span class="n">DIO</span><span class="o">.</span><span class="n">tdc_resolution</span><span class="p">())</span>
+    <span class="n">sorter</span><span class="o">.</span><span class="n">set_tdc_array_row_length</span><span class="p">(</span><span class="n">NUM_HITS</span><span class="p">)</span>
+    <span class="n">sorter</span><span class="o">.</span><span class="n">set_count</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">)</span>
+    <span class="n">sorter</span><span class="o">.</span><span class="n">set_tdc_pointer</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">)</span>
+
+    <span class="c1">#sorter.set_use_reflection_filter_on_u1(False) # Achim recommended False</span>
+    <span class="c1">#sorter.set_use_reflection_filter_on_u2(False)</span>
+
+    <span class="k">if</span> <span class="n">command</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="p">:</span>
+        <span class="n">sorter</span><span class="o">.</span><span class="n">create_scalefactors_calibrator</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span>\
+                                              <span class="n">sorter</span><span class="o">.</span><span class="n">runtime_u</span><span class="p">,</span>\
+                                              <span class="n">sorter</span><span class="o">.</span><span class="n">runtime_v</span><span class="p">,</span>\
+                                              <span class="n">sorter</span><span class="o">.</span><span class="n">runtime_w</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span>\
+                                              <span class="n">sorter</span><span class="o">.</span><span class="n">fu</span><span class="p">,</span> <span class="n">sorter</span><span class="o">.</span><span class="n">fv</span><span class="p">,</span> <span class="n">sorter</span><span class="o">.</span><span class="n">fw</span><span class="p">)</span>
+
+    <span class="n">error_code</span> <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">init_after_setting_parameters</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">error_code</span> <span class="p">:</span>
+   	<span class="nb">print</span> <span class="s2">&quot;sorter could not be initialized</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">get_error_text</span><span class="p">(</span><span class="n">error_code</span><span class="p">,</span> <span class="mi">512</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s1">&#39;Error </span><span class="si">%d</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error_code</span><span class="p">,</span> <span class="n">error_text</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="s2">&quot;Calibration factors:</span><span class="se">\n</span><span class="s2">  f_U (mm/ns) =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  f_V (mm/ns) =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  f_W (mm/ns) =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  Offset on layer W (ns) =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span>\
+          <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sorter</span><span class="o">.</span><span class="n">fu</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">sorter</span><span class="o">.</span><span class="n">fv</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">sorter</span><span class="o">.</span><span class="n">fw</span><span class="p">,</span> <span class="n">w_offset</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="s2">&quot;ok for sorter initialization</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="n">create_output_directory</span><span class="p">(</span><span class="n">OFPREFIX</span><span class="p">)</span>
+
+    <span class="nb">print</span> <span class="s2">&quot;reading event data... </span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="n">evnum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">t_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">t1_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">DIO</span><span class="o">.</span><span class="n">read_next_event</span><span class="p">()</span> <span class="p">:</span>
+
+        <span class="c1">#number_of_channels = DIO.get_number_of_channels()</span>
+        <span class="n">evnum</span> <span class="o">=</span> <span class="n">DIO</span><span class="o">.</span><span class="n">get_event_number</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">evnum</span> <span class="o">&lt;</span> <span class="n">EVSKIP</span> <span class="p">:</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">evnum</span> <span class="o">&gt;</span> <span class="n">EVENTS</span> <span class="p">:</span> <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">do_print</span><span class="p">(</span><span class="n">evnum</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="nb">print</span> <span class="s1">&#39;Event: </span><span class="si">%06d</span><span class="s1">, dt(sec): </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">evnum</span><span class="p">,</span> <span class="n">t1</span> <span class="o">-</span> <span class="n">t1_sec</span><span class="p">)</span>
+            <span class="n">t1_sec</span> <span class="o">=</span> <span class="n">t1</span>
+
+<span class="c1">#   	//if (event_counter%10000 == 0) {if (my_kbhit()) break;}</span>
+
+<span class="c1">#       //==================================</span>
+<span class="c1">#       // TODO by end user:</span>
+<span class="c1">#   	// Here you must read in a data block from your data file</span>
+<span class="c1">#   	// and fill the array tdc_ns[][] and number_of_hits[]</span>
+
+        <span class="c1">#nhits = np.zeros((NUMBER_OF_CHANNELS,), dtype=np.int32)</span>
+        <span class="n">DIO</span><span class="o">.</span><span class="n">get_number_of_hits_array</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">()</span> <span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="n">DIO</span><span class="o">.</span><span class="n">get_error_text</span><span class="p">(</span><span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">())</span>
+            <span class="nb">print</span> <span class="s2">&quot;DIO Error </span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">(),</span> <span class="n">error_text</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">VERBOSE</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;   number_of_hits_array&#39;</span><span class="p">,</span> <span class="n">number_of_hits</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
+
+        <span class="n">DIO</span><span class="o">.</span><span class="n">get_tdc_data_array</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">()</span> <span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="n">DIO</span><span class="o">.</span><span class="n">get_error_text</span><span class="p">(</span><span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">())</span>
+            <span class="nb">print</span> <span class="s2">&quot;DIO Error </span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">DIO</span><span class="o">.</span><span class="n">error_flag</span><span class="p">(),</span> <span class="n">error_text</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">VERBOSE</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;   TDC data:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="c1">#   	// apply conversion to ns</span>
+        <span class="k">if</span> <span class="kc">False</span> <span class="p">:</span> <span class="c1"># DIO returns tdc_ns already in [ns]</span>
+            <span class="n">tdc_ns</span> <span class="o">*=</span> <span class="n">DIO</span><span class="o">.</span><span class="n">tdc_resolution</span><span class="p">()</span>
+
+<span class="c1">#       //==================================</span>
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_NHITS</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_u1</span><span class="o">.</span> <span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cu1</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_u2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cu2</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_v1</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cv1</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_v2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cv2</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_w1</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cw1</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_w2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cw2</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_nhits_mcp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_TIME_CH</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_u1</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_u2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_v1</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_v2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_w1</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_w2</span> <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_mcp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_REFLECTIONS</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cu2</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_u1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cu1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_u2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cv2</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_v1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cv1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_v2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cw2</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_w1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cw1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">lst_refl_w2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">time_sum_u</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">time_sum_v</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">time_sum_w</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">u_ns</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">v_ns</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">w_ns</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u_ns</span> <span class="o">*</span> <span class="n">sorter</span><span class="o">.</span><span class="n">fu</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v_ns</span> <span class="o">*</span> <span class="n">sorter</span><span class="o">.</span><span class="n">fv</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">w_ns</span> <span class="o">+</span> <span class="n">w_offset</span><span class="p">)</span> <span class="o">*</span> <span class="n">sorter</span><span class="o">.</span><span class="n">fw</span>
+
+        <span class="n">Xuv</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="n">Xuw</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="n">Xvw</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="n">w</span>
+        <span class="n">Yuv</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">OSQRT3</span>
+        <span class="n">Yuw</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span> <span class="o">-</span> <span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">OSQRT3</span>
+        <span class="n">Yvw</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">OSQRT3</span>
+
+        <span class="n">dX</span> <span class="o">=</span> <span class="n">Xuv</span> <span class="o">-</span> <span class="n">Xvw</span>
+        <span class="n">dY</span> <span class="o">=</span> <span class="n">Yuv</span> <span class="o">-</span> <span class="n">Yvw</span>
+        <span class="n">Deviation</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dX</span><span class="o">*</span><span class="n">dX</span> <span class="o">+</span> <span class="n">dY</span><span class="o">*</span><span class="n">dY</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sorter</span><span class="o">.</span><span class="n">use_hex</span> <span class="p">:</span>        
+  	    <span class="c1"># shift the time sums to zero:</span>
+   	    <span class="n">sorter</span><span class="o">.</span><span class="n">shift_sums</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">offset_sum_u</span><span class="p">,</span> <span class="n">offset_sum_v</span><span class="p">,</span> <span class="n">offset_sum_w</span><span class="p">)</span>
+   	    <span class="c1">#shift layer w so that the middle lines of all layers intersect in one point:</span>
+   	    <span class="n">sorter</span><span class="o">.</span><span class="n">shift_layer_w</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">w_offset</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="c1"># shift the time sums to zero:</span>
+            <span class="n">sorter</span><span class="o">.</span><span class="n">shift_sums</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">offset_sum_u</span><span class="p">,</span> <span class="n">offset_sum_v</span><span class="p">)</span>
+
+   	<span class="c1"># shift all signals from the anode so that the center of the detector is at x=y=0:</span>
+   	<span class="n">sorter</span><span class="o">.</span><span class="n">shift_position_origin</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">pos_offset_x</span><span class="p">,</span> <span class="n">pos_offset_y</span><span class="p">)</span>
+ 
+   	<span class="n">sorter</span><span class="o">.</span><span class="n">feed_calibration_data</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">w_offset</span><span class="p">)</span> <span class="c1"># for calibration of fv, fw, w_offset and correction tables</span>
+
+        <span class="c1">#DIO.get_tdc_data_array(tdc_ns)</span>
+
+        <span class="n">time_sum_u_corr</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cu2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">time_sum_v_corr</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cv2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">time_sum_w_corr</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cw2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1">#print &#39;map_is_full_enough&#39;, hexanode.py_sorter_scalefactors_calibration_map_is_full_enough(sorter)</span>
+        <span class="n">sfco</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_scalefactors_calibration_class</span><span class="p">(</span><span class="n">sorter</span><span class="p">)</span>
+
+        <span class="c1"># break loop if statistics is enough</span>
+        <span class="k">if</span> <span class="n">sfco</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">sfco</span><span class="o">.</span><span class="n">map_is_full_enough</span><span class="p">()</span> <span class="p">:</span> 
+                 <span class="nb">print</span> <span class="s1">&#39;sfo.map_is_full_enough(): </span><span class="si">%s</span><span class="s1">  event number: </span><span class="si">%06d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sfco</span><span class="o">.</span><span class="n">map_is_full_enough</span><span class="p">(),</span> <span class="n">evnum</span><span class="p">)</span>
+                 <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_RESOLUTION</span> <span class="p">:</span>
+            <span class="c1">#print &quot;    binx: %d  biny: %d  resolution(FWHM): %.6f&quot; % (sfco.binx, sfco.biny, sfco.detector_map_resol_FWHM_fill)</span>
+            <span class="k">if</span> <span class="n">sfco</span><span class="o">.</span><span class="n">binx</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">sfco</span><span class="o">.</span><span class="n">biny</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="p">:</span>
+                <span class="n">sp</span><span class="o">.</span><span class="n">lst_binx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sfco</span><span class="o">.</span><span class="n">binx</span><span class="p">)</span>
+                <span class="n">sp</span><span class="o">.</span><span class="n">lst_biny</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sfco</span><span class="o">.</span><span class="n">biny</span><span class="p">)</span>
+                <span class="n">sp</span><span class="o">.</span><span class="n">lst_resol_fwhm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sfco</span><span class="o">.</span><span class="n">detector_map_resol_FWHM_fill</span><span class="p">)</span>
+
+
+        <span class="c1"># Sort the TDC-Data and reconstruct missing signals and apply the sum- and NL-correction.</span>
+        <span class="c1"># number_of_particles is the number of reconstructed particles</span>
+   	<span class="n">number_of_particles</span> <span class="o">=</span> <span class="n">sorter</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>\
+                              <span class="n">sorter</span><span class="o">.</span><span class="n">run_without_sorting</span><span class="p">()</span>
+
+   	<span class="k">if</span> <span class="kc">False</span> <span class="p">:</span>
+   	    <span class="nb">print</span> <span class="s2">&quot;  Event </span><span class="si">%5i</span><span class="s2">  number_of_particles: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">evnum</span><span class="p">,</span> <span class="n">number_of_particles</span><span class="p">)</span>
+   	    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_particles</span><span class="p">)</span> <span class="p">:</span>
+                <span class="n">hco</span><span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_hit_class</span><span class="p">(</span><span class="n">sorter</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+   	        <span class="nb">print</span> <span class="s2">&quot;    p:</span><span class="si">%1i</span><span class="s2"> x:</span><span class="si">%.3f</span><span class="s2"> y:</span><span class="si">%.3f</span><span class="s2"> t:</span><span class="si">%.3f</span><span class="s2"> met:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">hco</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">hco</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">hco</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">hco</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+
+   	    <span class="nb">print</span> <span class="s2">&quot;    part1 u:</span><span class="si">%.3f</span><span class="s2"> v:</span><span class="si">%.3f</span><span class="s2"> w:</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
+
+<span class="c1">#       // TODO by end user...&quot;</span>
+
+        <span class="k">if</span> <span class="n">number_of_particles</span><span class="o">&lt;</span><span class="mi">1</span> <span class="p">:</span> <span class="k">continue</span>
+
+        <span class="n">hco</span><span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_hit_class</span><span class="p">(</span><span class="n">sorter</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_UVW</span> <span class="ow">or</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_u_ns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u_ns</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_v_ns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_ns</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_w_ns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w_ns</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_u</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_w</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_TIME_SUMS</span> <span class="ow">or</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_CORRELATIONS</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_u</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_v</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_w</span><span class="p">)</span>
+
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_u_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_u_corr</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_v_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_v_corr</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_time_sum_w_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_sum_w_corr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_COMPONENTS</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Xuv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xuv</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Xuw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xuw</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Xvw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xvw</span><span class="p">)</span>
+                             
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Yuv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Yuv</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Yuw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Yuw</span><span class="p">)</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Yvw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Yvw</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_MISC</span> <span class="p">:</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_Deviation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Deviation</span><span class="p">)</span>
+            
+            <span class="c1"># fill Consistence Indicator</span>
+            <span class="n">consistenceIndicator</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">incr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">inds_incr</span> <span class="p">:</span>
+              <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span> <span class="p">:</span> <span class="n">consistenceIndicator</span> <span class="o">+=</span> <span class="n">incr</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_consist_indicator</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consistenceIndicator</span><span class="p">)</span>
+
+            <span class="n">sp</span><span class="o">.</span><span class="n">lst_rec_method</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hco</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+            <span class="c1">#print &#39;reconstruction method %d&#39; % hco.method</span>
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_XY_2D</span> <span class="p">:</span>
+            <span class="c1"># fill 2-d images</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">hco</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">hco</span><span class="o">.</span><span class="n">y</span>
+
+            <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">number_of_particles</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
+                <span class="n">hco2</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_hit_class</span><span class="p">(</span><span class="n">sorter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">hco2</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">hco2</span><span class="o">.</span><span class="n">y</span>
+
+            <span class="n">ix1</span><span class="p">,</span> <span class="n">ix2</span><span class="p">,</span> <span class="n">ixuv</span><span class="p">,</span> <span class="n">ixuw</span><span class="p">,</span> <span class="n">ixvw</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">img_x_bins</span><span class="o">.</span><span class="n">bin_indexes</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">Xuv</span><span class="p">,</span> <span class="n">Xuw</span><span class="p">,</span> <span class="n">Xvw</span><span class="p">))</span>
+            <span class="n">iy1</span><span class="p">,</span> <span class="n">iy2</span><span class="p">,</span> <span class="n">iyuv</span><span class="p">,</span> <span class="n">iyuw</span><span class="p">,</span> <span class="n">iyvw</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">img_y_bins</span><span class="o">.</span><span class="n">bin_indexes</span><span class="p">((</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">Yuv</span><span class="p">,</span> <span class="n">Yuw</span><span class="p">,</span> <span class="n">Yvw</span><span class="p">))</span>
+
+            <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_1</span> <span class="p">[</span><span class="n">iy1</span><span class="p">,</span>  <span class="n">ix1</span><span class="p">]</span>  <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_2</span> <span class="p">[</span><span class="n">iy2</span><span class="p">,</span>  <span class="n">ix2</span><span class="p">]</span>  <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_uv</span><span class="p">[</span><span class="n">iyuv</span><span class="p">,</span> <span class="n">ixuv</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_uw</span><span class="p">[</span><span class="n">iyuw</span><span class="p">,</span> <span class="n">ixuw</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> 
+            <span class="n">sp</span><span class="o">.</span><span class="n">img_xy_vw</span><span class="p">[</span><span class="n">iyvw</span><span class="p">,</span> <span class="n">ixvw</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> 
+
+        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">PLOT_PHYSICS</span> <span class="p">:</span>
+          <span class="k">if</span> <span class="n">number_of_hits</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">:</span>
+            <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">tdc_ns</span><span class="p">[</span><span class="n">Cmcp</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">it0</span><span class="p">,</span> <span class="n">it1</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">t_ns_bins</span><span class="o">.</span><span class="n">bin_indexes</span><span class="p">((</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">))</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">t1_vs_t0</span><span class="p">[</span><span class="n">it1</span><span class="p">,</span> <span class="n">it0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">ix</span><span class="p">,</span> <span class="n">iy</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">x_mm_bins</span><span class="o">.</span><span class="n">bin_indexes</span><span class="p">((</span><span class="n">Xuv</span><span class="p">,</span><span class="n">Yuv</span><span class="p">))</span>
+            <span class="c1">#iy = sp.y_mm_bins.bin_indexes((Yuv,))</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">x_vs_t0</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="n">it0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">sp</span><span class="o">.</span><span class="n">y_vs_t0</span><span class="p">[</span><span class="n">iy</span><span class="p">,</span> <span class="n">it0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1">#   	// write the results into a new data file.</span>
+<span class="c1">#   	// the variable &quot;number_of_particles&quot; contains the number of reconstructed particles.</span>
+<span class="c1">#   	// the x and y (in mm) and TOF (in ns) is stored in the array sorter-&gt;output_hit_array:</span>
+
+<span class="c1">#   	// for the i-th particle (i starts from 0):</span>
+<span class="c1">#       // hco= hexanode.py_hit_class(sorter, i)</span>
+<span class="c1">#       // hco.x, hco.y, hco.time</span>
+
+<span class="c1">#   	// for each particle you can also retrieve the information about how the particle</span>
+<span class="c1">#   	// was reconstructed (tog et some measure of the confidence):</span>
+<span class="c1">#   	// hco.method</span>
+
+<span class="c1">#   end of the while loop</span>
+
+    <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;calibrating detector... &quot;</span>
+        <span class="n">sorter</span><span class="o">.</span><span class="n">do_calibration</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="s2">&quot;ok - after do_calibration&quot;</span>
+        <span class="n">sfco</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_scalefactors_calibration_class</span><span class="p">(</span><span class="n">sorter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sfco</span> <span class="p">:</span>
+
+
+            <span class="nb">print</span> <span class="s2">&quot;Good calibration factors are:</span><span class="se">\n</span><span class="s2">  f_U =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  f_V =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  f_W =</span><span class="si">%f</span><span class="se">\n</span><span class="s2">  Offset on layer W=</span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span>\
+                  <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sorter</span><span class="o">.</span><span class="n">fu</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">sfco</span><span class="o">.</span><span class="n">best_fv</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">sfco</span><span class="o">.</span><span class="n">best_fw</span><span class="p">,</span> <span class="n">sfco</span><span class="o">.</span><span class="n">best_w_offset</span><span class="p">)</span>
+
+            <span class="nb">print</span> <span class="s1">&#39;CALIBRATION: These parameters and time sum offsets from histograms should be set in the file</span><span class="se">\n</span><span class="s1">  </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">CALIBCFG</span>
+
+    <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">:</span> <span class="c1"># generate and print correction tables for sum- and position-correction</span>
+        <span class="nb">print</span> <span class="s2">&quot;creating calibration tables...&quot;</span>
+
+        <span class="n">CALIBTAB</span> <span class="o">=</span> <span class="n">calibtab</span> <span class="k">if</span> <span class="n">calibtab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>\
+                   <span class="n">DIO</span><span class="o">.</span><span class="n">make_calib_file_path</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">CTYPE_HEX_TABLE</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">hexanode</span><span class="o">.</span><span class="n">py_create_calibration_tables</span><span class="p">(</span><span class="n">CALIBTAB</span><span class="p">,</span> <span class="n">sorter</span><span class="p">)</span>
+
+        <span class="nb">print</span> <span class="s2">&quot;CALIBRATION: finished creating calibration tables: </span><span class="si">%s</span><span class="s2"> status </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">CALIBTAB</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+
+
+    <span class="nb">print</span> <span class="s2">&quot;consumed time (sec) = </span><span class="si">%.6f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_sec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sorter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">:</span> <span class="k">del</span> <span class="n">sorter</span>
+
+    <span class="k">if</span> <span class="n">PLOT_HIS</span> <span class="p">:</span>
+        <span class="n">plot_histograms</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">OFPREFIX</span><span class="p">,</span> <span class="n">do_save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hwin_x0y0</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">show</span><span class="p">()</span>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="mi">50</span><span class="o">*</span><span class="s1">&#39;_&#39;</span>
+    <span class="nb">print</span> <span class="s1">&#39;See example in hexanode/examples/ex-09-sort-graph-data.py&#39;</span>\
+          <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">and application expmon/app/hex_calib&#39;</span>
+
+    <span class="c1">#kwargs = {&#39;events&#39;:1500,}</span>
+    <span class="c1">#calib_on_data(**kwargs)</span>
+
+<span class="c1">#------------------------------</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
