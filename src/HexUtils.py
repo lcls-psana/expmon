@@ -1,7 +1,11 @@
 #!@PYTHON@
 #------------------------------
 """
+Module :py:class:`HexUtils` a set of generic methods for hexanode project
+=========================================================================
+
 Usage ::
+
     import expmon.HexUtils as hu
     hu.print_kwargs(d) 
     d = hu.dict_from_str_srcchs(s)
@@ -10,10 +14,10 @@ See:
     - :class:`HexCalib`
     - :class:`HexDataIO`
     - :class:`HexDataIOExt`
-    - :class:`HexDataProc`
+    - :class:`HexDataPreProc`
     - :class:`HexUtils`
-    - `Index of expmon <https://lcls-psana.github.io/expmon/py-modindex.html>`_.
-    - `Quad- and Hex-anode on confluence <https://confluence.slac.stanford.edu/display/PSDMInternal/Quad-+and+hex-+anode+detector+monitoring+software>`_.
+    * `Index of expmon <https://lcls-psana.github.io/expmon/py-modindex.html>`_.
+    * `Quad- and Hex-anode on confluence <https://confluence.slac.stanford.edu/display/PSDMInternal/Quad-+and+hex-+anode+detector+monitoring+software>`_.
 
 Created on 2017-12-08 by Mikhail Dubrovin
 """

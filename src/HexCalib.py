@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+"""
+Module :py:class:`HexCalib` a set of generic methods for hexanode project
+=========================================================================
+
+Created on 2017-12-08 by Mikhail Dubrovin
+"""
 #------------------------------
 def usage(): return 'Use command: python hexanode/examples/ex-09-sort-graph-data.py'
 #------------------------------

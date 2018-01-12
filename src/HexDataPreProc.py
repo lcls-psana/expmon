@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-""" Hexanode LCLS data processing using MPI and creating "small data" hdf5 file.
+""" 
+Module :py:class:`HexDataPreProc` - hexanode LCLS data processing using MPI and creating "small data" hdf5 file
+===============================================================================================================
+
+Created on 2017-12-08 by Mikhail Dubrovin
 """
 #------------------------------
 
