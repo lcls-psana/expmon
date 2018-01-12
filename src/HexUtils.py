@@ -16,6 +16,8 @@ See:
     - :class:`HexDataIOExt`
     - :class:`HexDataPreProc`
     - :class:`HexUtils`
+
+References:
     * `Index of expmon <https://lcls-psana.github.io/expmon/py-modindex.html>`_.
     * `Quad- and Hex-anode on confluence <https://confluence.slac.stanford.edu/display/PSDMInternal/Quad-+and+hex-+anode+detector+monitoring+software>`_.
 
