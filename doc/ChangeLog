@@ -13,6 +13,12 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-25
+2018-01-12 Mikhail S. Dubrovin
+- replace ex-hex-data-proc.py example of hexanode data processing in psana event loop
+	copied:     examples/ex-hex-data-proc.py -> examples/ex-hex-data-proc-2.py
+	modified:   examples/ex-hex-data-proc.py
+
 Tag: V01-00-24
 2018-01-12 Mikhail S. Dubrovin
 - HexDataIO* - add example for expernal psana dataset

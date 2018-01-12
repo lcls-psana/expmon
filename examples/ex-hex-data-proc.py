@@ -1,49 +1,44 @@
 #!/usr/bin/env python
-#---------------------------------------------------     
-""" Usage: python expmon/examples/ex-hex-data-proc.py """
-#---------------------------------------------------    
+#------------------------------
+""" 
+Example 1 - hexanode data processing in psana
 
-from expmon.HexDataIOExt import HexDataIOExt
-
-def test_HexDataIOExt() :
-
-    # Parameters for initialization of the data source, channels, number of events etc.
-    kwargs = {'command'  : 1,
-              'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
-              'numchs'   : 7,
-              'numhits'  : 16,
-              'dsname'   : 'exp=xpptut15:run=390:smd',
-              'evskip'   : 0,
-              'events'   : 600,
-              'ofprefix' : './',
-              'verbose'  : False,
-             }
-
-    o = HexDataIOExt(**kwargs)       # Line # 1
-
-    while o.read_next_event() :      # Line # 2
-
-        o.print_sparsed_event_info() # print sparsed event number and time consumption 
-
-        if o.skip_event()       : continue # event loop control
-        if o.break_event_loop() : break    # event loop control
-
-        x, y, t = o.hits_xyt()       # Line # 3 get arrays of x, y, z hit coordinates
-
-        #print 'x:', x
-        #print 'y:', y
-        #print 't:', t
-        #print 'methods:', o.hits_method()
-
-        o.print_hits()               # prints x, y, time, method for found in event hits
-
-    o.print_summary() # print number of events, processing time total, instant and frequency
-
+Usage:      python expmon/examples/ex-hex-data-proc.py
+"""
 #------------------------------
 
-if __name__ == "__main__" :
-    import sys
-    test_HexDataIOExt()
-    print 'End of %s' % sys.argv[0].split('/')[-1]
+import psana
+from expmon.HexDataIOExt import HexDataIOExt  # Line 0 - import
+
+# Parameters: data set name, data source, channels, number of events, CFD etc.
+kwargs = {'command'  : 1,
+          'srcchs'   : {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)},
+          'numchs'   : 7,
+          'numhits'  : 16,
+          'dsname'   : 'exp=xpptut15:run=390:smd',
+          'evskip'   : 0,
+          'events'   : 500,
+          'ofprefix' : './',
+          'verbose'  : False,
+          'cfd_base'        :  0.  ,        
+          'cfd_thr'         : -0.04,         
+          'cfd_cfr'         :  0.9 ,         
+          'cfd_deadtime'    :  5.0 ,    
+          'cfd_leadingedge' :  True, 
+          'cfd_ioffsetbeg'  :  0   ,  
+          'cfd_ioffsetend'  :  1000, 
+         }
+
+ds = psana.MPIDataSource(kwargs['dsname'])    # Open psana dataset using mpi
+o = HexDataIOExt(ds, **kwargs)                # Line 1 - object initialization
+
+for evt in ds.events() :                      
+    if o.skip_event(evt)           : continue # Line 2 - loop control method passes evt to the object
+    if o.event_number() > o.EVENTS : break
+
+    #x, y, t = o.hits_xyt()                   # Line 3 - get arrays x, y, t of hits' coordinates and time
+    o.print_hits()                            # Line 3 alternative - prints x, y, time for all hits in the event
+
+o.print_summary()                             # print number of events, processing time total, instant and frequency
 
 #------------------------------
