@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 #--------------------------------------------------------     
 """ 
-Example 2 - dataset created inside HexDataIO object
+Example of hexanode data processing in psana using DataSource created inside HexDataIO object
 
-Usage: python expmon/examples/ex-hex-data-proc-2.py
+Usage:      python expmon/examples/ex-hex-data-proc-2.py
+or:
+mpirun -n 2 python expmon/examples/ex-hex-data-proc-2.py
 """
 #----------------------------------------------------------    
 

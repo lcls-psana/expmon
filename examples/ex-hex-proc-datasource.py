@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 #------------------------------
 """ 
-Example 1 - hexanode data processing in psana
+Example of hexanode data processing in psana DataSource with MPI
 
-Usage:      python expmon/examples/ex-hex-data-proc.py
+Usage:      python expmon/examples/ex-hex-data-datasource.py
+or:
+mpirun -n 2 python expmon/examples/ex-hex-proc-datasource.py
 """
 #------------------------------
 
 import psana
 from expmon.HexDataIOExt import HexDataIOExt  # Line 0 - import
+
+from mpi4py import MPI
+rank = MPI.COMM_WORLD.Get_rank()
+size = MPI.COMM_WORLD.Get_size()
 
 # Parameters: data set name, data source, channels, number of events, CFD etc.
 kwargs = {'command'  : 1,
@@ -29,16 +35,23 @@ kwargs = {'command'  : 1,
           'cfd_ioffsetend'  :  1000, 
          }
 
-ds = psana.MPIDataSource(kwargs['dsname'])    # Open psana dataset using mpi
+ds = psana.DataSource(kwargs['dsname'])    # Open psana dataset using mpi
 o = HexDataIOExt(ds, **kwargs)                # Line 1 - object initialization
 
-for evt in ds.events() :                      
-    if o.skip_event(evt)           : continue # Line 2 - loop control method passes evt to the object
-    if o.event_number() > o.EVENTS : break
+print 'MPI size: %2d rank: %2d' % (size, rank)
+
+for nevent, evt in enumerate(ds.events()) :
+
+    #print 'XXX event %4d rank %2d' % (nevent, rank)
+    if nevent%size != rank : continue
+
+    if o.skip_event(evt, nevent) : continue   # Line 2 - loop control method passes evt to the object
+    if nevent > o.EVENTS : break
 
     #x, y, t = o.hits_xyt()                   # Line 3 - get arrays x, y, t of hits' coordinates and time
-    o.print_hits()                            # Line 3 alternative - prints x, y, time for all hits in the event
+    #o.print_hits()                           # Line 3 alternative - prints x, y, time for all hits in the event
 
-o.print_summary()                             # print number of events, processing time total, instant and frequency
+if rank==0 :
+    o.print_summary()                         # print number of events, processing time total, instant and frequency
 
 #------------------------------

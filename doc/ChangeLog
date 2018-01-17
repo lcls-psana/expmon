@@ -13,6 +13,18 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-26
+2018-01-17 Mikhail S. Dubrovin
+- add example ex-hex-proc-mpidatasource with correct event numeration in mpi
+- HexDataIO* - propagate nevent in methods skip_event and set_next_event
+	modified:   app/hex_data_preproc
+	modified:   examples/ex-hex-data-proc-2.py
+	new file:   examples/ex-hex-proc-datasource.py
+	renamed:    examples/ex-hex-data-proc.py -> examples/ex-hex-proc-mpidatasource.py
+	new file:   examples/ex-mpi-test.py
+	modified:   src/HexDataIO.py
+	modified:   src/HexDataIOExt.py
+
 Tag: V01-00-25
 2018-01-12 Mikhail S. Dubrovin
 - replace ex-hex-data-proc.py example of hexanode data processing in psana event loop

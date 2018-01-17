@@ -275,10 +275,10 @@ class HexDataIOExt(HexDataIO) :
     
 #------------------------------
 
-    def set_next_event(self, evt) :
+    def set_next_event(self, evt, nevent=None) :
         """Re-implemented method from HexDataIO adding per event processing
         """
-        status = HexDataIO.set_next_event(self, evt)
+        status = HexDataIO.set_next_event(self, evt, nevent)
         if status : self.proc_event()
         return status
 
@@ -476,12 +476,12 @@ class HexDataIOExt(HexDataIO) :
 
 #------------------------------
 
-    def skip_event(self, evt=0) :
+    def skip_event(self, evt=0, nevent=None) :
         """psana.Event can be None, so evt=0 is set to destinguish case w/o evt.
         """
         if evt!=0 : 
             # if parameter evt is passed (new version)
-            status = self.set_next_event(evt)
+            status = self.set_next_event(evt, nevent)
             self.print_sparsed_event_info()     # print sparsed event number and time consumption 
             if evt is None :
                 print '  Event: %4d WARNING: evt is None, rank: %d' % (self.event_number(), self.ds.rank)

@@ -33,14 +33,6 @@ def hex_data_preproc() :
 
     (popts, pargs) = parser.parse_args()
     opts = vars(popts)
-
-    #dsname   = popts.dsname
-    #defs = vars(parser.get_default_values())
-    #if verbos :
-    #    print 'arguments: "%s"' % str(pargs)
-    #    print 'options  : %s' % str(popts)
-    #    for k,v in vars(popts).iteritems() : print '  %10s : %10s' % (k,v)
-
     opts['srcchs'] = hu.dict_from_str_srcchs(popts.srcchs)
     kwargs = opts
     hu.print_kwargs(kwargs)

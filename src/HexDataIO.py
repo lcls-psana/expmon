@@ -332,12 +332,14 @@ class HexDataIO :
         return self.NUM_CHANNELS
 
 
-    def set_next_event(self, evt) :
+    def set_next_event(self, evt, nevent=None) :
         """The same as read_next_event, but for external event loop
         """
         if evt==self._evt : return  False # if call it twice
 
-        self._evnum += 1
+        if nevent is None : self._evnum += 1
+        else              : self._evnum = nevent
+
         if evt is None : return False
         self._init_arrays()
         self._evt = evt
