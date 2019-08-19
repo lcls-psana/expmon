@@ -118,8 +118,8 @@ class HexDataIO :
         self._dic_wt = {}
 
 
-    def open_input_data(self, dsname='exp=xpptut15:run=390:smd', **kwargs) :
-        #dsname   = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
+    def open_input_data(self, **kwargs) :
+        dsname   = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
         do_mpids = kwargs.get('do_mpids', False)
         pbits    = kwargs.get('pbits', 0)
 
@@ -231,6 +231,7 @@ class HexDataIO :
         self.h5ds_event_number[i] = i
         self.h5ds_event_time[i] = evt_time(self._evt)
         self.h5ds_fiducials[i] = evt_fiducials(self._evt)
+
         #gu.print_ndarr(self._number_of_hits, '  _number_of_hits')
         #gu.print_ndarr(self._tdc_ns, '  _tdc_ns')
         #self.h5ds_nhits.attrs['events'] = i
@@ -416,6 +417,8 @@ class HexDataIO :
         self.LEADINGEDGE = kwargs.get('cfd_leadingedge', True)
         self.IOFFSETBEG  = kwargs.get('cfd_ioffsetbeg',  0)
         self.IOFFSETEND  = kwargs.get('cfd_ioffsetend',  1000)
+        self.WFBINBEG    = kwargs.get('cfd_wfbinbeg',    0)
+        self.WFBINEND    = kwargs.get('cfd_wfbinend',    40000)
 
 
     def print_wf_hit_finder_parameters(self) :
@@ -428,6 +431,8 @@ class HexDataIO :
             + '\n  cfd_leadingedge    %s' % self.LEADINGEDGE\
             + '\n  cfd_ioffsetbeg     %d' % self.IOFFSETBEG\
             + '\n  cfd_ioffsetend     %d' % self.IOFFSETEND\
+            + '\n  cfd_wfbinbeg       %d' % self.WFBINBEG\
+            + '\n  cfd_wfbinend       %d' % self.WFBINEND\
             + '\n%s' % (50*'_')
         print msg
 
@@ -438,20 +443,25 @@ class HexDataIO :
             res = wfd.raw(evt)
             if res is None : continue
             wf,wt = res
+            #print 'XXX src, wfd, channels', src, wfd, channels
             for ch in channels :
+                #print '  XXX ch:', ch,
                 ch_tdc+=1
                 if ch_tdc == self.NUM_CHANNELS :
                     raise IOError('HexDataIO._proc_waveforms: input tdc_ns shape=%s ' % str(tdc_ns.shape)\
                                   +' does not have enough rows for quad-/hex-anode channels')
 
-                wfch = wf[ch,:]
-                wfch -= wfch[self.IOFFSETBEG:self.IOFFSETEND].mean()
+                offset = wf[ch,self.IOFFSETBEG:self.IOFFSETEND].mean()
+                wfch   = wf[ch,self.WFBINBEG:self.WFBINEND]
+                wfch  -= offset
                 self._dic_wf[ch_tdc] = wfch
-                self._dic_wt[ch_tdc] = wtch = wt[ch,:] * 1e9 # sec -> ns
+                self._dic_wt[ch_tdc] = wtch = wt[ch,self.WFBINBEG:self.WFBINEND] * 1e9 # sec -> ns
 
                 edges = find_edges(wfch, self.BASE, self.THR, self.CFR, self.DEADTIME, self.LEADINGEDGE)
 
                 nedges = len(edges)
+                #print ' ch_tdc:', ch_tdc, ' nedges:', nedges
+
                 if nedges >= self.NUM_HITS :
                     if self._pbits :
                         msg = 'HexDataIO._proc_waveforms: input tdc_ns shape=%s ' % str(self._tdc_ns.shape)\
