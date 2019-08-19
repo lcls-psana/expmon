@@ -534,24 +534,26 @@ def calib_on_data(**kwargs) :
     NUM_CHANNELS = kwargs.get('numchs', 7)
     NUM_HITS     = kwargs.get('numhits', 16)
     calibtab     = kwargs.get('calibtab', None)
+    calibcfg     = kwargs.get('calibcfg', None)
     PLOT_HIS     = kwargs.get('plot_his', True)
     VERBOSE      = kwargs.get('verbose', False)
 
     print 'Input parameters:'
     for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
 
-    sp.set_parameters(**kwargs)
+    sp.set_parameters(**kwargs) # save parameters in store for graphics
 
     #=====================
 
     DIO = HexDataIO(srcchs=SRCCHS, numchs=NUM_CHANNELS, numhits=NUM_HITS)
-    DIO.open_input_data(DSNAME, **kwargs)
+    DIO.open_input_data(**kwargs)
 
     #=====================
 
     CALIBTAB = calibtab if calibtab is not None else\
                DIO.find_calib_file(type=CTYPE_HEX_TABLE)
-    CALIBCFG = DIO.find_calib_file(type=CTYPE_HEX_CONFIG)
+    CALIBCFG = calibcfg if calibcfg is not None else\
+               DIO.find_calib_file(type=CTYPE_HEX_CONFIG)
 
     #=====================
 
@@ -785,6 +787,8 @@ def calib_on_data(**kwargs) :
 
         if sp.PLOT_XY_RESOLUTION :
             #print "    binx: %d  biny: %d  resolution(FWHM): %.6f" % (sfco.binx, sfco.biny, sfco.detector_map_resol_FWHM_fill)
+            #sys.exit('TEST EXIT')
+
             if sfco.binx>=0 and sfco.biny>=0 :
                 sp.lst_binx.append(sfco.binx)
                 sp.lst_biny.append(sfco.biny)
