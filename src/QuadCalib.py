@@ -11,6 +11,8 @@ def usage(): return 'Use command: python hexanode/examples/ex-09-sort-graph-data
 
 import os
 import sys
+from copy import deepcopy
+
 import hexanode
 import numpy as np
 from time import time
@@ -201,37 +203,36 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     sp.do_save   = do_save
     sp.hwin_x0y0 = hwin_x0y0
     #---------
-    #---------
     if sp.PLOT_NHITS :
     #---------
         nbins = 20
         limits = (-0.5,19.5)
         is_log = True
-    #---------
+
         h1d(np.array(sp.lst_nhits_u1), bins=nbins, amp_range=limits, log=is_log,\
             title ='Number of hits U1', xlabel='Number of hits U1', ylabel='Events',\
             fnm='nhits_u1.png')
-    #---------
+
         h1d(np.array(sp.lst_nhits_u2), bins=nbins, amp_range=limits, log=is_log,\
             title ='Number of hits U2', xlabel='Number of hits U2', ylabel='Events',\
             fnm='nhits_u2.png')
-    #---------
+
         h1d(np.array(sp.lst_nhits_v1), bins=nbins, amp_range=limits, log=is_log,\
             title ='Number of hits V1', xlabel='Number of hits V1', ylabel='Events',\
             fnm='nhits_v1.png')
-    #---------
+
         h1d(np.array(sp.lst_nhits_v2), bins=nbins, amp_range=limits, log=is_log,\
             title ='Number of hits V2', xlabel='Number of hits V2', ylabel='Events',\
             fnm='nhits_v2.png')
-    #---------
+
         #h1d(np.array(sp.lst_nhits_w1), bins=nbins, amp_range=limits, log=is_log,\
         #    title ='Number of hits W1', xlabel='Number of hits W1', ylabel='Events',\
         #    fnm='nhits_w1.png')
-    #---------
+
         #h1d(np.array(sp.lst_nhits_w2), bins=nbins, amp_range=limits, log=is_log,\
         #    title ='Number of hits W2', xlabel='Number of hits W2', ylabel='Events',\
         #    fnm='nhits_w2.png')
-    #---------
+
         h1d(np.array(sp.lst_nhits_mcp), bins=nbins, amp_range=limits, log=is_log,\
             title ='Number of hits MCP', xlabel='Number of hits MCP', ylabel='Events',\
             fnm='nhits_mcp.png')
@@ -242,33 +243,33 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         nbins = 300
         limits = (1000,4000)
         #limits = (0,10000)
-    #---------
+
         #print_ndarr(sp.lst_u1, 'U1')
         h1d(np.array(sp.lst_u1), bins=nbins, amp_range=limits, log=True,\
             title ='Time U1', xlabel='U1 (ns)', ylabel='Events',\
             fnm='time_u1_ns.png')
-    #---------
+
         #print_ndarr(sp.lst_u2, 'U2')
         h1d(np.array(sp.lst_u2), bins=nbins, amp_range=limits, log=True,\
             title ='Time U2', xlabel='U2 (ns)', ylabel='Events',\
             fnm='time_u2_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_v1), bins=nbins, amp_range=limits, log=True,\
             title ='Time V1', xlabel='V1 (ns)', ylabel='Events',\
             fnm='time_v1_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_v2), bins=nbins, amp_range=limits, log=True,\
             title ='Time V2', xlabel='V2 (ns)', ylabel='Events',\
             fnm='time_v2_ns.png')
-    #---------
+
         #h1d(np.array(sp.lst_w1), bins=nbins, amp_range=limits, log=True,\
         #    title ='Time W1', xlabel='W1 (ns)', ylabel='Events',\
         #    fnm='time_w1_ns.png')
-    #---------
+
         #h1d(np.array(sp.lst_w2), bins=nbins, amp_range=limits, log=True,\
         #    title ='Time W2', xlabel='W2 (ns)', ylabel='Events',\
         #    fnm='time_w2_ns.png')
-    #---------
+
         #print_ndarr(sp.lst_mcp, 'MCP')
         h1d(np.array(sp.lst_mcp), bins=nbins, amp_range=limits, log=True,\
             title ='Time MCP', xlabel='MCP (ns)', ylabel='Events',\
@@ -281,79 +282,74 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         limits = (0,200) # (50,180)
         #nbins = 250
         #limits = (0,5000)
-    #---------
+
         #print_ndarr(sp.lst_time_sum_u, 'U')
         h1d(np.array(sp.lst_time_sum_u), bins=nbins, amp_range=limits, log=True,\
             title ='Time sum U', xlabel='Time sum U (ns)', ylabel='Events',\
             fnm='time_sum_u_ns.png')
-    #---------
+
         #print_ndarr(sp.lst_time_sum_v, 'V')
         h1d(np.array(sp.lst_time_sum_v), bins=nbins, amp_range=limits, log=True,\
             title ='Time sum V', xlabel='Time sum V (ns)', ylabel='Events',\
             fnm='time_sum_v_ns.png')
-    #---------
+
         #print_ndarr(sp.lst_time_sum_w, 'W')
         #h1d(np.array(sp.lst_time_sum_w), bins=nbins, amp_range=limits, log=True,\
         #    title ='Time sum W', xlabel='Time sum W (ns)', ylabel='Events',\
         #    fnm='time_sum_w_ns.png')
-    #---------
 
     #---------
     if sp.PLOT_TIME_SUMS :
     #---------
         nbins = 160
         limits = (-80,80)
-    #---------
         h1d(np.array(sp.lst_time_sum_u_corr), bins=nbins, amp_range=limits, log=True,\
             title ='Time sum U corrected', xlabel='Time sum U (ns) corrected', ylabel='Events',\
             fnm='time_sum_u_ns_corr.png')
-    #---------
+
         h1d(np.array(sp.lst_time_sum_v_corr), bins=nbins, amp_range=limits, log=True,\
             title ='Time sum V corrected', xlabel='Time sum V (ns) corrected', ylabel='Events',\
             fnm='time_sum_v_ns_corr.png')
-    #---------
+
         #h1d(np.array(sp.lst_time_sum_w_corr), bins=nbins, amp_range=limits, log=True,\
         #    title ='Time sum W corrected', xlabel='Time sum W (ns) corrected', ylabel='Events',\
         #    fnm='time_sum_w_ns_corr.png')
-    #---------
 
     #---------
     if sp.PLOT_UVW :
     #---------
         nbins = 200
         limits = (-100,100)
-    #---------
+
         h1d(np.array(sp.lst_u), bins=nbins, amp_range=limits, log=True,\
             title ='U (mm)', xlabel='U (mm)', ylabel='Events',\
             fnm='u_mm.png')
-    #---------
+
         h1d(np.array(sp.lst_v), bins=nbins, amp_range=limits, log=True,\
             title ='V (mm)', xlabel='V (mm)', ylabel='Events',\
             fnm='v_mm.png')
-    #---------
+
         #h1d(np.array(sp.lst_w), bins=nbins, amp_range=limits, log=True,\
         #    title ='W (mm)', xlabel='W (mm)', ylabel='Events',\
         #    fnm='w_mm.png')
-    #---------
 
     #---------
     if sp.PLOT_UVW :
     #---------
         nbins = 300
         limits = (-150,150)
-    #---------
+
         h1d(np.array(sp.lst_u_ns), bins=nbins, amp_range=limits, log=True,\
             title ='U (ns)', xlabel='U (ns)', ylabel='Events',\
             fnm='u_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_v_ns), bins=nbins, amp_range=limits, log=True,\
             title ='V (ns)', xlabel='V (ns)', ylabel='Events',\
             fnm='v_ns.png')
-    #---------
+
         #h1d(np.array(sp.lst_w_ns), bins=nbins, amp_range=limits, log=True,\
         #    title ='W (ns)', xlabel='W (ns)', ylabel='Events',\
         #    fnm='w_ns.png')
-    #---------
 
     #---------
     if sp.PLOT_CORRELATIONS :
@@ -397,31 +393,30 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #---------
         nbins = 200
         limits = (-50,50)
-    #---------
+
         h1d(np.array(sp.lst_Xuv), bins=nbins, amp_range=limits, log=True,\
             title ='Xuv', xlabel='Xuv (mm)', ylabel='Events',\
             fnm='Xuv_mm.png')
-    #---------
+
         #h1d(np.array(sp.lst_Xuw), bins=nbins, amp_range=limits, log=True,\
         #    title ='Xuw', xlabel='Xuw (mm)', ylabel='Events',\
         #    fnm='Xuw_mm.png')
-    #---------
+
         #h1d(np.array(sp.lst_Xvw), bins=nbins, amp_range=limits, log=True,\
         #    title ='Xvw', xlabel='Xvw (mm)', ylabel='Events',\
         #    fnm='Xvw_mm.png')
-    #---------
+
         h1d(np.array(sp.lst_Yuv), bins=nbins, amp_range=limits, log=True,\
             title ='Yuv', xlabel='Yuv (mm)', ylabel='Events',\
             fnm='Yuv_mm.png')
-    #---------
+
         #h1d(np.array(sp.lst_Yuw), bins=nbins, amp_range=limits, log=True,\
         #    title ='Yuw', xlabel='Yuw (mm)', ylabel='Events',\
         #    fnm='Yuw_mm.png')
-    #---------
+
         #h1d(np.array(sp.lst_Yvw), bins=nbins, amp_range=limits, log=True,\
         #    title ='Yvw', xlabel='Yvw (mm)', ylabel='Events',\
         #    fnm='Yvw_mm.png')
-    #---------
 
     #---------
     if sp.PLOT_REFLECTIONS :
@@ -430,27 +425,27 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         #limits = (-100, 5900)
         nbins = 300
         limits = (-500, 2500)
-    #---------
+
         h1d(np.array(sp.lst_refl_u1), bins=nbins, amp_range=limits, log=True,\
             title ='Reflection U1', xlabel='Reflection U1 (ns)', ylabel='Events',\
             fnm='refl_u1_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_refl_u2), bins=nbins, amp_range=limits, log=True,\
             title ='Reflection U2', xlabel='Reflection U2 (ns)', ylabel='Events',\
             fnm='refl_u2_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_refl_v1), bins=nbins, amp_range=limits, log=True,\
             title ='Reflection V1', xlabel='Reflection V1 (ns)', ylabel='Events',\
             fnm='refl_v1_ns.png')
-    #---------
+
         h1d(np.array(sp.lst_refl_v2), bins=nbins, amp_range=limits, log=True,\
             title ='Reflection V2', xlabel='Reflection V2 (ns)', ylabel='Events',\
             fnm='refl_v2_ns.png')
-    #---------
+
         #h1d(np.array(sp.lst_refl_w1), bins=nbins, amp_range=limits, log=True,\
         #    title ='Reflection W1', xlabel='Reflection W1 (ns)', ylabel='Events',\
         #    fnm='refl_w1_ns.png')
-    #---------
+
         #h1d(np.array(sp.lst_refl_w2), bins=nbins, amp_range=limits, log=True,\
         #    title ='Reflection W2', xlabel='Reflection W2 (ns)', ylabel='Events',\
         #    fnm='refl_w2_ns.png')
@@ -461,15 +456,14 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         h1d(np.array(sp.lst_Deviation), bins=160, amp_range=(0,40), log=True,\
             title ='Deviation', xlabel='Deviation (mm)', ylabel='Events',\
             fnm='deviation_mm.png')
-    #---------
+
         h1d(np.array(sp.lst_consist_indicator), bins=64, amp_range=(0,64), log=True,\
             title ='Consistence indicator', xlabel='Consistence indicator (bit)', ylabel='Events',\
             fnm='consistence_indicator.png')
-    #---------
+
         h1d(np.array(sp.lst_rec_method), bins=64, amp_range=(0,32), log=True,\
             title ='Reconstruction method', xlabel='Method id (bit)', ylabel='Events',\
             fnm='reconstruction_method.png')
-    #---------
 
     #---------
     if sp.PLOT_XY_2D :
@@ -481,7 +475,6 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         #plot_image(sp.img_xy_vw, amp_range=amp_limits, img_range=imrange, fnm='xy_vw.png', title='XY_vw image',   xlabel='x', ylabel='y', titwin='XY_vw image')
         plot_image(sp.img_xy_1,  amp_range=amp_limits, img_range=imrange, fnm='xy_1.png',  title='XY image hit1', xlabel='x', ylabel='y', titwin='XY image hit1')
         plot_image(sp.img_xy_2,  amp_range=amp_limits, img_range=imrange, fnm='xy_2.png',  title='XY image hit2', xlabel='x', ylabel='y', titwin='XY image hit2')
-    #---------
 
     #---------
     if sp.PLOT_PHYSICS :
@@ -513,6 +506,18 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
     #    sp.img_xy_res /= np.maximum(sp.img_xy_sta,1)
     #    plot_image(sp.img_xy_res, amp_range=None, img_range=(0,max_bins, 0,max_bins),\
     #               fnm='xy_res.png', title='Resolution FWHM (mm)', xlabel='x bins', ylabel='y bins', titwin='Resolution FWHM')
+
+#------------------------------
+
+def print_tdc_ns(tdc_ns, cmt='  tdc_ns ', fmt=' %7.2f') :
+    sh = tdc_ns.shape
+    print '%sshape=%s:' % (cmt, str(sh))
+    for r in range(sh[0]) :
+        print '    ch %1d:' % r,
+        for c in range(min(5,sh[1])) :
+             print fmt % tdc_ns[r,c],
+        print
+    #print
 
 #------------------------------
 
@@ -600,7 +605,7 @@ def calib_on_data(**kwargs) :
         sys.exit(0)
 
     print 'use_sum_correction', sorter.use_sum_correction
-    print 'use_pos_correction', sorter.use_pos_correction
+    print 'use_pos_correction HEX ONLY', sorter.use_pos_correction
     if sorter is not None :
         if sorter.use_sum_correction or sorter.use_pos_correction :
             status = hexanode.py_read_calibration_tables(CALIBTAB, sorter)
@@ -699,10 +704,10 @@ def calib_on_data(**kwargs) :
             error_text = DIO.get_error_text(DIO.error_flag())
             print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
             sys.exit(0)
-        if VERBOSE : print '   number_of_hits_array', number_of_hits[:8]
+
+        if VERBOSE : print '====raw number_of_hits_array', number_of_hits[:8]
         #number_of_hits = np.array([n if n<NUM_HITS else NUM_HITS for n in number_of_hits])
         #if VERBOSE : print '   number_of_hits_array constrained ', number_of_hits[:8]
-
 
         DIO.get_tdc_data_array(tdc_ns)
 
@@ -711,17 +716,12 @@ def calib_on_data(**kwargs) :
             print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
             sys.exit(0)
 
-        if VERBOSE : print '   TDC data:\n', tdc_ns[0:8,0:5]
-
-
-
         conds = number_of_hits[:5]==0 
         if conds.any() : continue
 
-
 #   	// apply conversion to ns
-        if False : # DIO returns tdc_ns already in [ns]
-            tdc_ns *= DIO.tdc_resolution()
+#        if False : # DIO returns tdc_ns already in [ns]
+#            tdc_ns *= DIO.tdc_resolution()
 
 #       //==================================
         if sp.PLOT_NHITS :
@@ -750,11 +750,73 @@ def calib_on_data(**kwargs) :
             #if number_of_hits[Cw2]>1 : sp.lst_refl_w1.append(tdc_ns[Cw2,1] - tdc_ns[Cw1,0])
             #if number_of_hits[Cw1]>1 : sp.lst_refl_w2.append(tdc_ns[Cw1,1] - tdc_ns[Cw2,0])
 
-        time_sum_u = tdc_ns[Cu1,0] + tdc_ns[Cu2,0] - 2*tdc_ns[Cmcp,0]
-        time_sum_v = tdc_ns[Cv1,0] + tdc_ns[Cv2,0] - 2*tdc_ns[Cmcp,0]
+        #--------- preserve RAW time sums
+        time_sum_u = deepcopy(tdc_ns[Cu1,0] + tdc_ns[Cu2,0] - 2*tdc_ns[Cmcp,0]) #deepcopy(...)
+        time_sum_v = deepcopy(tdc_ns[Cv1,0] + tdc_ns[Cv2,0] - 2*tdc_ns[Cmcp,0])
         time_sum_w = 0 #tdc_ns[Cw1,0] + tdc_ns[Cw2,0] - 2*tdc_ns[Cmcp,0]
 
-        #print "time_sum_u, time_sum_v:", time_sum_u, time_sum_v
+        #print "RAW time_sum_u, time_sum_v:", time_sum_u, time_sum_v
+        #---------
+
+        if VERBOSE : print_tdc_ns(tdc_ns, cmt='  TDC raw data ')
+
+        if sorter.use_hex :        
+  	    # shift the time sums to zero:
+   	    sorter.shift_sums(+1, offset_sum_u, offset_sum_v, offset_sum_w)
+   	    #shift layer w so that the middle lines of all layers intersect in one point:
+   	    sorter.shift_layer_w(+1, w_offset)
+        else :
+            # shift the time sums to zero:
+            sorter.shift_sums(+1, offset_sum_u, offset_sum_v)
+
+        if VERBOSE : print_tdc_ns(tdc_ns, cmt='  TDC after shift_sums ')
+
+   	# shift all signals from the anode so that the center of the detector is at x=y=0:
+   	sorter.shift_position_origin(+1, pos_offset_x, pos_offset_y)
+ 
+    	sorter.feed_calibration_data(True, w_offset) # for calibration of fv, fw, w_offset and correction tables
+
+        if VERBOSE : print_tdc_ns(tdc_ns, cmt='  TDC after feed_calibration_data ')
+
+        #print 'map_is_full_enough', hexanode.py_sorter_scalefactors_calibration_map_is_full_enough(sorter)
+
+        # NOT VALID FOR QUAD
+        #sfco = hexanode.py_scalefactors_calibration_class(sorter) # NOT FOR QUAD
+        # break loop if statistics is enough
+        #if sfco :
+        #    if sfco.map_is_full_enough() : 
+        #         print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum)
+        #         break
+
+        #if sp.PLOT_XY_RESOLUTION :
+        #    #print "    binx: %d  biny: %d  resolution(FWHM): %.6f" % (sfco.binx, sfco.biny, sfco.detector_map_resol_FWHM_fill)
+        #    if sfco.binx>=0 and sfco.biny>=0 :
+        #        sp.lst_binx.append(sfco.binx)
+        #        sp.lst_biny.append(sfco.biny)
+        #        sp.lst_resol_fwhm.append(sfco.detector_map_resol_FWHM_fill)
+
+        # Sort the TDC-Data and reconstruct missing signals and apply the time-sum- and NL-correction.
+        # number_of_particles is the number of reconstructed particles
+   	number_of_particles = sorter.sort() if command == 1 else\
+                              sorter.run_without_sorting()
+
+        #DIO.get_tdc_data_array(tdc_ns)
+        if VERBOSE : print '   sorted number_of_hits_array', number_of_hits[:8]
+        if VERBOSE : print_tdc_ns(tdc_ns, cmt='    TDC sorted data ')
+        if VERBOSE : print "  Event %5i  number_of_particles: %i" % (evnum, number_of_particles)
+
+        if False : 
+   	    for i in range(number_of_particles) :
+                hco= hexanode.py_hit_class(sorter, i)
+   	        print "    p:%2i x:%7.3f y:%7.3f t:%7.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)
+   	    print "    part1 u:%7.3f v:%7.3f w:%7.3f" % (u, v, w)
+
+        # Discards most of events in command>1
+        if number_of_particles<1 : continue
+
+#       // TODO by end user..."
+
+        #---------
 
         u_ns = tdc_ns[Cu1,0] - tdc_ns[Cu2,0]
         v_ns = tdc_ns[Cv1,0] - tdc_ns[Cv2,0]
@@ -775,63 +837,13 @@ def calib_on_data(**kwargs) :
         dY = 0 # Yuv - Yvw
         Deviation = 0 #sqrt(dX*dX + dY*dY)
 
-        if sorter.use_hex :        
-  	    # shift the time sums to zero:
-   	    sorter.shift_sums(+1, offset_sum_u, offset_sum_v, offset_sum_w)
-   	    #shift layer w so that the middle lines of all layers intersect in one point:
-   	    sorter.shift_layer_w(+1, w_offset)
-        else :
-            # shift the time sums to zero:
-            sorter.shift_sums(+1, offset_sum_u, offset_sum_v)
-
-   	# shift all signals from the anode so that the center of the detector is at x=y=0:
-   	sorter.shift_position_origin(+1, pos_offset_x, pos_offset_y)
- 
-   	sorter.feed_calibration_data(True, w_offset) # for calibration of fv, fw, w_offset and correction tables
-
-        #DIO.get_tdc_data_array(tdc_ns)
-
         time_sum_u_corr = tdc_ns[Cu1,0] + tdc_ns[Cu2,0] - 2*tdc_ns[Cmcp,0]
         time_sum_v_corr = tdc_ns[Cv1,0] + tdc_ns[Cv2,0] - 2*tdc_ns[Cmcp,0]
         time_sum_w_corr = 0 #tdc_ns[Cw1,0] + tdc_ns[Cw2,0] - 2*tdc_ns[Cmcp,0]
 
-        #print 'map_is_full_enough', hexanode.py_sorter_scalefactors_calibration_map_is_full_enough(sorter)
-
-        # NOT FOR QUAD
-        #sfco = hexanode.py_scalefactors_calibration_class(sorter) # NOT FOR QUAD
-        # break loop if statistics is enough
-        #if sfco :
-        #    if sfco.map_is_full_enough() : 
-        #         print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum)
-        #         break
-
-        #if sp.PLOT_XY_RESOLUTION :
-        #    #print "    binx: %d  biny: %d  resolution(FWHM): %.6f" % (sfco.binx, sfco.biny, sfco.detector_map_resol_FWHM_fill)
-        #    if sfco.binx>=0 and sfco.biny>=0 :
-        #        sp.lst_binx.append(sfco.binx)
-        #        sp.lst_biny.append(sfco.biny)
-        #        sp.lst_resol_fwhm.append(sfco.detector_map_resol_FWHM_fill)
-
-
-        # Sort the TDC-Data and reconstruct missing signals and apply the time-sum- and NL-correction.
-        # number_of_particles is the number of reconstructed particles
-   	number_of_particles = sorter.sort() if command == 1 else\
-                              sorter.run_without_sorting()
-
-   	if False :
-   	    print "  Event %5i  number_of_particles: %i" % (evnum, number_of_particles)
-   	    for i in range(number_of_particles) :
-                hco= hexanode.py_hit_class(sorter, i)
-   	        print "    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)
-
-   	    print "    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w)
-
-
-#       // TODO by end user..."
-
-        if number_of_particles<1 : continue
-
         hco = hexanode.py_hit_class(sorter, 0)
+
+        #---------
 
         if sp.PLOT_UVW or sp.PLOT_CORRELATIONS :
             sp.lst_u_ns.append(u_ns)
@@ -872,6 +884,7 @@ def calib_on_data(**kwargs) :
             #print 'reconstruction method %d' % hco.method
 
         if sp.PLOT_XY_2D :
+
             # fill 2-d images
             x1, y1 = hco.x, hco.y
 

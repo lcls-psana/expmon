@@ -13,6 +13,10 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-28
+2019-08-21 Mikhail S. Dubrovin
+- change order of operations in QuadCalib.py
+
 Tag: V01-00-27
 2019-08-19 Mikhail S. Dubrovin
 - fixes and modifications to support QUAD_anode
