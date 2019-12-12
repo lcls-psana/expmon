@@ -144,7 +144,7 @@ def create_output_directory(prefix) :
     if dirname in ('', './', None) : return
     from CalibManager.GlobalUtils import create_directory # , create_path, 
     #create_path(dirname, depth=2, mode=0775)
-    create_directory(dirname, mode=0775)
+    create_directory(dirname, mode=0o775)
 
 #------------------------------
 

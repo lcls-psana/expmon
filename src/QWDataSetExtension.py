@@ -90,7 +90,7 @@ if __name__ == "__main__" :
     from graphqt.IVConfigParameters import cp
 
     app = QtGui.QApplication(sys.argv)
-    w = QWDataSetExtension(cp, log, show_mode=0377)
+    w = QWDataSetExtension(cp, log, show_mode=0o377)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
     w.show()

@@ -358,7 +358,7 @@ class HexDataIO :
             return self.fetch_event_data_from_h5file()
 
         self._init_arrays()
-        self._evt = self._events.next()
+        self._evt = next(self._events)
         return self._evt is not None
 
 

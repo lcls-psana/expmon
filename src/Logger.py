@@ -29,7 +29,7 @@ def test_log() :
     log.setLevel('warning') 
 
     # print messages of all levels: 1,2,4,8,16 for 'debug','info',...
-    log.setPrintBits(0377) 
+    log.setPrintBits(0o377) 
     
     log.debug   ('This is a test message 1', __name__)
     log.info    ('This is a test message 2', __name__)

@@ -26,7 +26,7 @@ from expmon.EMQEventLoop import EMQEventLoop
 
 class EMQThreadEventLoop(QtCore.QThread) :
 
-    def __init__ (self, parent=None, dt_msec=500, pbits=0377) :
+    def __init__ (self, parent=None, dt_msec=500, pbits=0o377) :
         """cp (ConfigParameters) object in the list of parameters 
            allows to re-use EMQThreadEventLoop in other projects
 

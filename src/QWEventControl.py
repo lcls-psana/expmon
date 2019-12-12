@@ -67,7 +67,7 @@ class QWEventControl(Frame) :
         self.set_show_mode(show_mode)
 
 
-    def set_show_mode(self, show_mode=0377):
+    def set_show_mode(self, show_mode=0o377):
         self.show_mode = show_mode
 
         self.lab_evt.setVisible(show_mode & 1)
@@ -269,7 +269,7 @@ if __name__ == "__main__" :
     from expmon.EMConfigParameters import cp
 
     app = QtGui.QApplication(sys.argv)
-    w = QWEventControl(cp, log, parent=None, show_mode=0377)
+    w = QWEventControl(cp, log, parent=None, show_mode=0o377)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
     w.connect_new_event_number_to(w.test_new_event_number_reception)

@@ -72,7 +72,7 @@ class SSQSourceSelector(QtGui.QWidget) :
         #self.w_calib.edi.setMinimumWidth(180)
 
 
-    def set_show_mode(self, show_mode=0377):
+    def set_show_mode(self, show_mode=0o377):
         self.show_mode = show_mode
         self.w_dset.setVisible(self.show_mode & 1)
         self.w_chkl.setVisible(self.show_mode & 2)
@@ -240,7 +240,7 @@ def select_data_sources(fname=None, verb=1, bwlog=0) :
 #------------------------------
 
 if __name__ == "__main__" :
-    lst_srcs = select_data_sources(fname='sourse-selector-confpars-my.txt', verb=0377, bwlog=0377)
+    lst_srcs = select_data_sources(fname='sourse-selector-confpars-my.txt', verb=0o377, bwlog=0o377)
     print('List of selected sources:')
     for s in lst_srcs : print(s)
     sys.exit()

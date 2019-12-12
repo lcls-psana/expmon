@@ -182,7 +182,7 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
 
     #evt0 = ds.events().next()
     try : 
-        evt0 = ds.events().next()
+        evt0 = next(ds.events())
     #except StopIteration, reason:
         #print "ERROR: failed to get next event: ", reason
     except : # StopIteration, reason:
@@ -190,7 +190,7 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
         pseventsupplier.set_dataset(dsn, calib_dir=None)
         ds = pseventsupplier.dataset()
         #ds = psana.DataSource(dsn)
-        evt0 = ds.events().next()
+        evt0 = next(ds.events())
 
     sources = [str(k.src()) for k in evt0.keys()] # DetInfo(CxiDs2.0:Cspad.0)
     srcs_evt = set([s[8:-1] for s in sources if s[:7]=='BldInfo']) # selects CxiDs2.0:Cspad.0
@@ -382,7 +382,7 @@ def test_steps(tname) :
     #ds = psana.DataSource('exp=cxif5315:run=169:idx')
     pseventsupplier.set_dataset('exp=cxif5315:run=169:idx', calib_dir=None)
     ds = pseventsupplier.dataset()
-    run = ds.runs().next()
+    run = next(ds.runs())
     #nsteps = run.nsteps()
     #print 'nsteps = %d' % nsteps
     print('run:', run)
@@ -435,7 +435,7 @@ def get_enviroment(env='USER') :
 
 #------------------------------
 
-def create_directory(dir, mode=0777) :
+def create_directory(dir, mode=0o777) :
     #print 'create_directory: %s' % dir
     if os.path.exists(dir) :
         #logger.info('Directory exists: ' + dir, __name__) 
@@ -448,7 +448,7 @@ def create_directory(dir, mode=0777) :
 
 #------------------------------
 
-def create_path(path, depth=5, mode=0777) : 
+def create_path(path, depth=5, mode=0o777) : 
     # Creates missing path for /reg/g/psdm/logs/calibman/2016/07/2016-07-19-12:20:59-log-dubrovin-562.txt
     # if path to file exists return True, othervise False
     subdirs = path.strip('/').split('/')

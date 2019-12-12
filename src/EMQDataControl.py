@@ -77,7 +77,7 @@ if __name__ == "__main__" :
     from expmon.Logger import log
 
     app = QtGui.QApplication(sys.argv)
-    w = EMQDataControl(cp, log, show_mode=0377)
+    w = EMQDataControl(cp, log, show_mode=0o377)
     #w.event_control().set_show_mode(show_mode=030)
     w.move(QtCore.QPoint(50,50))
     w.setWindowTitle(w._name)

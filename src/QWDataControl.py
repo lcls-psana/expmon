@@ -79,7 +79,7 @@ class QWDataControl(Frame) :
         self.w_calib.connect_path_is_changed_to_recipient(self.on_but_calib)
 
         self.w_src = QWDataSource(cp, log)
-        self.w_evt = QWEventControl(cp, log, show_mode=0377)
+        self.w_evt = QWEventControl(cp, log, show_mode=0o377)
 
         if self.orient=='H' : self.set_layout_hor()
         else                : self.set_layout_ver()
@@ -174,7 +174,7 @@ class QWDataControl(Frame) :
             self.set_exp()
 
 
-    def set_show_mode(self, show_mode=0377):
+    def set_show_mode(self, show_mode=0o377):
         self.show_mode = show_mode
         self.w_calib.setVisible(self.show_mode & 1)
         self.w_src  .setVisible(self.show_mode & 2)
@@ -348,7 +348,7 @@ if __name__ == "__main__" :
     t1.start()
 
     #w = QWDataControl(cp, log, show_mode=0) 
-    w = QWDataControl(cp, log, show_mode=017) 
+    w = QWDataControl(cp, log, show_mode=0o17) 
     #w.event_control().set_show_mode(show_mode=0)
     #w.event_control().set_show_mode(show_mode=010)
     w.move(QtCore.QPoint(50,50))

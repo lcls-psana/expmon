@@ -84,7 +84,7 @@ class PSEventSupplier :
         #print 'XXX: open DataSource in PSEventSupplier._set_dataset_idx  %s' % dsname
         self.ds = DataSource(dsname)
         self.dsname = dsname
-        self._run = self.ds.runs().next()
+        self._run = next(self.ds.runs())
         self.dic_evtimes = dict(enumerate(self._run.times()))
 
 
@@ -158,7 +158,7 @@ class PSEventSupplier :
             self._evnum += 1
 
             try :
-               evt = self.events.next()
+               evt = next(self.events)
             except :                
                print('XXX WARNING: PSEventSupplier.event_next returns evt=None')
                return None

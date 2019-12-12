@@ -30,7 +30,7 @@ if True :
   print('Test evt = ds.events().next()')
   t0_sec = tt_sec = time()
   for n in range(nevmax) :
-    evt = events.next()
+    evt = next(events)
     if not n%nevbuf :
       print('evt %6d   dt(sec/evt) = %.6f'%\
             (n, (time()-t0_sec)/nevbuf))

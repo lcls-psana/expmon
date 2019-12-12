@@ -14,8 +14,8 @@ dsname, src = 'exp=xpptut15:run=390', 'AmoETOF.0:Acqiris.0'
 print('Example for\n  dataset: %s\n  source : %s' % (dsname, src))
 
 ds  = psana.DataSource(dsname)
-evt1= ds.events().next()
-evt = ds.events().next()
+evt1= next(ds.events())
+evt = next(ds.events())
 env = ds.env()
 nrun = evt.run()
 

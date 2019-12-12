@@ -108,7 +108,7 @@ def create_output_directory(prefix) :
     if dirname in ('', './', None) : return
     from CalibManager.GlobalUtils import create_directory # , create_path, 
     #create_path(dirname, depth=2, mode=0775)
-    create_directory(dirname, mode=0775)
+    create_directory(dirname, mode=0o775)
 
 #------------------------------
 
@@ -126,7 +126,7 @@ class HexDataIOExt(HexDataIO) :
         if ds is None :
             DIO.open_input_data(self.DSNAME, **kwargs)
         else :
-            DIO.use_psana_dataset(ds, pbits=0377 if self.VERBOSE else 0)
+            DIO.use_psana_dataset(ds, pbits=0o377 if self.VERBOSE else 0)
     
         self._init_calib_and_sorter()
 
