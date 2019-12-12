@@ -4,6 +4,7 @@
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -205,7 +206,7 @@ class QWEventControl(Frame) :
 
 
     def test_new_event_number_reception(self, evnum) :
-        print '%s.test_new_event_number_reception: %d' % (self._name, evnum)
+        print('%s.test_new_event_number_reception: %d' % (self._name, evnum))
 
 
     def on_timeout(self) :
@@ -240,7 +241,7 @@ class QWEventControl(Frame) :
 
 
     def test_start_button_reception(self) :
-        print '%s.test_start_button_reception' % (self._name)
+        print('%s.test_start_button_reception' % (self._name))
 
 
     def connect_stop_button_to(self, recip) :
@@ -252,7 +253,7 @@ class QWEventControl(Frame) :
 
 
     def test_stop_button_reception(self) :
-        print '%s.test_stop_button_reception' % (self._name)
+        print('%s.test_stop_button_reception' % (self._name))
 
 #------------------------------
 #------------------------------

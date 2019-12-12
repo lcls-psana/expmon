@@ -9,6 +9,7 @@ Usege ::
     from expmon.EMQUtils import point_relative_window
 
 """
+from __future__ import print_function
 #------------------------------
 
 from CalibManager.GUIPopupSelectExp import select_experiment_v3 as popup_select_experiment
@@ -20,7 +21,7 @@ def test_popup_select_experiment() :
     import expmon.EMUtils as emu
     lexps = emu.list_of_experiments()
     selexp = popup_select_experiment(None, lexps)
-    print 'Selected experiment: %s' % selexp
+    print('Selected experiment: %s' % selexp)
 
 
 def point_relative_window(win, dp=QtCore.QPoint(0,0)) :
@@ -43,7 +44,7 @@ def test_all(tname) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     test_all(tname)
     sys.exit('End of Test %s' % tname)
 

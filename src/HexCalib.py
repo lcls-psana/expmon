@@ -5,6 +5,7 @@ Module :py:class:`HexCalib` a set of generic methods for hexanode project
 
 Created on 2017-12-08 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 def usage(): return 'Use command: python hexanode/examples/ex-09-sort-graph-data.py'
 #------------------------------
@@ -137,7 +138,7 @@ sp = Store()
 
 def create_output_directory(prefix) :
     dirname = os.path.dirname(prefix)
-    print 'Output directory: "%s"' % dirname
+    print('Output directory: "%s"' % dirname)
     if dirname in ('', './', None) : return
     from CalibManager.GlobalUtils import create_directory # , create_path, 
     #create_path(dirname, depth=2, mode=0775)
@@ -503,8 +504,8 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         npa_biny = np.array(sp.lst_biny)
         max_binx = npa_binx.max()
         max_biny = npa_biny.max()
-        print 'binx.min/max: %d %d' % (npa_binx.min(), max_binx)
-        print 'biny.min/max: %d %d' % (npa_biny.min(), max_biny)
+        print('binx.min/max: %d %d' % (npa_binx.min(), max_binx))
+        print('biny.min/max: %d %d' % (npa_biny.min(), max_biny))
         max_bins = max(max_binx, max_biny) + 1
         
         sp.img_xy_res = np.zeros((max_bins, max_bins), dtype=np.float64)
@@ -523,7 +524,7 @@ def calib_on_data(**kwargs) :
     CTYPE_HEX_CONFIG = 'hex_config'
     CTYPE_HEX_TABLE  = 'hex_table'
 
-    print usage()
+    print(usage())
 
     COMMAND      = kwargs.get('command', 0)
     SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
@@ -538,8 +539,8 @@ def calib_on_data(**kwargs) :
     PLOT_HIS     = kwargs.get('plot_his', True)
     VERBOSE      = kwargs.get('verbose', False)
 
-    print 'Input parameters:'
-    for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
+    print('Input parameters:')
+    for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
 
     sp.set_parameters(**kwargs) # save parameters in store for graphics
 
@@ -557,18 +558,18 @@ def calib_on_data(**kwargs) :
 
     #=====================
 
-    print 'DIO experiment : %s' % DIO.experiment()
-    print 'DIO run        : %s' % DIO.run()
-    print 'DIO start time : %s' % DIO.start_time()
-    print 'DIO stop time  : %s' % DIO.stop_time()
-    print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
+    print('DIO experiment : %s' % DIO.experiment())
+    print('DIO run        : %s' % DIO.run())
+    print('DIO start time : %s' % DIO.start_time())
+    print('DIO stop time  : %s' % DIO.stop_time())
+    print('DIO tdc_resolution : %.3f' % DIO.tdc_resolution())
 
-    print 'DIO calib_dir   : %s' % DIO.calib_dir()
-    print 'DIO calib_src   : %s' % DIO.calib_src()
-    print 'DIO calib_group : %s' % DIO.calib_group()
-    print 'DIO ctype_dir   : %s' % DIO.calibtype_dir()
-    print 'DIO find_calib_file config: %s' % CALIBCFG
-    print 'DIO find_calib_file  table: %s' % CALIBTAB
+    print('DIO calib_dir   : %s' % DIO.calib_dir())
+    print('DIO calib_src   : %s' % DIO.calib_src())
+    print('DIO calib_group : %s' % DIO.calib_group())
+    print('DIO ctype_dir   : %s' % DIO.calibtype_dir())
+    print('DIO find_calib_file config: %s' % CALIBCFG)
+    print('DIO find_calib_file  table: %s' % CALIBTAB)
 
     #=====================
     #sys.exit('TEST EXIT')
@@ -591,22 +592,22 @@ def calib_on_data(**kwargs) :
         hexanode.py_read_config_file(CALIBCFG, sorter)
     command = COMMAND # command_cfg
 
-    print 'read_config_file status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=',\
-                            status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y
+    print('read_config_file status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=',\
+                            status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y)
 
     if not status :
-        print "WARNING: can't read config file %s" % fname_cfg
+        print("WARNING: can't read config file %s" % fname_cfg)
         del sorter
         sys.exit(0)
 
-    print 'use_sum_correction', sorter.use_sum_correction
-    print 'use_pos_correction', sorter.use_pos_correction
+    print('use_sum_correction', sorter.use_sum_correction)
+    print('use_pos_correction', sorter.use_pos_correction)
     if sorter is not None :
         if sorter.use_sum_correction or sorter.use_pos_correction :
             status = hexanode.py_read_calibration_tables(CALIBTAB, sorter)
 
     if command == -1 :
-   	print "no config file was read. Nothing to do."
+   	print("no config file was read. Nothing to do.")
         if sorter is not None : del sorter
         sys.exit(0)
 
@@ -617,8 +618,8 @@ def calib_on_data(**kwargs) :
     Cw1  = sorter.cw1 
     Cw2  = sorter.cw2 
     Cmcp = sorter.cmcp
-    print "Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
-          (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp)
+    print("Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
+          (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp))
 
     inds_of_channels    = (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2)
     incr_of_consistence = (  1,   2,   4,   8,  16,  32)
@@ -628,7 +629,7 @@ def calib_on_data(**kwargs) :
     #=====================
     #=====================
 
-    print "init sorter... "
+    print("init sorter... ")
 
     #sorter.set_tdc_resolution_ns(0.025)
     sorter.set_tdc_resolution_ns(DIO.tdc_resolution())
@@ -648,19 +649,19 @@ def calib_on_data(**kwargs) :
 
     error_code = sorter.init_after_setting_parameters()
     if error_code :
-   	print "sorter could not be initialized\n"
+   	print("sorter could not be initialized\n")
         error_text = sorter.get_error_text(error_code, 512)
-        print 'Error %d: %s' % (error_code, error_text)
+        print('Error %d: %s' % (error_code, error_text))
         sys.exit(0)
 
-    print "Calibration factors:\n  f_U (mm/ns) =%f\n  f_V (mm/ns) =%f\n  f_W (mm/ns) =%f\n  Offset on layer W (ns) =%f\n"%\
-          (2*sorter.fu, 2*sorter.fv, 2*sorter.fw, w_offset)
+    print("Calibration factors:\n  f_U (mm/ns) =%f\n  f_V (mm/ns) =%f\n  f_W (mm/ns) =%f\n  Offset on layer W (ns) =%f\n"%\
+          (2*sorter.fu, 2*sorter.fv, 2*sorter.fw, w_offset))
 
-    print "ok for sorter initialization\n"
+    print("ok for sorter initialization\n")
 
     create_output_directory(OFPREFIX)
 
-    print "reading event data... \n"
+    print("reading event data... \n")
 
     evnum = 0
     t_sec = time()
@@ -675,7 +676,7 @@ def calib_on_data(**kwargs) :
 
         if do_print(evnum) :
             t1 = time()
-            print 'Event: %06d, dt(sec): %.3f' % (evnum, t1 - t1_sec)
+            print('Event: %06d, dt(sec): %.3f' % (evnum, t1 - t1_sec))
             t1_sec = t1
 
 #   	//if (event_counter%10000 == 0) {if (my_kbhit()) break;}
@@ -689,18 +690,18 @@ def calib_on_data(**kwargs) :
         DIO.get_number_of_hits_array(number_of_hits)
         if DIO.error_flag() :
             error_text = DIO.get_error_text(DIO.error_flag())
-            print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
+            print("DIO Error %d: %s" % (DIO.error_flag(), error_text))
             sys.exit(0)
-        if VERBOSE : print '   number_of_hits_array', number_of_hits[:8]
+        if VERBOSE : print('   number_of_hits_array', number_of_hits[:8])
 
         DIO.get_tdc_data_array(tdc_ns)
 
         if DIO.error_flag() :
             error_text = DIO.get_error_text(DIO.error_flag())
-            print "DIO Error %d: %s" % (DIO.error_flag(), error_text)
+            print("DIO Error %d: %s" % (DIO.error_flag(), error_text))
             sys.exit(0)
 
-        if VERBOSE : print '   TDC data:\n', tdc_ns[0:8,0:5]
+        if VERBOSE : print('   TDC data:\n', tdc_ns[0:8,0:5])
 
 #   	// apply conversion to ns
         if False : # DIO returns tdc_ns already in [ns]
@@ -782,7 +783,7 @@ def calib_on_data(**kwargs) :
         # break loop if statistics is enough
         if sfco :
             if sfco.map_is_full_enough() : 
-                 print 'sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum)
+                 print('sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum))
                  break
 
         if sp.PLOT_XY_RESOLUTION :
@@ -801,12 +802,12 @@ def calib_on_data(**kwargs) :
                               sorter.run_without_sorting()
 
    	if False :
-   	    print "  Event %5i  number_of_particles: %i" % (evnum, number_of_particles)
+   	    print("  Event %5i  number_of_particles: %i" % (evnum, number_of_particles))
    	    for i in range(number_of_particles) :
                 hco= hexanode.py_hit_class(sorter, i)
-   	        print "    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)
+   	        print("    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method))
 
-   	    print "    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w)
+   	    print("    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w))
 
 
 #       // TODO by end user..."
@@ -897,29 +898,29 @@ def calib_on_data(**kwargs) :
 #   end of the while loop
 
     if command == 2 :
-        print "calibrating detector... "
+        print("calibrating detector... ")
         sorter.do_calibration()
-        print "ok - after do_calibration"
+        print("ok - after do_calibration")
         sfco = hexanode.py_scalefactors_calibration_class(sorter)
         if sfco :
 
 
-            print "Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
-                  (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset)
+            print("Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
+                  (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset))
 
-            print 'CALIBRATION: These parameters and time sum offsets from histograms should be set in the file\n  %s' % CALIBCFG
+            print('CALIBRATION: These parameters and time sum offsets from histograms should be set in the file\n  %s' % CALIBCFG)
 
     if command == 3 : # generate and print correction tables for sum- and position-correction
-        print "creating calibration tables..."
+        print("creating calibration tables...")
 
         CALIBTAB = calibtab if calibtab is not None else\
                    DIO.make_calib_file_path(type=CTYPE_HEX_TABLE)
         status = hexanode.py_create_calibration_tables(CALIBTAB, sorter)
 
-        print "CALIBRATION: finished creating calibration tables: %s status %s" % (CALIBTAB, status)
+        print("CALIBRATION: finished creating calibration tables: %s status %s" % (CALIBTAB, status))
 
 
-    print "consumed time (sec) = %.6f\n" % (time() - t_sec)
+    print("consumed time (sec) = %.6f\n" % (time() - t_sec))
 
     if sorter is not None : del sorter
 
@@ -930,9 +931,9 @@ def calib_on_data(**kwargs) :
 #------------------------------
 
 if __name__ == "__main__" :
-    print 50*'_'
-    print 'See example in hexanode/examples/ex-09-sort-graph-data.py'\
-          '\nand application expmon/app/hex_calib'
+    print(50*'_')
+    print('See example in hexanode/examples/ex-09-sort-graph-data.py'\
+          '\nand application expmon/app/hex_calib')
 
     #kwargs = {'events':1500,}
     #calib_on_data(**kwargs)

@@ -8,6 +8,7 @@ Conclusion: speed is the same, <~1kHz on psanaphi102
 Created: 2017-05-18
 Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 from psana import DataSource, EventId, EventTime, setOption
@@ -26,27 +27,27 @@ t0_sec = time()
 #------------------------------
 
 if True :
-  print 'Test evt = ds.events().next()'
+  print('Test evt = ds.events().next()')
   t0_sec = tt_sec = time()
   for n in range(nevmax) :
     evt = events.next()
     if not n%nevbuf :
-      print 'evt %6d   dt(sec/evt) = %.6f'%\
-            (n, (time()-t0_sec)/nevbuf)
+      print('evt %6d   dt(sec/evt) = %.6f'%\
+            (n, (time()-t0_sec)/nevbuf))
       t0_sec = time()
-  print 'Processed %d events, consumed time (sec) = %.6f'% (nevmax, time()-tt_sec)
+  print('Processed %d events, consumed time (sec) = %.6f'% (nevmax, time()-tt_sec))
 
 #------------------------------
 
 if True :
-  print 'Test  evt in ds.events()'
+  print('Test  evt in ds.events()')
   t0_sec = tt_sec = time()
   for n, evt in enumerate(events) :
     if n > nevmax : break
     if not n%nevbuf : 
-      print 'evt %6d   dt(sec/evt) = %.6f'%\
-            (n, (time()-t0_sec)/nevbuf)
+      print('evt %6d   dt(sec/evt) = %.6f'%\
+            (n, (time()-t0_sec)/nevbuf))
       t0_sec = time()
-  print 'Processed %d events, consumed time (sec) = %.6f'% (nevmax, time()-tt_sec)
+  print('Processed %d events, consumed time (sec) = %.6f'% (nevmax, time()-tt_sec))
 
 #------------------------------

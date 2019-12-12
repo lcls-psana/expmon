@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #------------------------------
 
+from __future__ import print_function
 import sys
 import psana
 import numpy as np
@@ -14,7 +15,7 @@ dsname = 'exp=xpptut15:run=280'
 src1 = 'AmoEndstation.0:Acqiris.1' # 'ACQ1'
 src2 = 'AmoEndstation.0:Acqiris.2' # 'ACQ2'
 
-print 'Example for\n  dataset: %s\n  source1 : %s\n  source2 : %s' % (dsname, src1, src2)
+print('Example for\n  dataset: %s\n  source1 : %s\n  source2 : %s' % (dsname, src1, src2))
 
 #opts = {'psana.calib-dir':'./calib',}
 #psana.setOptions(opts)
@@ -56,13 +57,13 @@ wf,wt = None, None
 
 for i,evt in enumerate(ds.events()) :
     if i>10 : break
-    print 50*'_', '\n Event # %d' % i
+    print(50*'_', '\n Event # %d' % i)
     gr.set_win_title(fig, titwin='Event: %d' % i)
 
-    print 'Acqiris.1:'
+    print('Acqiris.1:')
     wf,wt = det1.raw(evt)
 
-    print 'Acqiris.2:'
+    print('Acqiris.2:')
     wf2,wt2 = det2.raw(evt)
     #gu.print_ndarr(wf, 'acqiris waveform')
     #gu.print_ndarr(wt, 'acqiris wavetime')

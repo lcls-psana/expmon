@@ -23,15 +23,16 @@ References:
 
 Created on 2017-12-08 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 # import os
 # import sys
 #------------------------------
 
 def print_kwargs(d) :
-    print '%s\n  kwargs:' % (40*'_')
-    for k,v in d.iteritems() : print '  %10s : %10s' % (k,v)
-    print 40*'_'
+    print('%s\n  kwargs:' % (40*'_'))
+    for k,v in d.iteritems() : print('  %10s : %10s' % (k,v))
+    print(40*'_')
 
 #------------------------------
 

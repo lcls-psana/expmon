@@ -7,6 +7,7 @@ Usage:      python expmon/examples/ex-hex-data-proc-2.py
 or:
 mpirun -n 2 python expmon/examples/ex-hex-data-proc-2.py
 """
+from __future__ import print_function
 #----------------------------------------------------------    
 
 from expmon.HexDataIOExt import HexDataIOExt
@@ -50,6 +51,6 @@ def test_HexDataIOExt() :
 if __name__ == "__main__" :
     import sys
     test_HexDataIOExt()
-    print 'End of %s' % sys.argv[0].split('/')[-1]
+    print('End of %s' % sys.argv[0].split('/')[-1])
 
 #------------------------------

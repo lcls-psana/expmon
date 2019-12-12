@@ -4,6 +4,7 @@
    Created: 2017-02-18
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -55,7 +56,7 @@ class PSQThreadWorker(QtCore.QThread) :
     def run(self) :
         while True :
             self.counter += 1
-            if self.pbits & 2 : print '%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id)
+            if self.pbits & 2 : print('%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id))
             self.check_flags()
             #self.emit_check_status_signal()
             self.msleep(self.dt_msec)
@@ -72,7 +73,7 @@ class PSQThreadWorker(QtCore.QThread) :
         msg = 'from work thread ' + str(self.thread_id) + '  check counter: ' + str(self.counter)
         self.emit(QtCore.SIGNAL('update(QString)'), msg)
 
-        if self.pbits & 1 : print msg
+        if self.pbits & 1 : print(msg)
 
         #self.emit(QtCore.SIGNAL('update(QString)'), \
         #          'from work thread ' + str(self.thread_id) +\
@@ -81,11 +82,11 @@ class PSQThreadWorker(QtCore.QThread) :
 
 
     def connect_signal_to_slot(self, slot) :
-        print '%s.connect_signal_to_slot'%(self._name)
+        print('%s.connect_signal_to_slot'%(self._name))
         self.connect(self, QtCore.SIGNAL('update(QString)'), slot)
 
 
     def test_connection(self, text) :
-        print '%s: Signal is recieved: %s'%(self._name, text)
+        print('%s: Signal is recieved: %s'%(self._name, text))
 
 #------------------------------

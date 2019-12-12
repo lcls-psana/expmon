@@ -8,6 +8,7 @@ Usage ::
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -90,55 +91,55 @@ def src_type_alias_from_cfg_key(key) :
 #------------------------------
 
 def test_list_of_files_in_dir() :
-    print '%s:' % sys._getframe().f_code.co_name
+    print('%s:' % sys._getframe().f_code.co_name)
     lfiles = list_of_files_in_dir('/reg/d/psdm/sxr/sxrtut13/xtc/')
-    for fname in lfiles : print fname
+    for fname in lfiles : print(fname)
 
 #------------------------------
 
 def test_list_of_files_in_dir_for_pattern() :
-    print '%s:' % sys._getframe().f_code.co_name
+    print('%s:' % sys._getframe().f_code.co_name)
     lfiles = list_of_files_in_dir_for_pattern('/reg/d/psdm/cxi/cxitut13/xtc/', pattern='-r0011')
-    for fname in lfiles : print fname
+    for fname in lfiles : print(fname)
 
 #------------------------------
 
 def test_list_of_files_in_dir_for_ext() :
-    print '%s:' % sys._getframe().f_code.co_name
+    print('%s:' % sys._getframe().f_code.co_name)
     lfiles = list_of_files_in_dir_for_ext('/reg/d/psdm/sxr/sxrtut13/xtc/', ext='.xtc')
-    for fname in lfiles : print fname
+    for fname in lfiles : print(fname)
 
 #------------------------------
 
 def test_list_of_str_from_list_of_int() :
-    print '%s:' % sys._getframe().f_code.co_name
-    print list_of_str_from_list_of_int([1, 202, 203, 204], fmt='%04d')
+    print('%s:' % sys._getframe().f_code.co_name)
+    print(list_of_str_from_list_of_int([1, 202, 203, 204], fmt='%04d'))
 
 #------------------------------
 
 def test_list_of_int_from_list_of_str() :
-    print '%s:' % sys._getframe().f_code.co_name
-    print list_of_int_from_list_of_str(['0001', '0202', '0203', '0204'])
+    print('%s:' % sys._getframe().f_code.co_name)
+    print(list_of_int_from_list_of_str(['0001', '0202', '0203', '0204']))
 
 #------------------------------
 
 def test_list_of_experiments(tname) :
-    print '%s:' % sys._getframe().f_code.co_name
+    print('%s:' % sys._getframe().f_code.co_name)
     lexps = []
     if   tname == '0': lexps = list_of_experiments() # uses config parameters
     elif tname == '1': lexps = list_of_experiments('/reg/d/psdm/XPP')
     else : return
 
-    print 'list_of_experiments():'
+    print('list_of_experiments():')
     for i,e in enumerate(lexps) :
-        print e,
-        if not (i+1)%10 : print ''
+        print(e, end=' ')
+        if not (i+1)%10 : print('')
 
 #------------------------------
 
 def test_list_of_runs_in_xtc_dir() :
-    print '%s:' % sys._getframe().f_code.co_name
-    print list_of_runs_in_xtc_dir()
+    print('%s:' % sys._getframe().f_code.co_name)
+    print(list_of_runs_in_xtc_dir())
 
 #------------------------------
 
@@ -163,7 +164,7 @@ def test_all(tname) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     test_all(tname)
     sys.exit('End of Test %s' % tname)
 

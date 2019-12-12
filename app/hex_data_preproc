@@ -1,5 +1,6 @@
 #!@PYTHON@
 #------------------------------
+from __future__ import print_function
 
 import os
 import sys
@@ -24,9 +25,9 @@ def hex_data_preproc() :
 
     if len(sys.argv) == 1 : 
         parser.print_help()
-	print 80*'_'
+	print(80*'_')
         parser.print_usage()
-	print 80*'_'
+	print(80*'_')
         msg = 'WARNING: ALL DEFAULT PARAMETERS ARE USELESS...'
 	#print msg
 	sys.exit(msg)

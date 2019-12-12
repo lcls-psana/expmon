@@ -8,6 +8,7 @@ Usage ::
     from expmon.EMQEventLoop import EMQEventLoop
     el = EMQEventLoop()
 """
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -27,7 +28,7 @@ class EMQEventLoop(QtCore.QObject) :
     def __init__(self, parent=None) :
         QtCore.QObject.__init__(self, parent)
         self._name = self.__class__.__name__
-        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if cp.popts.verbos : print('%s.%s' % (self._name, sys._getframe().f_code.co_name))
         self.dsname = None
         self.init_event_loop()
         #self.start_event_loop()
@@ -70,32 +71,32 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def print_pars(self) :
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
-        print 'dsname: %s' % self.dsname
-        print 'number_of_tabs: %d' % self.number_of_tabs
-        print 'number_of_det_pars: %d' % self.number_of_det_pars
+        print('%s.%s' % (self._name, sys._getframe().f_code.co_name))
+        print('dsname: %s' % self.dsname)
+        print('number_of_tabs: %d' % self.number_of_tabs)
+        print('number_of_det_pars: %d' % self.number_of_det_pars)
 
         for it in range(cp.number_of_tabs) :
             p_src1 = self.lst_src1[it]
             p_src2 = self.lst_src2[it]
-            print 'tab:%d  src1: %s  src2: %s' % (it, p_src1.value().ljust(32), p_src2.value().ljust(32))
+            print('tab:%d  src1: %s  src2: %s' % (it, p_src1.value().ljust(32), p_src2.value().ljust(32)))
         return
 
         for it in range(cp.number_of_tabs) :
             for ip in range(cp.number_of_det_pars) :
                 p = self.pars_det1[ip][it]
-                print '%30s  %s' % (p.name(), str(p.value()))
+                print('%30s  %s' % (p.name(), str(p.value())))
 
 #------------------------------
 
     def start_event_loop(self) :
-        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if cp.popts.verbos : print('%s.%s' % (self._name, sys._getframe().f_code.co_name))
         self.init_event_loop() 
 
         self.evcntr = 0
 
         if self.dsname is None : 
-            print 'WARNING %s.start_event_loop dataset name "%s" IS NOT DEFINED' % (self._name, self.dsname)
+            print('WARNING %s.start_event_loop dataset name "%s" IS NOT DEFINED' % (self._name, self.dsname))
             #cp.guimain.emqdatacontrol.event_control().on_but_ctl()
             self.stop_event_loop()
             return
@@ -105,7 +106,7 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def stop_event_loop(self) :
-        if cp.popts.verbos : print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        if cp.popts.verbos : print('%s.%s' % (self._name, sys._getframe().f_code.co_name))
         cp.flag_do_event_loop = False
 
 #------------------------------
@@ -127,11 +128,11 @@ class EMQEventLoop(QtCore.QObject) :
             if self.evcntr < 5\
             or self.evcntr < 50 and not (self.evnum%10)\
             or not (self.evnum%100):\
-                print 'XXX: %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum)
+                print('XXX: %s.%s evnum: %d' % (self._name, sys._getframe().f_code.co_name, self.evnum))
 
             if self.evt is None :
-                print 'XXX: %s.%s - evt is None, current evnum: %d'%\
-                      (self._name, sys._getframe().f_code.co_name, self.evnum)
+                print('XXX: %s.%s - evt is None, current evnum: %d'%\
+                      (self._name, sys._getframe().f_code.co_name, self.evnum))
                 count_evt_none +=1 
                 if count_evt_none > 10 : 
                     self.stop_event_loop()
@@ -164,7 +165,7 @@ class EMQEventLoop(QtCore.QObject) :
     def test_events_collected(self) :
         msg = '%s.%s - evnum %d   dt(sec/evt) = %.6f'%\
               (self._name, sys._getframe().f_code.co_name, self.evnum, (time()-self.t0_sec)/self.nevents_update)
-        print msg
+        print(msg)
         self.t0_sec = time()
 
 #------------------------------
@@ -186,7 +187,7 @@ class EMQEventLoop(QtCore.QObject) :
 #------------------------------
 
     def __del__(self) :
-        print '%s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print('%s.%s' % (self._name, sys._getframe().f_code.co_name))
 
 #------------------------------
 #------------------------------

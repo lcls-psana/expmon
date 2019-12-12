@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import psana
 import numpy as np
@@ -13,7 +14,7 @@ import pyimgalgos.GlobalGraphics as gg
 
 dsname, src = 'exp=xpptut15:run=280', 'AmoEndstation.0:Acqiris.1' # 'ACQ1' 'ACQ2'
 
-print 'Example for\n  dataset: %s\n  source : %s' % (dsname, src)
+print('Example for\n  dataset: %s\n  source : %s' % (dsname, src))
 
 #opts = {'psana.calib-dir':'./calib',}
 #psana.setOptions(opts)
@@ -26,20 +27,20 @@ evt = ds.events().next()
 env = ds.env()
 nrun = evt.run()
 
-for key in evt.keys() : print key
+for key in evt.keys() : print(key)
 
 det = WFDetector(src, env, pbits=1022)
 ins = det.instrument()
-print 80*'_', '\nInstrument: ', ins
+print(80*'_', '\nInstrument: ', ins)
 
 det.print_attributes()
 
 ##-----------------------------
 
 def print_ndarr(nda, name='', first=0, last=5) :
-    if nda is None : print '%s\n%s: %s' % (80*'_', name, nda)
-    else           : print '%s\n%s: \n%s...\n shape:%s  size:%d  dtype:%s' % \
-         (80*'_', name, nda.flatten()[first:last], str(nda.shape), nda.size, nda.dtype)
+    if nda is None : print('%s\n%s: %s' % (80*'_', name, nda))
+    else           : print('%s\n%s: \n%s...\n shape:%s  size:%d  dtype:%s' % \
+         (80*'_', name, nda.flatten()[first:last], str(nda.shape), nda.size, nda.dtype))
 
 ##-----------------------------
 

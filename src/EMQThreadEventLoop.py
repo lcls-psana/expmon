@@ -10,6 +10,7 @@ Usage ::
     o.run()          # keeps thread alive, calls _check_flags and sleeps
     o.update_dataset() # should be callsed if dataset is changed, deletes EMQEventLoop object
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -54,7 +55,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
 #------------------------------
 
     def __del__(self) :
-        print 'XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name)
+        print('XXX In %s.%s' % (self._name, sys._getframe().f_code.co_name))
         #log.debug('%s'%sys._getframe().f_code.co_name, self._name)
         #self.timer.stop()
         self.do_check_flags = False
@@ -105,7 +106,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
 
         if self.pbits & 1 : 
             msg = 'In %s.%s' % (self._name, sys._getframe().f_code.co_name)
-            print '%s  flag_do_event_loop: %s' % (msg, cp.flag_do_event_loop)
+            print('%s  flag_do_event_loop: %s' % (msg, cp.flag_do_event_loop))
 
         if  cp.flag_do_event_loop :
             #if self.emqeventloop is None : self.emqeventloop = EMQEventLoop()
@@ -118,7 +119,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
         """
         while self.do_check_flags :
             self.counter += 1
-            if self.pbits & 2 : print '%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id)
+            if self.pbits & 2 : print('%s  i:%4d  id:%f' % (self._name, self.counter, self.thread_id))
             self._check_flags()
             self.msleep(self.dt_msec)
             #self.emit_check_status_signal()
@@ -128,7 +129,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
     def emit_check_status_signal(self) :
         msg = 'from work thread ' + str(self.thread_id) + '  check counter: ' + str(self.counter)
         self.emit(QtCore.SIGNAL('update(QString)'), msg)
-        if self.pbits & 1 : print msg
+        if self.pbits & 1 : print(msg)
         #self.emit(QtCore.SIGNAL('update(QString)'), \
         #          'from work thread ' + str(self.thread_id) +\
         #          '  check counter: ' + str(self.counter))
@@ -137,12 +138,12 @@ class EMQThreadEventLoop(QtCore.QThread) :
 #------------------------------
 
     def connect_signal_to_slot(self, slot) :
-        print '%s.connect_signal_to_slot'%(self._name)
+        print('%s.connect_signal_to_slot'%(self._name))
         self.connect(self, QtCore.SIGNAL('update(QString)'), slot)
 
 #------------------------------
 
     def test_connection(self, text) :
-        print '%s: Signal is recieved: %s'%(self._name, text)
+        print('%s: Signal is recieved: %s'%(self._name, text))
 
 #------------------------------

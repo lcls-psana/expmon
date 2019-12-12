@@ -1,3 +1,4 @@
+from __future__ import print_function
 from psana import DataSource, Detector 
 from pypsalg import find_edges
 
@@ -12,7 +13,7 @@ for nevent,evt in enumerate(ds.events()):
     # parameters: baseline, threshold, fraction, deadtime, leading_edges
     edges = find_edges(waveforms[0],0.0,-0.05,1.0,5.0,True)
     # pairs of (amplitude,sampleNumber)
-    print edges
+    print(edges)
     break
 
 import matplotlib.pyplot as plt

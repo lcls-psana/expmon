@@ -4,6 +4,7 @@
    Created: 2017-05-26
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 from expmon.Logger import log
@@ -48,7 +49,7 @@ class EMQViewGraph(GUViewGraph) :
 
 
     def test_view_is_closed_for_imon(self, imon) :
-        print 'XXX %s.test_view_is_closed_for_imon imon=%d' % (self._name, imon)
+        print('XXX %s.test_view_is_closed_for_imon imon=%d' % (self._name, imon))
 
 #------------------------------
 

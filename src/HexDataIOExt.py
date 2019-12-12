@@ -88,6 +88,7 @@ Usage ::
 
 Created on 2017-12-14 by Mikhail Dubrovin.
 """
+from __future__ import print_function
 #------------------------------
 
 import os
@@ -103,7 +104,7 @@ OSQRT3 = 1./sqrt(3.)
 
 def create_output_directory(prefix) :
     dirname = os.path.dirname(prefix)
-    print 'Output directory: "%s"' % dirname
+    print('Output directory: "%s"' % dirname)
     if dirname in ('', './', None) : return
     from CalibManager.GlobalUtils import create_directory # , create_path, 
     #create_path(dirname, depth=2, mode=0775)
@@ -117,7 +118,7 @@ class HexDataIOExt(HexDataIO) :
         """See kwargs description in expmon.HexDataIO
         """
         self._name = self.__class__.__name__
-        print 'In %s.__init__' % self._name
+        print('In %s.__init__' % self._name)
 
         HexDataIO.__init__(self, **kwargs)
 
@@ -151,8 +152,8 @@ class HexDataIOExt(HexDataIO) :
         self.VERBOSE      = kwargs.get('verbose', False)
         self.calibtab     = kwargs.get('calibtab', None)
     
-        print '%s: Input parameters:' % self._name
-        for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
+        print('%s: Input parameters:' % self._name)
+        for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
 
         self.CTYPE_HEX_CONFIG = 'hex_config'
         self.CTYPE_HEX_TABLE  = 'hex_table'
@@ -161,7 +162,7 @@ class HexDataIOExt(HexDataIO) :
 
     
     def _init_calib_and_sorter(self) :
-        print 'In %s._init_calib_and_sorter' % self._name
+        print('In %s._init_calib_and_sorter' % self._name)
     
         DIO = self
 
@@ -173,18 +174,18 @@ class HexDataIOExt(HexDataIO) :
 
         #=====================
     
-        print 'DIO experiment : %s' % DIO.experiment()
-        print 'DIO run        : %s' % DIO.run()
-        print 'DIO start time : %s' % DIO.start_time()
-        print 'DIO stop time  : %s' % DIO.stop_time()
-        print 'DIO tdc_resolution : %.3f' % DIO.tdc_resolution()
+        print('DIO experiment : %s' % DIO.experiment())
+        print('DIO run        : %s' % DIO.run())
+        print('DIO start time : %s' % DIO.start_time())
+        print('DIO stop time  : %s' % DIO.stop_time())
+        print('DIO tdc_resolution : %.3f' % DIO.tdc_resolution())
     
-        print 'DIO calib_dir   : %s' % DIO.calib_dir()
-        print 'DIO calib_src   : %s' % DIO.calib_src()
-        print 'DIO calib_group : %s' % DIO.calib_group()
-        print 'DIO ctype_dir   : %s' % DIO.calibtype_dir()
-        print 'DIO find_calib_file config: %s' % self.CALIBCFG
-        print 'DIO find_calib_file  table: %s' % self.CALIBTAB
+        print('DIO calib_dir   : %s' % DIO.calib_dir())
+        print('DIO calib_src   : %s' % DIO.calib_src())
+        print('DIO calib_group : %s' % DIO.calib_group())
+        print('DIO ctype_dir   : %s' % DIO.calibtype_dir())
+        print('DIO find_calib_file config: %s' % self.CALIBCFG)
+        print('DIO find_calib_file  table: %s' % self.CALIBTAB)
     
         #=====================
 
@@ -200,9 +201,9 @@ class HexDataIOExt(HexDataIO) :
         status, command_cfg, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y=\
             hexanode.py_read_config_file(self.CALIBCFG, sorter)
         command = self.COMMAND # command_cfg
-        print '%s: read_config_file' % self._name
-        print 'status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y:\n',\
-               status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y
+        print('%s: read_config_file' % self._name)
+        print('status, COMMAND, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y:\n',\
+               status, command, offset_sum_u, offset_sum_v, offset_sum_w, w_offset, pos_offset_x, pos_offset_y)
 
         # The "command"-value is set in the first line of "sorter.txt" then substituted from input parameter.
         # 0 = only convert to new file format
@@ -211,19 +212,19 @@ class HexDataIOExt(HexDataIO) :
         # 3 = create calibration table files
      
         if not status :
-            print "%s: WARNING: can't read config file %s" % (self._name, fname_cfg)
+            print("%s: WARNING: can't read config file %s" % (self._name, fname_cfg))
             sys.exit(0)
 
         #=====================
     
-        print '%s: use_sum_correction %s' % (self._name, sorter.use_sum_correction)
-        print '%s: use_pos_correction %s' % (self._name, sorter.use_pos_correction)
+        print('%s: use_sum_correction %s' % (self._name, sorter.use_sum_correction))
+        print('%s: use_pos_correction %s' % (self._name, sorter.use_pos_correction))
         if sorter is not None :
             if sorter.use_sum_correction or sorter.use_pos_correction :
                 status = hexanode.py_read_calibration_tables(self.CALIBTAB, sorter)
     
         if command == -1 :
-            print '%s: no config file was read. Nothing to do.' % self._name
+            print('%s: no config file was read. Nothing to do.' % self._name)
             if sorter is not None : del sorter
             sys.exit(0)
 
@@ -236,12 +237,12 @@ class HexDataIOExt(HexDataIO) :
         Cw1  = sorter.cw1 
         Cw2  = sorter.cw2
         Cmcp = sorter.cmcp
-        print "Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
-              (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp)
+        print("Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
+              (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp))
     
         #=====================
     
-        print "%s: init sorter... " % self._name
+        print("%s: init sorter... " % self._name)
     
         sorter.set_tdc_resolution_ns(DIO.tdc_resolution()) # 0.025
         sorter.set_tdc_array_row_length(self.NUM_HITS)
@@ -260,18 +261,18 @@ class HexDataIOExt(HexDataIO) :
     
         error_code = sorter.init_after_setting_parameters()
         if error_code :
-            print "%s: sorter could not be initialized\n" % self._name
+            print("%s: sorter could not be initialized\n" % self._name)
             error_text = sorter.get_error_text(error_code, 512)
-            print '%s: Error %d: %s' % (self._name, error_code, error_text)
+            print('%s: Error %d: %s' % (self._name, error_code, error_text))
             sys.exit(0)
 
 
-        print "Calibration factors:\n  f_U (mm/ns) =%f\n  f_V (mm/ns) =%f\n  f_W (mm/ns) =%f\n  Offset on layer W (ns) =%f\n"%\
-              (2*sorter.fu, 2*sorter.fv, 2*sorter.fw, w_offset)
+        print("Calibration factors:\n  f_U (mm/ns) =%f\n  f_V (mm/ns) =%f\n  f_W (mm/ns) =%f\n  Offset on layer W (ns) =%f\n"%\
+              (2*sorter.fu, 2*sorter.fv, 2*sorter.fw, w_offset))
     
         create_output_directory(self.OFPREFIX)
 
-        print "%s: ok for sorter initialization\n" % self._name
+        print("%s: ok for sorter initialization\n" % self._name)
     
 #------------------------------
 
@@ -310,16 +311,16 @@ class HexDataIOExt(HexDataIO) :
         DIO.get_number_of_hits_array(number_of_hits)
         if DIO.error_flag() :
             error_text = DIO.get_error_text(DIO.error_flag())
-            print "%s: DIO Error %d: %s" % (self._name, DIO.error_flag(), error_text)
+            print("%s: DIO Error %d: %s" % (self._name, DIO.error_flag(), error_text))
             sys.exit(0)
-        if VERBOSE : print '   number_of_hits_array', number_of_hits[:8]
+        if VERBOSE : print('   number_of_hits_array', number_of_hits[:8])
     
         DIO.get_tdc_data_array(tdc_ns)    
         if DIO.error_flag() :
             error_text = DIO.get_error_text(DIO.error_flag())
-            print "%s: DIO Error %d: %s" % (self._name, DIO.error_flag(), error_text)
+            print("%s: DIO Error %d: %s" % (self._name, DIO.error_flag(), error_text))
             sys.exit(0)    
-        if VERBOSE : print '   TDC data:\n', tdc_ns[0:8,0:5]
+        if VERBOSE : print('   TDC data:\n', tdc_ns[0:8,0:5])
     
         # apply conversion to ns: DIO returns tdc_ns already in [ns], no correction needed
         # tdc_ns *= DIO.tdc_resolution()
@@ -401,21 +402,21 @@ class HexDataIOExt(HexDataIO) :
 #------------------------------
 
     def calib_command2(self) :
-        print '%s: calibrating detector... ' % self._name
+        print('%s: calibrating detector... ' % self._name)
 
         sorter.do_calibration()
-        print "ok - after do_calibration"
+        print("ok - after do_calibration")
         sfco = hexanode.py_scalefactors_calibration_class(sorter)
         if sfco :
-            print "Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
-                  (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset)
+            print("Good calibration factors are:\n  f_U =%f\n  f_V =%f\n  f_W =%f\n  Offset on layer W=%f\n"%\
+                  (2*sorter.fu, 2*sfco.best_fv, 2*sfco.best_fw, sfco.best_w_offset))
     
-            print 'CALIBRATION: These parameters and time sum offsets from histograms should be set in the file\n  %s' % self.CALIBCFG
+            print('CALIBRATION: These parameters and time sum offsets from histograms should be set in the file\n  %s' % self.CALIBCFG)
 
 #------------------------------
 
     def calib_command3(self) : # generate and print correction tables for sum- and position-correction
-        print "%s: creating calibration tables..." % self._name
+        print("%s: creating calibration tables..." % self._name)
         DIO = self
         sorter = self.sorter
     
@@ -423,7 +424,7 @@ class HexDataIOExt(HexDataIO) :
                         DIO.make_calib_file_path(type=self.CTYPE_HEX_TABLE)
         status = hexanode.py_create_calibration_tables(self.CALIBTAB, self.sorter)
     
-        print "CALIBRATION: finished creating calibration tables: %s status %s" % (self.CALIBTAB, status)
+        print("CALIBRATION: finished creating calibration tables: %s status %s" % (self.CALIBTAB, status))
 
 #------------------------------
     
@@ -431,7 +432,7 @@ class HexDataIOExt(HexDataIO) :
         evnum = self.event_number()
         if do_print(evnum) :
             t1 = time()
-            print 'Event: %06d, dt(sec): %.3f' % (evnum, t1 - self.t1_sec)
+            print('Event: %06d, dt(sec): %.3f' % (evnum, t1 - self.t1_sec))
             self.t1_sec = t1
 
 
@@ -440,15 +441,15 @@ class HexDataIOExt(HexDataIO) :
         evnum = self.event_number() - 1
         dt_o_evnum = dt/evnum if evnum>0 else 0
         freq = evnum/dt if dt else 0
-        print "%s: %d events processed, consumed time = %.6f sec or %.6f sec/event f=%.2f Hz\n"%\
-              (self._name, evnum, dt, dt_o_evnum, freq)
+        print("%s: %d events processed, consumed time = %.6f sec or %.6f sec/event f=%.2f Hz\n"%\
+              (self._name, evnum, dt, dt_o_evnum, freq))
 
 
     def print_hits(self) : 
-        print "  %s: Event %5i number_of_particles: %i" % (self._name, self.event_number(), self.number_of_particles)
+        print("  %s: Event %5i number_of_particles: %i" % (self._name, self.event_number(), self.number_of_particles))
         for i in range(self.number_of_particles) :
             hco= hexanode.py_hit_class(self.sorter, i)
-            print "    p:%2i x:%7.2f y:%7.2f t:%.2f met:%d" % (i, hco.x, hco.y, hco.time, hco.method)    
+            print("    p:%2i x:%7.2f y:%7.2f t:%.2f met:%d" % (i, hco.x, hco.y, hco.time, hco.method))    
 
 
     def hits_xyt(self) : 
@@ -484,7 +485,7 @@ class HexDataIOExt(HexDataIO) :
             status = self.set_next_event(evt, nevent)
             self.print_sparsed_event_info()     # print sparsed event number and time consumption 
             if evt is None :
-                print '  Event: %4d WARNING: evt is None, rank: %d' % (self.event_number(), self.ds.rank)
+                print('  Event: %4d WARNING: evt is None, rank: %d' % (self.event_number(), self.ds.rank))
                 return True
 
             if not status : 
@@ -579,10 +580,10 @@ if __name__ == "__main__" :
     import sys; global sys
     import numpy as np; global np
     tname = sys.argv[1] if len(sys.argv) > 1 else '1'
-    print '%s\nTest %s' % (50*'_', tname)
+    print('%s\nTest %s' % (50*'_', tname))
     if   tname=='1' : test1_HexDataIOExt()
     elif tname=='2' : test2_HexDataIOExt()
-    else : print 'WARNING: Test %s is not defined' % tname
+    else : print('WARNING: Test %s is not defined' % tname)
     sys.exit('End of Test %s' % tname)
 
 #------------------------------

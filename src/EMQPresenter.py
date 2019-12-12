@@ -4,6 +4,7 @@
    Created: 2017-05-23
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 #import os
@@ -507,24 +508,24 @@ class EMQPresenter(QtCore.QObject) :
         #=========
         if True :
             for i, mon in enumerate(cp.monitors) :
-                print 'Records for mon %d  %s' % (i, cp.tab_names[i])
+                print('Records for mon %d  %s' % (i, cp.tab_names[i]))
                 if not mon.is_active() : 
-                    print 'NON-ACTIVE'
+                    print('NON-ACTIVE')
                     continue
 
                 for evnum, s1, s2 in zip(evnums, mon_sig1[i], mon_sig2[i]) :
-                    print evnum, s1, s2
+                    print(evnum, s1, s2)
 
         #=========
         if False : # True :
             for i in range(self.nmonitors) :
-                print 'Records for mon %d:' % i
+                print('Records for mon %d:' % i)
                 if mon_sig1[i] is None : 
-                    print 'NON-ACTIVE'
+                    print('NON-ACTIVE')
                     continue
 
                 for evnum, s1, s2 in zip(evnums, mon_sig1[i], mon_sig2[i]) :
-                    print evnum, s1, s2
+                    print(evnum, s1, s2)
 
 #------------------------------
 

@@ -34,6 +34,7 @@ Usage ::
     env = es.env()                      # psana.Environment
     run = es.run()                      # psana.Run
 """
+from __future__ import print_function
 #------------------------------
 
 from psana import DataSource, EventId, EventTime, setOption
@@ -124,7 +125,7 @@ class PSEventSupplier :
             self.dsname = dsname
         except : 
             self.reset()
-            print 'XXX: WARNING: DataSource is not open in PSEventSupplier.set_dataset  %s' % dsname
+            print('XXX: WARNING: DataSource is not open in PSEventSupplier.set_dataset  %s' % dsname)
             #raise IOError('Dataset is not created for dsname: %s' % dsname)
             return
         
@@ -159,7 +160,7 @@ class PSEventSupplier :
             try :
                evt = self.events.next()
             except :                
-               print 'XXX WARNING: PSEventSupplier.event_next returns evt=None'
+               print('XXX WARNING: PSEventSupplier.event_next returns evt=None')
                return None
 
             return evt
@@ -236,20 +237,20 @@ def test_all() :
     #es = PSEventSupplier(cp, log, 'exp=xpptut15:run=54')
 
 
-    print 'Sequential mode:'
+    print('Sequential mode:')
     for n in range(10) :
         et = es.event_time(es.event_next())
-        print '%4d fid:%d' % (es.current_event_number(), et.fiducial())
+        print('%4d fid:%d' % (es.current_event_number(), et.fiducial()))
 
     #t0_sec = time()
     #es.set_dataset('exp=cxif5315:run=169:idx')
     #print 'set_dataset consumed time(sec) = %.6f' % (time()-t0_sec)
 
 
-    print 'idx mode:'
-    print '   5 fid:%d' % es.event_time(es.event_for_number(5)).fiducial() 
-    print '   0 fid:%d' % es.event_time(es.event_for_number(0)).fiducial() 
-    print 'number_of_events:', es.number_of_events()
+    print('idx mode:')
+    print('   5 fid:%d' % es.event_time(es.event_for_number(5)).fiducial()) 
+    print('   0 fid:%d' % es.event_time(es.event_for_number(0)).fiducial()) 
+    print('number_of_events:', es.number_of_events())
 
 #------------------------------
 

@@ -7,6 +7,7 @@ Usage:      python expmon/examples/ex-hex-proc-mpidatasource.py
 or:
 mpirun -n 2 python expmon/examples/ex-hex-proc-mpidatasource.py
 """
+from __future__ import print_function
 #------------------------------
 
 import psana
@@ -34,7 +35,7 @@ kwargs = {'command'  : 1,
 ds = psana.MPIDataSource(kwargs['dsname'])    # Open psana dataset using mpi
 o = HexDataIOExt(ds, **kwargs)                # Line 1 - object initialization
 
-print 'MPI size: %2d rank: %2d' % (ds.size, ds.rank)
+print('MPI size: %2d rank: %2d' % (ds.size, ds.rank))
 
 for evt in ds.events() :
 
@@ -48,7 +49,7 @@ for evt in ds.events() :
     o.print_hits()                            # Line 3 alternative - prints x, y, time for all hits in the event
 
 #if ds.master :
-print 'MPI rank %2d summary:' % (ds.rank)
+print('MPI rank %2d summary:' % (ds.rank))
 o.print_summary()                         # print number of events, processing time total, instant and frequency
 
 #------------------------------

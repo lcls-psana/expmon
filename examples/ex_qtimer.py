@@ -1,3 +1,4 @@
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -14,12 +15,12 @@ class MWidget(QtGui.QWidget) :
 
 
     def on_timeout(self) :
-        print '%s.%s' % (__name__, sys._getframe().f_code.co_name)
+        print('%s.%s' % (__name__, sys._getframe().f_code.co_name))
         #self.timer.stop() # otherwise loop is not ending
 
 
     def test_qtimer(self) :
-        print '%s.%s' % (__name__, sys._getframe().f_code.co_name)
+        print('%s.%s' % (__name__, sys._getframe().f_code.co_name))
         #for i in range(10) :
         #    print 'loop %d' % i
 

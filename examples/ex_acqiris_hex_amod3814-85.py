@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #------------------------------
 
+from __future__ import print_function
 import sys
 import psana
 import numpy as np
@@ -27,8 +28,8 @@ def draw_times(ax, wf, wt) :
     #wf -= wf[0:1000].mean()
     edges = find_edges(wf, BASE, THR, CFR, DEADTIME, LEADINGEDGE)
     # pairs of (amplitude,sampleNumber)
-    print 'MCP edges'
-    print edges
+    print('MCP edges')
+    print(edges)
 
     for (amp,ind) in edges :
         x0 = wt[int(ind)]
@@ -50,7 +51,7 @@ dsname = 'exp=xpptut15:run=390'
 src1 = 'AmoETOF.0:Acqiris.0'
 src2 = 'AmoITOF.0:Acqiris.0'
 
-print 'Example for\n  dataset: %s\n  source1 : %s\n  source2 : %s' % (dsname, src1, src2)
+print('Example for\n  dataset: %s\n  source1 : %s\n  source2 : %s' % (dsname, src1, src2))
 
 #opts = {'psana.calib-dir':'./calib',}
 #psana.setOptions(opts)
@@ -93,10 +94,10 @@ wf,wt = None, None
 for i,evt in enumerate(ds.events()) :
     #if i< 140 : continue
     if i>4 : break
-    print 50*'_', '\n Event # %d' % i
+    print(50*'_', '\n Event # %d' % i)
     gr.set_win_title(fig, titwin='Event: %d' % i)
 
-    print 'Acqiris.1:'
+    print('Acqiris.1:')
     result = det1.raw(evt)
     if result is None : continue
     wf,wt = result
@@ -104,7 +105,7 @@ for i,evt in enumerate(ds.events()) :
     #gu.print_ndarr(wf, 'acqiris waveform')
     #gu.print_ndarr(wt, 'acqiris wavetime')
 
-    print 'Acqiris.2:'
+    print('Acqiris.2:')
     wf2,wt2 = det2.raw(evt)
 
     bbeg=0     # 0

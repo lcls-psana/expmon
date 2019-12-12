@@ -4,6 +4,7 @@
    Created: 2017-06-05
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 from expmon.Logger import log
@@ -49,7 +50,7 @@ class EMQViewHist(GUViewHist) :
 
 
     def test_view_is_closed_for_imon(self, imon) :
-        print 'XXX %s.test_view_is_closed_for_imon imon=%d' % (self._name, imon)
+        print('XXX %s.test_view_is_closed_for_imon imon=%d' % (self._name, imon))
 
 #------------------------------
 

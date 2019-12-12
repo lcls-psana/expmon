@@ -35,6 +35,7 @@ Usage ::
         img = self.raw(evt)
         print_ndarr(img, name='img %d' % n, first=0, last=10)
 """
+from __future__ import print_function
 #------------------------------
 
 from expmon.PSNameManager import nm
@@ -152,14 +153,14 @@ def test_all() :
 
     t0_sec = time()
     ip = PSDataSupplier(cp, log)
-    print 'PSDataSupplier initialization time(sec) = %.6f' % (time()-t0_sec)
+    print('PSDataSupplier initialization time(sec) = %.6f' % (time()-t0_sec))
 
     #evt = ip.event_next()
     #ip.detector().print_attributes()
 
-    print 'run number:', ip.run().run()
-    print 'calib dir :', ip.env().calibDir()
-    print 'number_of_events :', ip.number_of_events()
+    print('run number:', ip.run().run())
+    print('calib dir :', ip.env().calibDir())
+    print('number_of_events :', ip.number_of_events())
 
     #======
     return

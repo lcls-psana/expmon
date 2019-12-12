@@ -3,6 +3,7 @@
    Created: 2017-02-18
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -92,7 +93,7 @@ class EMQDetI(QtGui.QWidget) :
         msg = 'Default %s must be re-implemented in derived class. %s' % (met, cmt)
         #self.lab_info.setText(msg)
         #log.info(msg, self._name)
-        print msg
+        print(msg)
 
 #------------------------------
 # Abstract methods MUST BE RE-IMPLEMENTED:

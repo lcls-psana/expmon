@@ -1,5 +1,6 @@
 #!@PYTHON@
 #------------------------------
+from __future__ import print_function
 
 import os
 import sys
@@ -161,7 +162,7 @@ if __name__ == "__main__" :
 
     if len(sys.argv) == 1 : 
         parser.print_help()
-        print '\nWARNING: this app needs in a few optional parameters...'
+        print('\nWARNING: this app needs in a few optional parameters...')
 	sys.exit(0)
 
     hex_calib(parser)

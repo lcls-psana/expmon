@@ -7,6 +7,7 @@ Usage:      python expmon/examples/ex-hex-data-datasource.py
 or:
 mpirun -n 2 python expmon/examples/ex-hex-proc-datasource.py
 """
+from __future__ import print_function
 #------------------------------
 
 import psana
@@ -38,7 +39,7 @@ kwargs = {'command'  : 1,
 ds = psana.DataSource(kwargs['dsname'])    # Open psana dataset using mpi
 o = HexDataIOExt(ds, **kwargs)                # Line 1 - object initialization
 
-print 'MPI size: %2d rank: %2d' % (size, rank)
+print('MPI size: %2d rank: %2d' % (size, rank))
 
 for nevent, evt in enumerate(ds.events()) :
 

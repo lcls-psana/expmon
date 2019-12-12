@@ -4,6 +4,7 @@
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -182,9 +183,9 @@ class QWDataControl(Frame) :
 
 
     def on_but(self):
-        if self.but_ins.hasFocus() : print 'on_but ins'
-        if self.but_exp.hasFocus() : print 'on_but exp'
-        if self.but_run.hasFocus() : print 'on_but run'
+        if self.but_ins.hasFocus() : print('on_but ins')
+        if self.but_exp.hasFocus() : print('on_but exp')
+        if self.but_run.hasFocus() : print('on_but run')
         #self.but_current = self.butIns
         #item_selected = gu.selectFromListInPopupMenu(self.list_of_instr)
         #if item_selected is None : return            # selection is cancelled
@@ -239,7 +240,7 @@ class QWDataControl(Frame) :
 
 
     def test_expname_is_changed(self) :
-        print 'XXX %s.expname_is_changed to %s' % (self._name, self.cp.exp_name.value())
+        print('XXX %s.expname_is_changed to %s' % (self._name, self.cp.exp_name.value()))
 
 
     def on_but_run(self):
@@ -299,7 +300,7 @@ class QWDataControl(Frame) :
 
 
     def test_runnum_is_changed(self) :
-        print 'XXX %s.runnum_is_changed to %s' % (self._name, self.str_runnum.value())
+        print('XXX %s.runnum_is_changed to %s' % (self._name, self.str_runnum.value()))
 
 
     def set_exp(self, val=None, cmt=''):

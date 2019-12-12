@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #------------------------------
 
+from __future__ import print_function
 import sys
 import numpy as np
 from scipy import signal
@@ -17,19 +18,19 @@ def metname(fr) :
 #------------------------------
 
 def print_vector(vec) :
-    print vec, '\n len=%d' % len(vec)
+    print(vec, '\n len=%d' % len(vec))
 
 #------------------------------
 
 def plot_vector(vec) :
-    print '  len=%d' % len(vec)
+    print('  len=%d' % len(vec))
     plt.plot(vec)
     plt.show()
 
 #------------------------------
 
 def test_ricker() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
 
     points = 100
     a = 4.0
@@ -39,7 +40,7 @@ def test_ricker() :
 #------------------------------
 
 def test_morlet() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
 
     points = 100
     vec = signal.morlet(points, w=5.0, s=1.0, complete=True)
@@ -49,13 +50,13 @@ def test_morlet() :
 
 def test_daub() :
     p = 24 # 1-32
-    print 20*'_', '\n%s(%d)' % (metname(fr()), p)
+    print(20*'_', '\n%s(%d)' % (metname(fr()), p))
     plot_vector(signal.daub(p))
 
 #------------------------------
 
 def test_qmf() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
     hk=np.array(range(100))
     signal.qmf(hk)
     plot_vector(hk)
@@ -63,7 +64,7 @@ def test_qmf() :
 #------------------------------
 
 def test_cwt() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
 
     t = np.linspace(-1, 1, 200, endpoint=False)
     sig  = np.cos(2 * np.pi * 7 * t) + signal.gausspulse(t - 0.4, fc=2)
@@ -78,19 +79,19 @@ def test_cwt() :
 #------------------------------
 
 def test_find_peaks_cwt() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
     xs = np.arange(0, np.pi, 0.05)
     data = np.sin(xs)
     
     plot_vector(data)
 
     peakind = signal.find_peaks_cwt(data, np.arange(1,10))
-    print peakind, xs[peakind], data[peakind]
+    print(peakind, xs[peakind], data[peakind])
 
 #------------------------------
 
 def test_all() :
-    print _sep_, '\n%s' % metname(fr())
+    print(_sep_, '\n%s' % metname(fr()))
     test_ricker()
     test_morlet()
     test_daub()
@@ -104,7 +105,7 @@ if __name__ == "__main__" :
     from time import time
 
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s:' % tname
+    print(50*'_', '\nTest %s:' % tname)
     t0_sec = time()
     if   tname == '0': test_all() 
     elif tname == '1': test_ricker()
@@ -113,7 +114,7 @@ if __name__ == "__main__" :
     elif tname == '4': test_qmf()
     elif tname == '5': test_cwt()
     elif tname == '6': test_find_peaks_cwt()
-    else : print 'Not-recognized test name: %s' % tname
+    else : print('Not-recognized test name: %s' % tname)
 
     msg = 'End of test %s, consumed time (sec) = %.6f' % (tname, time()-t0_sec)
     sys.exit(msg)

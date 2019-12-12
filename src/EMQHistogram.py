@@ -8,6 +8,7 @@ Usage ::
 
     then see example in test_emqhistogram below
 """
+from __future__ import print_function
 #------------------------------
 
 from PyQt4 import QtGui, QtCore
@@ -86,7 +87,7 @@ class EMQHistogram(QtGui.QWidget) :
 #------------------------------
 
 def test_emqhistogram(tname) :
-    print '%s:' % sys._getframe().f_code.co_name
+    print('%s:' % sys._getframe().f_code.co_name)
     import numpy as np
 
     app = QtGui.QApplication(sys.argv)
@@ -119,7 +120,7 @@ if __name__ == "__main__" :
     import sys; global sys
     import numpy as np; global np
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     test_emqhistogram(tname)
     sys.exit('End of Test %s' % tname)
 

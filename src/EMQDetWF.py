@@ -3,6 +3,7 @@
 Created: 2017-05-15
 Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import numpy as np
 
@@ -438,7 +439,7 @@ class EMQDetWF(EMQDetI) :
         if self.tabind < 0 :
             msg = 'WARNING: %s%s waveform index in not selected: %d'%\
                    (self._name, sys._getframe().f_code.co_name, self.tabind)
-            print msg
+            print(msg)
             return None
 
         wf, wt, tmin, tmax, fmin, fmax = self.get_wf_event(evt)

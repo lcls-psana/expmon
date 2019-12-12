@@ -6,6 +6,7 @@ Module :py:class:`HexDataPreProc` - hexanode LCLS data processing using MPI and 
 
 Created on 2017-12-08 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -43,13 +44,13 @@ def preproc_data(**kwargs):
     ofname = '%s%s-r%04d-e%06d-n%02d-mpi.h5' % (OFPREFIX, exp, int(run), EVENTS, DIO.ds.size)
 
     if DIO.ds.master : # rank==0
-        print usage()
+        print(usage())
 
-        print 'Input parameters:'
-        for k,v in kwargs.iteritems() : print '%20s : %s' % (k,str(v))
+        print('Input parameters:')
+        for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
 
-        print 'DIO dataset start time: %s' % DIO.start_time()
-        print "number of MPI cores: %d" % DIO.ds.size
+        print('DIO dataset start time: %s' % DIO.start_time())
+        print("number of MPI cores: %d" % DIO.ds.size)
 
         DIO.print_wf_hit_finder_parameters()
 
@@ -67,11 +68,11 @@ def preproc_data(**kwargs):
 
 	if do_print(nev) :
             t1 = time()
-            print 'Rank: %d event: %06d, dt(sec): %.3f' % (DIO.ds.rank, nev, t1-t1_sec)
+            print('Rank: %d event: %06d, dt(sec): %.3f' % (DIO.ds.rank, nev, t1-t1_sec))
             t1_sec = t1
 
         if evt is None :
-            print '  Event: %4d WARNING: evt is None, rank: %d' % (nev, DIO.ds.rank)
+            print('  Event: %4d WARNING: evt is None, rank: %d' % (nev, DIO.ds.rank))
             continue
 
         if start_time is None :
@@ -91,13 +92,13 @@ def preproc_data(**kwargs):
     # save HDF5 file, including summary data
     dt = time() - t0_sec
     if DIO.ds.master : # rank==0
-        print ''
-        print "run start time(sec) = %.1f %s" % (start_time.seconds(), str_tstamp(time_sec=start_time.seconds()))
-        print "run stop time (sec) = %.1f %s" % (stop_time.seconds(),  str_tstamp(time_sec=stop_time.seconds()))
-        print "number of processing nodes: %d" % DIO.ds.size
-        print "%d events processed" % nev
-        print "consumed time (sec) = %.6f" % dt
-        print "processing rate (Hz) = %.3f\n" % (float(nev+1)/dt)
+        print('')
+        print("run start time(sec) = %.1f %s" % (start_time.seconds(), str_tstamp(time_sec=start_time.seconds())))
+        print("run stop time (sec) = %.1f %s" % (stop_time.seconds(),  str_tstamp(time_sec=stop_time.seconds())))
+        print("number of processing nodes: %d" % DIO.ds.size)
+        print("%d events processed" % nev)
+        print("consumed time (sec) = %.6f" % dt)
+        print("processing rate (Hz) = %.3f\n" % (float(nev+1)/dt))
 
     # save in hdf5 a few values at the end
     smldata.save(nevents=nev,\
@@ -111,9 +112,9 @@ def preproc_data(**kwargs):
 #------------------------------
 
 if __name__ == "__main__" :
-    print 50*'_'
-    print 'See example in hexanode/examples/ex-08-proc-MPIDS-save-h5.py'\
-          '\nand application expmon/app/hex_data_proc'
+    print(50*'_')
+    print('See example in hexanode/examples/ex-08-proc-MPIDS-save-h5.py'\
+          '\nand application expmon/app/hex_data_proc')
 
     #kwargs = {'events':1500,}
     #preproc_data(**kwargs)

@@ -47,6 +47,7 @@ Usage ::
 
 Created on 2017-10-23 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 from time import time
@@ -206,7 +207,7 @@ class HexDataIO :
         self.h5ds_proc_time_sec[0] = time() - self.t0_sec
 
         if self._oh5file is None : return
-        if pbits : print 'Close output file: %s' % self._oh5file.filename
+        if pbits : print('Close output file: %s' % self._oh5file.filename)
         self._oh5file.close()
         self._oh5file = None
 
@@ -243,7 +244,7 @@ class HexDataIO :
         self.h5ds_nhits = self._ih5file['nhits']
         self.h5ds_tdcns = self._ih5file['tdcns']
         self.h5ds_nevents = self._ih5file['nevents'][0]
-        print 'File %s has %d records' % (fname, self.h5ds_nevents)
+        print('File %s has %d records' % (fname, self.h5ds_nevents))
         #self.h5ds_nevents = self.h5ds_nhits.attrs['events']
         self._exp = self._ih5file['experiment'][0]
         self._run = self._ih5file['run'][0]
@@ -254,7 +255,7 @@ class HexDataIO :
 
     def close_input_h5file(self, pbits=0) :
         if self._ih5file is None : return
-        if pbits : print 'Close input file: %s' % self._ih5file.filename
+        if pbits : print('Close input file: %s' % self._ih5file.filename)
         self._ih5file.close()
         self._ih5file = None
 
@@ -434,7 +435,7 @@ class HexDataIO :
             + '\n  cfd_wfbinbeg       %d' % self.WFBINBEG\
             + '\n  cfd_wfbinend       %d' % self.WFBINEND\
             + '\n%s' % (50*'_')
-        print msg
+        print(msg)
 
 
     def proc_waveforms_for_evt(self, evt) :
@@ -467,7 +468,7 @@ class HexDataIO :
                         msg = 'HexDataIO._proc_waveforms: input tdc_ns shape=%s ' % str(self._tdc_ns.shape)\
                             + ' does not have enough columns for %d time records,' % nedges\
                             + '\nWARNING: NUMBER OF SIGNAL TIME RECORDS TRANCATED'
-                        print msg
+                        print(msg)
                     continue
 
                 nhits = min(self.NUM_HITS, nedges) 
@@ -481,7 +482,7 @@ class HexDataIO :
 
     def print_tdc_data(self) :
         for src, wfd, channels in self.srcs_dets_channels :
-            print 'source: %s channels: %s' % (src, str(channels))
+            print('source: %s channels: %s' % (src, str(channels)))
             res = wfd.raw(self._evt)
             if res is None : continue
             wf,wt = res
@@ -493,17 +494,17 @@ class HexDataIO :
         arr_nhits   = self.get_number_of_hits_array()
         arr_tdc_ns  = self.get_tdc_data_array()
         arr_tdc_ind = self.get_tdc_index_array()
-        print 'HexDataIO.print_times - event waveform times'
-        print 'Ch.#   Nhits   Index/Time[ns]'
+        print('HexDataIO.print_times - event waveform times')
+        print('Ch.#   Nhits   Index/Time[ns]')
         for ch in range(arr_nhits.size) :
             nhits = arr_nhits[ch]
-            print '%4d   %4d:' % (ch, nhits),
+            print('%4d   %4d:' % (ch, nhits), end=' ')
             for ihit in range(nhits) :
-                print ' %9d' % (arr_tdc_ind[ch, ihit]),
-            print '\n              ',
+                print(' %9d' % (arr_tdc_ind[ch, ihit]), end=' ')
+            print('\n              ', end=' ')
             for ihit in range(nhits) :
-                print '  %8.1f' % (arr_tdc_ns[ch, ihit]),
-            print ''
+                print('  %8.1f' % (arr_tdc_ns[ch, ihit]), end=' ')
+            print('')
 
 
     def error_flag(self) :
@@ -573,25 +574,25 @@ def hexdataio(pbits=1022) :
 def test_hexdataio(EVENTS=10) :
     o = hexdataio()
     while o.get_event_number() < EVENTS :
-        print '%s\nEvent %d' % (80*'_', o.get_event_number())
+        print('%s\nEvent %d' % (80*'_', o.get_event_number()))
         o.read_next_event()
         o.print_tdc_data()
         nhits = o.get_number_of_hits_array()
         gu.print_ndarr(nhits, '    nhits', first=0, last=7)
-        print '\nTDC resolution [ns]: %.3f' % o.tdc_resolution()
+        print('\nTDC resolution [ns]: %.3f' % o.tdc_resolution())
         o.print_times()
 
 #------------------------------
 
 def draw_times(ax, wf, wt, nhits, hit_inds) :
-    print 'nhits:%2d'%nhits,
+    print('nhits:%2d'%nhits, end=' ')
     for i in range(nhits) :
         hi = hit_inds[i]
         ti = wt[hi] # hit time
         ai = wf[hi] # hit intensity
-        print ' %.1f' % ti,
+        print(' %.1f' % ti, end=' ')
         gg.drawLine(ax, (ti,ti), (ai,-ai), s=10, linewidth=1, color='k')
-    print ''
+    print('')
 
 #------------------------------
 
@@ -618,7 +619,7 @@ def test_hexdataio_graph(EVENTS=10, EVSKIP=0) :
     evnum = 0
     while evnum < EVENTS :
         evnum = o.get_event_number()
-        print '%s\nEvent %d' % (80*'_', evnum)
+        print('%s\nEvent %d' % (80*'_', evnum))
         o.read_next_event()
         if evnum < EVSKIP : continue
 
@@ -658,10 +659,10 @@ if __name__ == "__main__" :
     import sys; global sys
     import numpy as np; global np
     tname = sys.argv[1] if len(sys.argv) > 1 else '1'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     if   tname == '1' : test_hexdataio()
     elif tname == '2' : test_hexdataio_graph()
-    else : print 'Not-recognized test name: %s' % tname
+    else : print('Not-recognized test name: %s' % tname)
     sys.exit('End of Test %s' % tname)
 
 #------------------------------

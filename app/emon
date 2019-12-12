@@ -1,5 +1,6 @@
 #!@PYTHON@
 #------------------------------
+from __future__ import print_function
 import os
 import sys
 from optparse import OptionParser
@@ -28,7 +29,7 @@ class EM_GUI :
         #if verbos : self.print_raw()
         if verbos : self.print_pars()
 
-        print 'Start %s' % self.__init__.__doc__
+        print('Start %s' % self.__init__.__doc__)
 
         app = QtGui.QApplication(sys.argv)
 
@@ -50,24 +51,24 @@ class EM_GUI :
 
     def print_command(self) :
         """Prints command"""
-        print 'Command:', ' '.join(sys.argv)
+        print('Command:', ' '.join(sys.argv))
 
 #------------------------------
 
     def print_raw(self) :
-        print 'Command:', ' '.join(sys.argv)
-        print '  opts: ', self.opts
-        print '  defs: ', self.defs
-        print '  args: ', self.args
+        print('Command:', ' '.join(sys.argv))
+        print('  opts: ', self.opts)
+        print('  defs: ', self.defs)
+        print('  args: ', self.args)
 
 #------------------------------
 
     def print_pars(self) :
         """Prints input parameters"""
-        print 'Arguments: %s\nOptional parameters:\n' % str(self.args)+\
-              '<key>      <value>          <default>'
+        print('Arguments: %s\nOptional parameters:\n' % str(self.args)+\
+              '<key>      <value>          <default>')
         for k,v in self.opts.items() :
-            print '%s %s %s' % (k.ljust(10), str(v).ljust(16), str(self.defs[k]).ljust(16))
+            print('%s %s %s' % (k.ljust(10), str(v).ljust(16), str(self.defs[k]).ljust(16)))
 
 #------------------------------
 

@@ -4,6 +4,7 @@
    Created: 2017-02-18
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 #import os
@@ -102,7 +103,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
     #-------------------
 
     def on_event_loop(self) :
-        print 'XXX EMQMain.on_event_loop'
+        print('XXX EMQMain.on_event_loop')
 
     #-------------------
 
@@ -238,7 +239,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
             if psu.create_path(path) :
                 log.saveLogInFile(path)
-                print 'Saved log file: %s' % path
+                print('Saved log file: %s' % path)
             else : log.warning('onSave: path for log file %s was not created.' % path, self.name)
   
 #------------------------------

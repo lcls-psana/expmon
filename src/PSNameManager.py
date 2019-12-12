@@ -7,6 +7,7 @@
 Usage ::
     see method test_all()
 """
+from __future__ import print_function
 #------------------------------
 #import sys
 #import os
@@ -118,11 +119,11 @@ def test_all() :
     from expmon.EMConfigParameters import cp
     nm.set_config_pars(cp)
 
-    print 'dir_exp   :', nm.dir_exp()
-    print 'dir_xtc   :', nm.dir_xtc()
-    print 'dir_ffb   :', nm.dir_ffb()
-    print 'dir_calib :', nm.dir_calib()
-    print 'dsname    :', nm.dsname()
+    print('dir_exp   :', nm.dir_exp())
+    print('dir_xtc   :', nm.dir_xtc())
+    print('dir_ffb   :', nm.dir_ffb())
+    print('dir_calib :', nm.dir_calib())
+    print('dsname    :', nm.dsname())
 
 #------------------------------
 

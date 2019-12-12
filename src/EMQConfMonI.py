@@ -12,6 +12,7 @@ Usage ::
     status = w.is_active()
     lst_wdets = w.detectors()
 """
+from __future__ import print_function
 #------------------------------
 import sys
 import os
@@ -105,8 +106,8 @@ if __name__ == "__main__" :
     w.setGeometry(10, 25, 400, 600)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
-    print 'det1():%s  det2():%s  w.detectors():%s  is_active()::%s'%\
-          (w.det1(), w.det2(), str(w.detectors()), w.is_active())
+    print('det1():%s  det2():%s  w.detectors():%s  is_active()::%s'%\
+          (w.det1(), w.det2(), str(w.detectors()), w.is_active()))
     w.show()
     app.exec_()
 

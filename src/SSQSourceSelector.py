@@ -3,6 +3,7 @@
    Created: 2017-07-28
    Author : Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -102,7 +103,7 @@ class SSQSourceSelector(QtGui.QWidget) :
         path = nm.log_file_repo()
         if psu.create_path(path) :
             self.log.saveLogInFile(path)
-            if verb : print 'Log saved in file: %s' % path
+            if verb : print('Log saved in file: %s' % path)
         else : self.log.warning('onSave: path for log file %s was not created.' % path, self.name)
 
 #------------------------------
@@ -229,7 +230,7 @@ def select_data_sources(fname=None, verb=1, bwlog=0) :
     app.exec_()
 
     cp.saveParametersInFile(fname)
-    if verb : print 'Configuration parameters saved in file: %s' % cp.fname
+    if verb : print('Configuration parameters saved in file: %s' % cp.fname)
 
     if cp.save_log_at_exit.value() : 
         w.save_log_file(verb & 2)
@@ -240,8 +241,8 @@ def select_data_sources(fname=None, verb=1, bwlog=0) :
 
 if __name__ == "__main__" :
     lst_srcs = select_data_sources(fname='sourse-selector-confpars-my.txt', verb=0377, bwlog=0377)
-    print 'List of selected sources:'
-    for s in lst_srcs : print s
+    print('List of selected sources:')
+    for s in lst_srcs : print(s)
     sys.exit()
 
 #------------------------------

@@ -14,6 +14,7 @@ Usage ::
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import os
 import sys
@@ -185,7 +186,7 @@ def list_of_sources(dsname=None) : # dsname i.e. 'exp=cxi12316:run=1234:...'
     #except StopIteration, reason:
         #print "ERROR: failed to get next event: ", reason
     except : # StopIteration, reason:
-        print "ERROR: StopIteration for dsname=%s" % dsn
+        print("ERROR: StopIteration for dsname=%s" % dsn)
         pseventsupplier.set_dataset(dsn, calib_dir=None)
         ds = pseventsupplier.dataset()
         #ds = psana.DataSource(dsn)
@@ -243,13 +244,13 @@ def load_arr_from_f5(fname):
     ds = f['/data/data']
     arr = ds[()]
     photon_energy_eV = f['/photon_energy_eV'][0]
-    print 'photon_energy_eV', photon_energy_eV
+    print('photon_energy_eV', photon_energy_eV)
     try :
       dsspec = f['/spectrum']
       if dsspec is not None :
-        print 'number_of_samples', dsspec['number_of_samples'][0:3]
-        print 'wavelengths_A', dsspec['wavelengths_A'][0]
-        print 'weights', dsspec['weights'][:]
+        print('number_of_samples', dsspec['number_of_samples'][0:3])
+        print('wavelengths_A', dsspec['wavelengths_A'][0])
+        print('weights', dsspec['weights'][:])
     except : pass
     return arr
 
@@ -263,7 +264,7 @@ def load_binary_old(ifname  = 'data.bin',\
        Binary file does not have shape, so image size in pixels and data type should be provided.
     """
 
-    if verbos : print 'Read file %s' % ifname
+    if verbos : print('Read file %s' % ifname)
 
     BUF_SIZE_BYTE = npixels*2
 
@@ -271,7 +272,7 @@ def load_binary_old(ifname  = 'data.bin',\
     buf = f.read()
     f.close()
     nmax = len(buf)/BUF_SIZE_BYTE
-    if verbos : print 'len(buf)', len(buf), 'nmax', nmax
+    if verbos : print('len(buf)', len(buf), 'nmax', nmax)
 
     for nevt in range(nmax) :
         nda = np.frombuffer(buf, dtype=dtype, count=npixels, offset=nevt*BUF_SIZE_BYTE)
@@ -351,16 +352,16 @@ def test_list_of_sources(tname) :
     #from expmon.PSQThreadWorker import PSQThreadWorker
     nm.set_config_pars(cp)
 
-    print '%s:' % sys._getframe().f_code.co_name
-    for s in list_of_sources() : print s
+    print('%s:' % sys._getframe().f_code.co_name)
+    for s in list_of_sources() : print(s)
 
 #------------------------------
 
 def test_list_of_sources_for_dataset() :
     dsname = 'exp=xpptut15:run=54:smd'
-    print '%s dsname "%s"' % (sys._getframe().f_code.co_name, dsname)
+    print('%s dsname "%s"' % (sys._getframe().f_code.co_name, dsname))
     list_of_sources = list_of_sources_for_dataset(dsname, evts_max=10)
-    for i,s in enumerate(list_of_sources) : print '%4d  %s' % (i+1,s)
+    for i,s in enumerate(list_of_sources) : print('%4d  %s' % (i+1,s))
 
 #------------------------------
 
@@ -371,8 +372,8 @@ def test_dataset_times(tname) :
     ds = pseventsupplier.dataset()
     t0_sec = time()
     dst = dataset_times(ds)
-    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
-    print len(dst), dst[0].seconds(), dst[0].nanoseconds(), dst[0].fiducial()
+    print('consumed time(sec) = %.6f' % (time()-t0_sec))
+    print(len(dst), dst[0].seconds(), dst[0].nanoseconds(), dst[0].fiducial())
 
 #------------------------------
 
@@ -384,17 +385,17 @@ def test_steps(tname) :
     run = ds.runs().next()
     #nsteps = run.nsteps()
     #print 'nsteps = %d' % nsteps
-    print 'run:', run
+    print('run:', run)
 
     t0_sec = time()
     #for i in range(nsteps):
     times = run.times()
-    print len(times), times[0]
+    print(len(times), times[0])
 
     evt = event_for_time(run, times[0])
-    print 'evt:', evt
+    print('evt:', evt)
 
-    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
+    print('consumed time(sec) = %.6f' % (time()-t0_sec))
 
 
 #------------------------------
@@ -466,15 +467,15 @@ def create_path(path, depth=5, mode=0777) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     t0_sec = time()
     if   tname == '0': test_list_of_sources(tname)
     elif tname == '1': test_list_of_sources(tname) 
     elif tname == '2': test_dataset_times(tname) 
     elif tname == '3': test_steps(tname) 
     elif tname == '4': test_list_of_sources_for_dataset()
-    else : print 'WARNING: Test %s is not defined' % tname
-    print 'consumed time(sec) = %.6f' % (time()-t0_sec)
+    else : print('WARNING: Test %s is not defined' % tname)
+    print('consumed time(sec) = %.6f' % (time()-t0_sec))
     sys.exit('End of Test %s' % tname)
 
 #------------------------------

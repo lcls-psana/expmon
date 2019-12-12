@@ -21,6 +21,7 @@ Usage ::
     from expmon.EMConfigParameters import cp
     cp.ringbuffer1 = o
 """
+from __future__ import print_function
 
 #------------------------------
 
@@ -48,8 +49,8 @@ class RingBuffer() :
         """ Prints entire buffer content.
         """ 
         for i,r in enumerate(self.buf) :
-            print str(r),
-            if i>0 and not(i%10) : print ''
+            print(str(r), end=' ')
+            if i>0 and not(i%10) : print('')
 
 
     def buffer(self) :
@@ -120,11 +121,11 @@ if __name__ == "__main__" :
     for i in range(16) : o.save_record(i)
     o.print_buffer()
 
-    print '\no.records_new():', o.records_new()
-    print 'o.record_last():', o.record_last()
+    print('\no.records_new():', o.records_new())
+    print('o.record_last():', o.record_last())
 
-    print 'o.records_last(3):', o.records_last(nrecs=3)
-    print 'o.records_last(8):', o.records_last(nrecs=8)
-    print 'o.records_last(12) at size=10: ', o.records_last(nrecs=12)
+    print('o.records_last(3):', o.records_last(nrecs=3))
+    print('o.records_last(8):', o.records_last(nrecs=8))
+    print('o.records_last(12) at size=10: ', o.records_last(nrecs=12))
 
 #------------------------------
