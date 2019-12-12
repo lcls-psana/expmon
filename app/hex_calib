@@ -30,8 +30,8 @@ def hex_calib(parser) :
     """
     """
     if False :
-	parser.print_usage()
-	parser.print_help()
+        parser.print_usage()
+        parser.print_help()
 
     (popts, pargs) = parser.parse_args()
     opts = vars(popts)
@@ -71,7 +71,7 @@ def input_option_parser() :
     d_cfd_cfr             = 0.9
     d_cfd_deadtime        = 5.0
     d_cfd_leadingedge     = True
-    d_cfd_ioffsetbeg      = 0 
+    d_cfd_ioffsetbeg      = 0
     d_cfd_ioffsetend      = 1000
 
     d_PLOT_NHITS          = True
@@ -98,25 +98,25 @@ def input_option_parser() :
     h_plot_his= 'plot hiostograms, default = %s' % d_plot_his
     h_command= '1-sort, 2-calibrate fu,fv,fw,w_offset, 3-generate correction tables and write them to disk, default = %d' % d_command
 
-    h_cfd_base           = 'CFD waveform baseline: , default = %s' % d_cfd_base          
-    h_cfd_thr            = 'CFD threshold for hit search, default = %s' % d_cfd_thr           
-    h_cfd_cfr            = 'CFD constant fraction of the peak value to set hit time, default = %s' % d_cfd_cfr           
+    h_cfd_base           = 'CFD waveform baseline: , default = %s' % d_cfd_base
+    h_cfd_thr            = 'CFD threshold for hit search, default = %s' % d_cfd_thr
+    h_cfd_cfr            = 'CFD constant fraction of the peak value to set hit time, default = %s' % d_cfd_cfr
     h_cfd_deadtime       = 'CFD dead time for searching of the next peak, default = %s' % d_cfd_deadtime
-    h_cfd_leadingedge    = 'CFD search for the hit time on leading edge, default = %s' % d_cfd_leadingedge   
-    h_cfd_ioffsetbeg     = 'CFD waveform begin index for baseline evaluation, default = %s' % d_cfd_ioffsetbeg    
-    h_cfd_ioffsetend     = 'CFD waveform end index for baseline evaluation, default = %s' % d_cfd_ioffsetend    
+    h_cfd_leadingedge    = 'CFD search for the hit time on leading edge, default = %s' % d_cfd_leadingedge
+    h_cfd_ioffsetbeg     = 'CFD waveform begin index for baseline evaluation, default = %s' % d_cfd_ioffsetbeg
+    h_cfd_ioffsetend     = 'CFD waveform end index for baseline evaluation, default = %s' % d_cfd_ioffsetend
 
-    h_PLOT_NHITS         = ', default = %s' % d_PLOT_NHITS        
-    h_PLOT_TIME_CH       = ', default = %s' % d_PLOT_TIME_CH      
-    h_PLOT_UVW           = ', default = %s' % d_PLOT_UVW          
-    h_PLOT_TIME_SUMS     = ', default = %s' % d_PLOT_TIME_SUMS    
-    h_PLOT_CORRELATIONS  = ', default = %s' % d_PLOT_CORRELATIONS 
+    h_PLOT_NHITS         = ', default = %s' % d_PLOT_NHITS
+    h_PLOT_TIME_CH       = ', default = %s' % d_PLOT_TIME_CH
+    h_PLOT_UVW           = ', default = %s' % d_PLOT_UVW
+    h_PLOT_TIME_SUMS     = ', default = %s' % d_PLOT_TIME_SUMS
+    h_PLOT_CORRELATIONS  = ', default = %s' % d_PLOT_CORRELATIONS
     h_PLOT_XY_COMPONENTS = ', default = %s' % d_PLOT_XY_COMPONENTS
-    h_PLOT_XY_2D         = ', default = %s' % d_PLOT_XY_2D        
+    h_PLOT_XY_2D         = ', default = %s' % d_PLOT_XY_2D
     h_PLOT_XY_RESOLUTION = ', default = %s' % d_PLOT_XY_RESOLUTION
-    h_PLOT_MISC          = ', default = %s' % d_PLOT_MISC         
-    h_PLOT_REFLECTIONS   = ', default = %s' % d_PLOT_REFLECTIONS  
-    h_PLOT_PHYSICS       = ', default = %s' % d_PLOT_PHYSICS      
+    h_PLOT_MISC          = ', default = %s' % d_PLOT_MISC
+    h_PLOT_REFLECTIONS   = ', default = %s' % d_PLOT_REFLECTIONS
+    h_PLOT_PHYSICS       = ', default = %s' % d_PLOT_PHYSICS
     #h_ = ', default = %s' % d_
 
     parser = OptionParser(description='Calibrate hexanode detector on data from hdf5 or xtc.', usage=usage())
@@ -139,7 +139,7 @@ def input_option_parser() :
     parser.add_option('--cfd_leadingedge', default=d_cfd_leadingedge, action='store_true',          help=h_cfd_leadingedge)
     parser.add_option('--cfd_ioffsetbeg',  default=d_cfd_ioffsetbeg,  action='store', type='int',   help=h_cfd_ioffsetbeg)
     parser.add_option('--cfd_ioffsetend',  default=d_cfd_ioffsetend,  action='store', type='int',   help=h_cfd_ioffsetend)
-    
+
     parser.add_option('--PLOT_NHITS',         default=d_PLOT_NHITS,         action='store_true', help=h_PLOT_NHITS)
     parser.add_option('--PLOT_TIME_CH',       default=d_PLOT_TIME_CH,       action='store_true', help=h_PLOT_TIME_CH)
     parser.add_option('--PLOT_UVW',           default=d_PLOT_UVW,           action='store_true', help=h_PLOT_UVW)
@@ -153,17 +153,17 @@ def input_option_parser() :
     parser.add_option('--PLOT_PHYSICS',       default=d_PLOT_PHYSICS,       action='store_true', help=h_PLOT_PHYSICS)
 
     return parser
-  
+
 #------------------------------
 
 if __name__ == "__main__" :
 
     parser = input_option_parser()
 
-    if len(sys.argv) == 1 : 
+    if len(sys.argv) == 1 :
         parser.print_help()
         print('\nWARNING: this app needs in a few optional parameters...')
-	sys.exit(0)
+        sys.exit(0)
 
     hex_calib(parser)
     sys.exit(0)

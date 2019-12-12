@@ -42,9 +42,9 @@ class EM_GUI :
         gui = EMQMain(parser)
         #gui = QtGui.QWidget()
         gui.show()
-	stat = app.exec_()
-	statt2 = t2.quit()
-	statt1 = t1.quit() # t1.exit(0)
+        stat = app.exec_()
+        statt2 = t2.quit()
+        statt1 = t1.quit() # t1.exit(0)
         sys.exit(stat)
 
 #------------------------------

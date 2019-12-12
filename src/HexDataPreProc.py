@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" 
+"""
 Module :py:class:`HexDataPreProc` - hexanode LCLS data processing using MPI and creating "small data" hdf5 file
 ===============================================================================================================
 
@@ -66,7 +66,7 @@ def preproc_data(**kwargs):
         if nev < EVSKIP: continue
         if nev >= EVENTS: break
 
-	if do_print(nev) :
+        if do_print(nev) :
             t1 = time()
             print('Rank: %d event: %06d, dt(sec): %.3f' % (DIO.ds.rank, nev, t1-t1_sec))
             t1_sec = t1
@@ -83,7 +83,7 @@ def preproc_data(**kwargs):
 
         #print_ndarr(DIO._number_of_hits, '    number of hits', first=0, last=7)
         #print_ndarr(DIO._tdc_ns, '    TDC[ns]', first=0, last=5)
- 
+
         # save in hdf5 per-event data
         smldata.event(nhits=DIO._number_of_hits, tdcns=DIO._tdc_ns, event_number=nev)
 

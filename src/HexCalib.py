@@ -54,7 +54,7 @@ class Store :
             self.lst_w1 = []
             self.lst_w2 = []
             self.lst_mcp= []
-            
+
         if self.PLOT_NHITS :
             self.lst_nhits_u1 = []
             self.lst_nhits_u2 = []
@@ -71,12 +71,12 @@ class Store :
             self.lst_u = []
             self.lst_v = []
             self.lst_w = []
-        
+
         if self.PLOT_TIME_SUMS or self.PLOT_CORRELATIONS :
             self.lst_time_sum_u = []
             self.lst_time_sum_v = []
             self.lst_time_sum_w = []
-            
+
             self.lst_time_sum_u_corr = []
             self.lst_time_sum_v_corr = []
             self.lst_time_sum_w_corr = []
@@ -108,7 +108,7 @@ class Store :
             self.lst_refl_w2 = []
 
         if self.PLOT_XY_2D :
-            # images 
+            # images
             nbins = 360
             self.img_x_bins = HBins((-45., 45.), nbins, vtype=np.float32)
             self.img_y_bins = HBins((-45., 45.), nbins, vtype=np.float32)
@@ -132,7 +132,7 @@ class Store :
 
 #------------------------------
 
-sp = Store() 
+sp = Store()
 
 #------------------------------
 
@@ -140,7 +140,7 @@ def create_output_directory(prefix) :
     dirname = os.path.dirname(prefix)
     print('Output directory: "%s"' % dirname)
     if dirname in ('', './', None) : return
-    from CalibManager.GlobalUtils import create_directory # , create_path, 
+    from CalibManager.GlobalUtils import create_directory # , create_path,
     #create_path(dirname, depth=2, mode=0775)
     create_directory(dirname, mode=0o775)
 
@@ -507,7 +507,7 @@ def plot_histograms(prefix='plot', do_save=True, hwin_x0y0=(0,400)) :
         print('binx.min/max: %d %d' % (npa_binx.min(), max_binx))
         print('biny.min/max: %d %d' % (npa_biny.min(), max_biny))
         max_bins = max(max_binx, max_biny) + 1
-        
+
         sp.img_xy_res = np.zeros((max_bins, max_bins), dtype=np.float64)
         sp.img_xy_sta = np.zeros((max_bins, max_bins), dtype=np.int32)
         sp.img_xy_res[npa_biny, npa_binx] += sp.lst_resol_fwhm # np.maximum(arr_max, nda)
@@ -579,10 +579,10 @@ def calib_on_data(**kwargs) :
     number_of_hits = np.zeros((NUM_CHANNELS,), dtype=np.int32)
 
     command = -1;
- 
+
 #   // The "command"-value is set in the first line of "sorter.txt"
 #   // 0 = only convert to new file format
-#   // 1 = sort and write new file 
+#   // 1 = sort and write new file
 #   // 2 = calibrate fv, fw, w_offset
 #   // 3 = create calibration table files
 
@@ -607,16 +607,16 @@ def calib_on_data(**kwargs) :
             status = hexanode.py_read_calibration_tables(CALIBTAB, sorter)
 
     if command == -1 :
-   	print("no config file was read. Nothing to do.")
+        print("no config file was read. Nothing to do.")
         if sorter is not None : del sorter
         sys.exit(0)
 
-    Cu1  = sorter.cu1 
-    Cu2  = sorter.cu2 
-    Cv1  = sorter.cv1 
-    Cv2  = sorter.cv2 
-    Cw1  = sorter.cw1 
-    Cw2  = sorter.cw2 
+    Cu1  = sorter.cu1
+    Cu2  = sorter.cu2
+    Cv1  = sorter.cv1
+    Cv2  = sorter.cv2
+    Cw1  = sorter.cw1
+    Cw2  = sorter.cw2
     Cmcp = sorter.cmcp
     print("Numeration of channels - u1:%i  u2:%i  v1:%i  v2:%i  w1:%i  w2:%i  mcp:%i"%\
           (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2, Cmcp))
@@ -624,7 +624,7 @@ def calib_on_data(**kwargs) :
     inds_of_channels    = (Cu1, Cu2, Cv1, Cv2, Cw1, Cw2)
     incr_of_consistence = (  1,   2,   4,   8,  16,  32)
     inds_incr = zip(inds_of_channels, incr_of_consistence)
-    
+
     #=====================
     #=====================
     #=====================
@@ -649,7 +649,7 @@ def calib_on_data(**kwargs) :
 
     error_code = sorter.init_after_setting_parameters()
     if error_code :
-   	print("sorter could not be initialized\n")
+        print("sorter could not be initialized\n")
         error_text = sorter.get_error_text(error_code, 512)
         print('Error %d: %s' % (error_code, error_text))
         sys.exit(0)
@@ -757,19 +757,19 @@ def calib_on_data(**kwargs) :
         dY = Yuv - Yvw
         Deviation = sqrt(dX*dX + dY*dY)
 
-        if sorter.use_hex :        
-  	    # shift the time sums to zero:
-   	    sorter.shift_sums(+1, offset_sum_u, offset_sum_v, offset_sum_w)
-   	    #shift layer w so that the middle lines of all layers intersect in one point:
-   	    sorter.shift_layer_w(+1, w_offset)
+        if sorter.use_hex :
+            # shift the time sums to zero:
+            sorter.shift_sums(+1, offset_sum_u, offset_sum_v, offset_sum_w)
+            #shift layer w so that the middle lines of all layers intersect in one point:
+            sorter.shift_layer_w(+1, w_offset)
         else :
             # shift the time sums to zero:
             sorter.shift_sums(+1, offset_sum_u, offset_sum_v)
 
-   	# shift all signals from the anode so that the center of the detector is at x=y=0:
-   	sorter.shift_position_origin(+1, pos_offset_x, pos_offset_y)
- 
-   	sorter.feed_calibration_data(True, w_offset) # for calibration of fv, fw, w_offset and correction tables
+        # shift all signals from the anode so that the center of the detector is at x=y=0:
+        sorter.shift_position_origin(+1, pos_offset_x, pos_offset_y)
+
+        sorter.feed_calibration_data(True, w_offset) # for calibration of fv, fw, w_offset and correction tables
 
         #DIO.get_tdc_data_array(tdc_ns)
 
@@ -782,7 +782,7 @@ def calib_on_data(**kwargs) :
 
         # break loop if statistics is enough
         if sfco :
-            if sfco.map_is_full_enough() : 
+            if sfco.map_is_full_enough() :
                  print('sfo.map_is_full_enough(): %s  event number: %06d' % (sfco.map_is_full_enough(), evnum))
                  break
 
@@ -798,16 +798,16 @@ def calib_on_data(**kwargs) :
 
         # Sort the TDC-Data and reconstruct missing signals and apply the sum- and NL-correction.
         # number_of_particles is the number of reconstructed particles
-   	number_of_particles = sorter.sort() if command == 1 else\
+        number_of_particles = sorter.sort() if command == 1 else\
                               sorter.run_without_sorting()
 
-   	if False :
-   	    print("  Event %5i  number_of_particles: %i" % (evnum, number_of_particles))
-   	    for i in range(number_of_particles) :
+        if False :
+            print("  Event %5i  number_of_particles: %i" % (evnum, number_of_particles))
+            for i in range(number_of_particles) :
                 hco= hexanode.py_hit_class(sorter, i)
-   	        print("    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method))
+                print("    p:%1i x:%.3f y:%.3f t:%.3f met:%d" % (i, hco.x, hco.y, hco.time, hco.method))
 
-   	    print("    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w))
+            print("    part1 u:%.3f v:%.3f w:%.3f" % (u, v, w))
 
 
 #       // TODO by end user..."
@@ -837,14 +837,14 @@ def calib_on_data(**kwargs) :
             sp.lst_Xuv.append(Xuv)
             sp.lst_Xuw.append(Xuw)
             sp.lst_Xvw.append(Xvw)
-                             
+
             sp.lst_Yuv.append(Yuv)
             sp.lst_Yuw.append(Yuw)
             sp.lst_Yvw.append(Yvw)
 
         if sp.PLOT_MISC :
             sp.lst_Deviation.append(Deviation)
-            
+
             # fill Consistence Indicator
             consistenceIndicator = 0
             for (ind, incr) in inds_incr :
@@ -858,7 +858,7 @@ def calib_on_data(**kwargs) :
             # fill 2-d images
             x1, y1 = hco.x, hco.y
 
-            x2, y2 = (-10,-10) 
+            x2, y2 = (-10,-10)
             if number_of_particles > 1 :
                 hco2 = hexanode.py_hit_class(sorter, 1)
                 x2, y2 = hco2.x, hco2.y
@@ -869,8 +869,8 @@ def calib_on_data(**kwargs) :
             sp.img_xy_1 [iy1,  ix1]  += 1
             sp.img_xy_2 [iy2,  ix2]  += 1
             sp.img_xy_uv[iyuv, ixuv] += 1
-            sp.img_xy_uw[iyuw, ixuw] += 1 
-            sp.img_xy_vw[iyvw, ixvw] += 1 
+            sp.img_xy_uw[iyuw, ixuw] += 1
+            sp.img_xy_vw[iyvw, ixvw] += 1
 
         if sp.PLOT_PHYSICS :
           if number_of_hits[Cmcp]>1 :
