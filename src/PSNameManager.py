@@ -13,7 +13,7 @@ from __future__ import print_function
 #import os
 #------------------------------
 
-class PSNameManager :
+class PSNameManager(object) :
     """Contains a set of methods returning LCLS/psana unique names for directories, dataset, etc.
     """
     _name = 'PSNameManager'

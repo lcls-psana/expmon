@@ -3,6 +3,7 @@
    Created: 2017-05-15
    Author : Mikhail Dubrovin
 """
+from __future__ import division
 #------------------------------
 from expmon.EMQDetI import *
 from expmon.PSDataSupplier import PSDataSupplier

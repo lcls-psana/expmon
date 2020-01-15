@@ -73,7 +73,7 @@ def do_print(nev) :
 
 #------------------------------    
 
-class HexDataIO :
+class HexDataIO(object) :
 
     def __init__(self, **kwargs) :
         """Parameters
@@ -153,11 +153,11 @@ class HexDataIO :
         #evt = ds.events().next()
         #for key in evt.keys() : print key
 
-        self.sources  = self.SRCCHS.keys()
-        self.channels = self.SRCCHS.values()
+        self.sources  = list(self.SRCCHS.keys())
+        self.channels = list(self.SRCCHS.values())
 
         self.wfdets = [WFDetector(src, self._env, pbits) for src in self.sources]
-        self.srcs_dets_channels = zip(self.sources, self.wfdets, self.channels)
+        self.srcs_dets_channels = list(zip(self.sources, self.wfdets, self.channels))
 
         if pbits & 1 :
             for wfd in self.wfdets :
@@ -529,7 +529,7 @@ class HexDataIO :
 
 
     def calib_src(self) :
-        return self.SRCCHS.keys()[0]
+        return list(self.SRCCHS.keys())[0]
 
 
     def calib_group(self) :

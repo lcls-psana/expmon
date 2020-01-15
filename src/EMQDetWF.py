@@ -4,6 +4,7 @@ Created: 2017-05-15
 Author : Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 import numpy as np
 
@@ -358,7 +359,7 @@ class EMQDetWF(EMQDetI) :
 
         # use wt as a bin number in stead of time
         nch, npt = shape = wt.shape
-        wt = np.array(tuple(range(npt)*nch))
+        wt = np.array(tuple(list(range(npt))*nch))
         wt.shape = shape
         self.wt = wt
         #print 'wt.shape', wt.shape

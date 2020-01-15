@@ -46,7 +46,7 @@ from psana import Detector, Source
 
 #------------------------------
 
-class PSDataSupplier :
+class PSDataSupplier(object) :
     """Uses configuration parameters to get image
     """
     _name = 'PSDataSupplier'

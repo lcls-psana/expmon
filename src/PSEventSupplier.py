@@ -42,7 +42,7 @@ from expmon.PSNameManager import nm
 
 #------------------------------
 
-class PSEventSupplier :
+class PSEventSupplier(object) :
     _name = 'PSEventSupplier'
 
     def __init__(self, dsname=None, calib_dir=None) : #dsname='exp=xpptut15:run=54:idx', calib_dir='./calib'

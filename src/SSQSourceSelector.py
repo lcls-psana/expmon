@@ -191,7 +191,7 @@ class SSQSourceSelector(QtGui.QWidget) :
 #------------------------------
 
     def list_of_selected_sources(self) :
-        return [src for src,status in self.dic_of_sources().iteritems() if status]
+        return [src for src,status in self.dic_of_sources().items() if status]
 
 #------------------------------
 

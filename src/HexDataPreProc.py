@@ -47,7 +47,7 @@ def preproc_data(**kwargs):
         print(usage())
 
         print('Input parameters:')
-        for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
+        for k,v in kwargs.items() : print('%20s : %s' % (k,str(v)))
 
         print('DIO dataset start time: %s' % DIO.start_time())
         print("number of MPI cores: %d" % DIO.ds.size)

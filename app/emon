@@ -13,7 +13,7 @@ from expmon.PSQThreadWorker import PSQThreadWorker
 from expmon.EMQThreadEventLoop import EMQThreadEventLoop
 #------------------------------
 
-class EM_GUI :
+class EM_GUI(object) :
     def __init__(self, parser) :
         """Experiment Monitor"""
 

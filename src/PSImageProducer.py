@@ -44,7 +44,7 @@ from Detector.AreaDetector import AreaDetector
 
 #------------------------------
 
-class PSImageProducer :
+class PSImageProducer(object) :
     """Uses configuration parameters to get image
     """
     _name = 'PSImageProducer'

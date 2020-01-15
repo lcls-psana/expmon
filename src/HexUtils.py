@@ -31,7 +31,7 @@ from __future__ import print_function
 
 def print_kwargs(d) :
     print('%s\n  kwargs:' % (40*'_'))
-    for k,v in d.iteritems() : print('  %10s : %10s' % (k,v))
+    for k,v in d.items() : print('  %10s : %10s' % (k,v))
     print(40*'_')
 
 #------------------------------

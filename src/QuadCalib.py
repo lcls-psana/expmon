@@ -25,7 +25,7 @@ from expmon.HexDataIO import HexDataIO, do_print
 
 #------------------------------
 
-class Store :
+class Store(object) :
     """ Store of shared parameters.
     """
 
@@ -544,7 +544,7 @@ def calib_on_data(**kwargs) :
     VERBOSE      = kwargs.get('verbose', False)
 
     print('Input parameters:')
-    for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
+    for k,v in kwargs.items() : print('%20s : %s' % (k,str(v)))
 
     sp.set_parameters(**kwargs) # save parameters in store for graphics
 
@@ -630,7 +630,7 @@ def calib_on_data(**kwargs) :
     incr_of_consistence = (  1,   2,   4,   8,  16,  32)
     #inds_of_channels    = (Cu1, Cu2, Cv1, Cv2, Cmcp)
     #incr_of_consistence = (  1,   2,   4,   8,  16)
-    inds_incr = zip(inds_of_channels, incr_of_consistence)
+    inds_incr = list(zip(inds_of_channels, incr_of_consistence))
 
     #=====================
     #=====================

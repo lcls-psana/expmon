@@ -7,6 +7,7 @@ Usage ::
    from expmon.least_squares_fit import *
    a, b, cx0, cx1, cx2, cxy, cy1 = least_squares_fit(x,y,e)
 """
+from __future__ import division
 #------------------------------
 
 import numpy as np

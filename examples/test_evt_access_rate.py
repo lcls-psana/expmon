@@ -9,6 +9,7 @@ Created: 2017-05-18
 Author : Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 from psana import DataSource, EventId, EventTime, setOption

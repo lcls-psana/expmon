@@ -15,6 +15,7 @@ Usage ::
 @author Mikhail S. Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 import os
 import sys
@@ -226,7 +227,7 @@ def list_of_sources_for_dataset(dsname, evts_max=50) : # dsname i.e. 'exp=cxi123
     for i,evt in enumerate(ds.events()) :
         if evt is None : continue
         if i>evts_max : break
-        event_keys += evt.keys()
+        event_keys += list(evt.keys())
 
     sources = [str(k.src()) for k in event_keys] # DetInfo(CxiDs2.0:Cspad.0)
     srcs_evt = set([s[8:-1] for s in sources if s[:7] in ('BldInfo','DetInfo')]) # selects CxiDs2.0:Cspad.0
@@ -271,7 +272,7 @@ def load_binary_old(ifname  = 'data.bin',\
     f = open(ifname,'rb')
     buf = f.read()
     f.close()
-    nmax = len(buf)/BUF_SIZE_BYTE
+    nmax = len(buf)//BUF_SIZE_BYTE
     if verbos : print('len(buf)', len(buf), 'nmax', nmax)
 
     for nevt in range(nmax) :
@@ -287,7 +288,7 @@ def load_binary(ifname, dtype=None, shape=None) :
     buf = f.read()
     nbytes = len(buf)
     wsize = np.dtype(dt).itemsize
-    nwords = nbytes/wsize
+    nwords = nbytes//wsize
     #print 'XXX: nwords, dt.itemsize', nwords, wsize
     nda = np.frombuffer(buf, dtype=dt, count=nwords)
     f.close()
@@ -306,7 +307,7 @@ def load_binary(ifname, dtype=None, shape=None) :
         2    if not(size%2) else\
         3    if not(size%3) else\
         1
-    nda.shape = (size/w, w)
+    nda.shape = (size//w, w)
     return nda
 
 #------------------------------

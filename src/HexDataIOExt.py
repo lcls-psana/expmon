@@ -89,6 +89,7 @@ Usage ::
 Created on 2017-12-14 by Mikhail Dubrovin.
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import os
@@ -153,7 +154,7 @@ class HexDataIOExt(HexDataIO) :
         self.calibtab     = kwargs.get('calibtab', None)
     
         print('%s: Input parameters:' % self._name)
-        for k,v in kwargs.iteritems() : print('%20s : %s' % (k,str(v)))
+        for k,v in kwargs.items() : print('%20s : %s' % (k,str(v)))
 
         self.CTYPE_HEX_CONFIG = 'hex_config'
         self.CTYPE_HEX_TABLE  = 'hex_table'

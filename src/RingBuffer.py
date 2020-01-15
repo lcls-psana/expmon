@@ -30,7 +30,7 @@ from __future__ import print_function
 
 #------------------------------
 
-class RingBuffer() :
+class RingBuffer(object) :
     """Supports round-robbin buffer for data records.
     """
     def __init__(self, size=1000) :
