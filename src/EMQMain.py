@@ -10,7 +10,7 @@ from __future__ import print_function
 #import os
 import sys
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
 from expmon.RingBuffer   import RingBuffer
@@ -28,12 +28,12 @@ from expmon.PSNameManager import nm
 
 #------------------------------
 
-class EMQMain(QtGui.QWidget) : # Frame)
+class EMQMain(QtWidgets.QWidget) : # Frame)
     """Main GUI
     """
     def __init__(self, parser=None) : # **dict_opts) :
         #Frame.__init__(self, parent=None, mlw=5)
-        QtGui.QWidget.__init__(self, parent=None)
+        QtWidgets.QWidget.__init__(self, parent=None)
         self._name = self.__class__.__name__
 
         #log.setPrintBits(0377)
@@ -63,16 +63,16 @@ class EMQMain(QtGui.QWidget) : # Frame)
         self.emqdatacontrol = EMQDataControl(cp, log, show_mode=0o15)
         self.emqdatacontrol.event_control().set_show_mode(show_mode=0o30)
 
-        self.emqtabs   = EMQTabs(self) # QtGui.QTextEdit()
+        self.emqtabs   = EMQTabs(self) # QtWidgets.QTextEdit()
         self.emqlogger = QWLogger(log, cp, show_buttons=False)
 
-        self.vsplit = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.vsplit = QtWidgets.QSplitter(QtCore.Qt.Vertical)
         self.vsplit.addWidget(self.emqdatacontrol)
         self.vsplit.addWidget(self.emqtabs)
         self.vsplit.addWidget(self.emqlogger)
         #self.vsplit.moveSplitter(0,200)
 
-        self.vbox = QtGui.QVBoxLayout() 
+        self.vbox = QtWidgets.QVBoxLayout() 
         #self.vbox.addWidget(self.guibuttonbar)
         #self.vbox.addWidget(self.guiinsexpdirdet)
         #self.vbox.addLayout(self.hboxB) 
@@ -204,7 +204,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 
         self.on_save()
 
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
 
 
     def on_save(self):
@@ -281,7 +281,7 @@ class EMQMain(QtGui.QWidget) : # Frame)
 #  In case someone decides to run this module
 #
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     ex  = EMQMain(parser=None)
     ex.show()
     app.exec_()

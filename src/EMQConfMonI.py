@@ -17,7 +17,7 @@ from __future__ import print_function
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
@@ -28,11 +28,11 @@ import expmon.EMUtils          as emu
 
 #------------------------------
 
-class EMQConfMonI(QtGui.QWidget) :
+class EMQConfMonI(QtWidgets.QWidget) :
     """Interface class for configuration of monitor object
     """
     def __init__(self, parent=None, tabind=0) :
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
 
         log.debug('in __init__', self._name)
@@ -96,12 +96,12 @@ class EMQConfMonI(QtGui.QWidget) :
         #try : self.wdet2.close()
         #except : pass
 
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
 
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQConfMonI()
     w.setGeometry(10, 25, 400, 600)
     w.setWindowTitle(w._name)

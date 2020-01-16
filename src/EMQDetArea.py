@@ -6,9 +6,10 @@
 from __future__ import division
 #------------------------------
 from expmon.EMQDetI import *
+from PyQt5 import QtCore, QtGui, QtWidgets
 from expmon.PSDataSupplier import PSDataSupplier
 from math import floor, ceil
-from pyimgalgos.GlobalUtils import reshape_to_2d, print_ndarr 
+from pyimgalgos.GlobalUtils import reshape_to_2d, print_ndarr
 from expmon.EMQUtils import point_relative_window
 #------------------------------
 
@@ -52,16 +53,16 @@ class EMQDetArea(EMQDetI) :
 
         self.lab_info.setText('Use EMQDetArea') # for "%s"' % src)
 
-        self.lab_roi = QtGui.QLabel('Set ROI')
-        self.but_set_sig = QtGui.QPushButton('Signal')
-        self.but_set_bkg = QtGui.QPushButton('Bkgd')
+        self.lab_roi = QtWidgets.QLabel('Set ROI')
+        self.but_set_sig = QtWidgets.QPushButton('Signal')
+        self.but_set_bkg = QtWidgets.QPushButton('Bkgd')
         #self.box.addStretch(1)
         self.box.addWidget(self.lab_roi)
         self.box.addWidget(self.but_set_sig)
         self.box.addWidget(self.but_set_bkg)
 
-        self.connect(self.but_set_sig, QtCore.SIGNAL('clicked()'), self.on_but_set)
-        self.connect(self.but_set_bkg, QtCore.SIGNAL('clicked()'), self.on_but_set)
+        self.but_set_sig.clicked.connect(self.on_but_set)
+        self.but_set_bkg.clicked.connect(self.on_but_set)
 
         self.init_det()
         self.set_style()
@@ -112,7 +113,7 @@ class EMQDetArea(EMQDetI) :
         if self.guview is not None :
             try : self.guview.close()
             except : pass
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
 #------------------------------
@@ -363,7 +364,7 @@ class EMQDetArea(EMQDetI) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQDetArea(None, 'SxrBeamline.0:Opal1000.1')
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))

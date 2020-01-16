@@ -17,7 +17,7 @@ import os
 import random
 #from time import time
 
-from PyQt4 import QtCore # QtGui
+from PyQt5 import QtCore # QtGui
 from expmon.EMConfigParameters import cp
 from expmon.EMQEventLoop import EMQEventLoop
 #from expmon.Logger  import log # CAN'T USE LOGGER->GUI IN THREAD
@@ -25,6 +25,7 @@ from expmon.EMQEventLoop import EMQEventLoop
 #------------------------------
 
 class EMQThreadEventLoop(QtCore.QThread) :
+    update = QtCore.pyqtSignal('QString')
 
     def __init__ (self, parent=None, dt_msec=500, pbits=0o377) :
         """cp (ConfigParameters) object in the list of parameters 
@@ -128,7 +129,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
 
     def emit_check_status_signal(self) :
         msg = 'from work thread ' + str(self.thread_id) + '  check counter: ' + str(self.counter)
-        self.emit(QtCore.SIGNAL('update(QString)'), msg)
+        self.update.emit(msg)
         if self.pbits & 1 : print(msg)
         #self.emit(QtCore.SIGNAL('update(QString)'), \
         #          'from work thread ' + str(self.thread_id) +\
@@ -139,7 +140,7 @@ class EMQThreadEventLoop(QtCore.QThread) :
 
     def connect_signal_to_slot(self, slot) :
         print('%s.connect_signal_to_slot'%(self._name))
-        self.connect(self, QtCore.SIGNAL('update(QString)'), slot)
+        self.update['QString'].connect(slot)
 
 #------------------------------
 

@@ -8,7 +8,7 @@ from __future__ import print_function
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
@@ -21,12 +21,12 @@ from graphqt.Styles            import style
 #from time import time
 #------------------------------
 
-class EMQDetI(QtGui.QWidget) :
+class EMQDetI(QtWidgets.QWidget) :
     """Interface for EMQDet* objects
     """
     def __init__ (self, parent, src=None) :
         #Frame.__init__(self, parent, mlw=1, vis=False)
-        QtGui.QWidget.__init__(self, parent=None)
+        QtWidgets.QWidget.__init__(self, parent=None)
         self._name = 'EMQDetI'
 
         self.parent = parent
@@ -36,12 +36,12 @@ class EMQDetI(QtGui.QWidget) :
         self.set_source(src)
 
         #self.w = QtGui.QTextEdit(self._name)
-        self.lab_info = QtGui.QLabel('NOT IMPLEMENTED "%s"' % src)
+        self.lab_info = QtWidgets.QLabel('NOT IMPLEMENTED "%s"' % src)
         self.lab_info.setStyleSheet(style.styleRed)
         #self.but_src = QtGui.QPushButton(self.par_src.value())
         #self.but_view = QtGui.QPushButton('View')
 
-        self.box = QtGui.QHBoxLayout(self)
+        self.box = QtWidgets.QHBoxLayout(self)
         self.box.addWidget(self.lab_info)
         #self.box.addStretch(1)
         self.setLayout(self.box)
@@ -84,7 +84,7 @@ class EMQDetI(QtGui.QWidget) :
         #    try : self.wimg.close()
         #    except : pass
 
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
 #------------------------------
@@ -115,7 +115,7 @@ class EMQDetI(QtGui.QWidget) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQDetI()
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))

@@ -14,6 +14,8 @@ from graphqt.GUViewHist import *
 class EMQViewHist(GUViewHist) :
     """Extends GUViewGraph features.
     """
+    view_is_closed_for_imon = QtCore.pyqtSignal(int)
+
     def __init__(self, parent, rectax=QtCore.QRectF(0, 0, 1, 1), origin='DL', scale_ctl='H', rulers='BL',\
                  margl=None, margr=None, margt=None, margb=None,
                  imon=-1) :
@@ -35,18 +37,18 @@ class EMQViewHist(GUViewHist) :
     def closeEvent(self, e):
         log.debug('closeEvent imon=%d' % self.imon, self._name)
         GUViewHist.closeEvent(self, e)
-        self.emit(QtCore.SIGNAL('view_is_closed_for_imon(int)'), self.imon)
+        self.view_is_closed_for_imon.emit(self.imon)
 
 #------------------------------
 
     def connect_view_is_closed_for_imon_to(self, slot) :
         #print 'XXX %s.connect_view_is_closed_for_imon_to'%(self._name)
-        self.connect(self, QtCore.SIGNAL('view_is_closed_for_imon(int)'), slot)
+        self.view_is_closed_for_imon[int].connect(slot)
 
 
     def disconnect_view_is_closed_for_imon_from(self, slot) :
         #print 'XXX %s.disconnect_view_is_closed_for_imon_from'%(self._name)
-        self.disconnect(self, QtCore.SIGNAL('view_is_closed_for_imon(int)'), slot)
+        self.view_is_closed_for_imon[int].disconnect(slot)
 
 
     def test_view_is_closed_for_imon(self, imon) :

@@ -12,8 +12,8 @@ import sys
 from time import time, sleep
 import numpy as np
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 #from graphqt.GUViewGraph import GUViewGraph
 #from expmon.EMQViewGraph import EMQViewGraph
 from expmon.EMQGraphic import EMQGraphic
@@ -88,7 +88,7 @@ class EMQPresenter(QtCore.QObject) :
 
     def start_check_on_timout(self) :
         self.timer = QtCore.QTimer()
-        self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.on_timeout)
+        self.timer.timeout.connect(self.on_timeout)
         self.timer.start(self.dt_msec)
 
 
@@ -534,7 +534,7 @@ class EMQPresenter(QtCore.QObject) :
 
         if self.edi_fld is None :
             self.counter = 0
-            e = self.edi_fld = QtGui.QTextEdit(self._name)
+            e = self.edi_fld = QtWidgets.QTextEdit(self._name)
             e.setGeometry(500, 25, 300, 200)
             e.show()
             e.setReadOnly(True)

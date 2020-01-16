@@ -9,7 +9,7 @@
 import sys
 import os
 from expmon.EMQFrame import Frame
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import expmon.PSUtils  as psu
 import graphqt.QWUtils as qwu
@@ -34,18 +34,18 @@ class QWDataSetExtension(Frame) :
         self.char_expand = cp.char_expand
         self.dsextension = cp.dsextension
 
-        self.lab_ext = QtGui.QLabel('Ext:')
-        self.but_ext = QtGui.QPushButton(self.dsextension.value())
+        self.lab_ext = QtWidgets.QLabel('Ext:')
+        self.but_ext = QtWidgets.QPushButton(self.dsextension.value())
 
         self.set_layout()
         self.set_style()
         self.set_tool_tips()
 
-        self.connect(self.but_ext, QtCore.SIGNAL('clicked()'), self.on_but_ext)
+        self.but_ext.clicked.connect(self.on_but_ext)
 
 
     def set_layout(self):
-        self.hbox = QtGui.QHBoxLayout()
+        self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addWidget(self.lab_ext)
         self.hbox.addWidget(self.but_ext)
         self.hbox.addStretch(1)
@@ -89,7 +89,7 @@ if __name__ == "__main__" :
     from expmon.Logger              import log
     from graphqt.IVConfigParameters import cp
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = QWDataSetExtension(cp, log, show_mode=0o377)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))

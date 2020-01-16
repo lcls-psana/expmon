@@ -11,30 +11,30 @@ Usage ::
 from __future__ import print_function
 #------------------------------
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 Qt = QtCore.Qt
-from graphqt.Styles import style    
+from graphqt.Styles import style
 from expmon.EMQViewGraph import EMQViewGraph
 from expmon.Logger import log
 
 #------------------------------
 
-class EMQGraphic(QtGui.QWidget) :
+class EMQGraphic(QtWidgets.QWidget) :
     """
     """
     def __init__(self, parent, rectax=QtCore.QRectF(0, 0, 1, 1), origin='DL', scale_ctl='H', rulers='BL',\
                  margl=None, margr=None, margt=None, margb=None,
                  imon=-1) :
 
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
 
-        self.lab_info = QtGui.QLabel('Graphic\ninfo')
+        self.lab_info = QtWidgets.QLabel('Graphic\ninfo')
  
         self.graph = EMQViewGraph(self, rectax, origin, scale_ctl, rulers,\
                                   margl, margr, margt, margb, imon)
 
-        self.grid = QtGui.QGridLayout()
+        self.grid = QtWidgets.QGridLayout()
         self.grid.addWidget(self.graph,    0,  0, 100, 100)
         self.grid.addWidget(self.lab_info, 0, 80,  10,  20)
         self.setLayout(self.grid) 
@@ -83,7 +83,7 @@ def test_emqgraphic(tname) :
     print('%s:' % sys._getframe().f_code.co_name)
     import numpy as np
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     mux, sigmax = 200, 25
     muy, sigmay = 100, 40

@@ -10,7 +10,7 @@ import sys
 import collections
 
 from time import time
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from graphqt.QWCheckList import QWCheckList, print_dic
 import expmon.PSUtils as psu
@@ -19,14 +19,14 @@ from expmon.PSNameManager import nm
 
 #------------------------------
 
-class SSQSourceSelector(QtGui.QWidget) :
+class SSQSourceSelector(QtWidgets.QWidget) :
     """GUI to input instrument, experiment, and run number
     """
 
     def __init__(self, cp, log) :
         """
         """
-        QtGui.QWidget.__init__(self, parent=None)
+        QtWidgets.QWidget.__init__(self, parent=None)
         self._name = self.__class__.__name__
 
         self.cp     = cp
@@ -38,7 +38,7 @@ class SSQSourceSelector(QtGui.QWidget) :
         self.w_dset = QWDataControl(cp, log, show_mode=0)
         #self.w_chkl = QWCheckList(parent=None, dic_item_state={'a':True, 'b':False, 'c':True})
         self.w_chkl = QWCheckList(parent=None, dic_item_state={}) #self.dic_srcs)
-        self.vbox = QtGui.QVBoxLayout()
+        self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addWidget(self.w_dset)
         self.vbox.addWidget(self.w_chkl)
         self.setLayout(self.vbox)
@@ -83,7 +83,7 @@ class SSQSourceSelector(QtGui.QWidget) :
         self.print_list_of_selected_sources()
         self.copy_list_of_selected_sources_to_cp()
         #if self.cp.save_log_at_exit.value() : self.save_log_file()
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
 
 #------------------------------
 
@@ -219,7 +219,7 @@ def select_data_sources(fname=None, verb=1, bwlog=0) :
 
     nm.set_config_pars(cp)
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     w = SSQSourceSelector(cp, log) 
     w.setWindowTitle('Data source selector')

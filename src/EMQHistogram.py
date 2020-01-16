@@ -11,30 +11,30 @@ Usage ::
 from __future__ import print_function
 #------------------------------
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 Qt = QtCore.Qt
-from graphqt.Styles import style    
+from graphqt.Styles import style
 from expmon.EMQViewHist import EMQViewHist, image_to_hist_arr
 from expmon.Logger import log
 
 #------------------------------
 
-class EMQHistogram(QtGui.QWidget) :
+class EMQHistogram(QtWidgets.QWidget) :
     """
     """
     def __init__(self, parent, rectax=QtCore.QRectF(0, 0, 1, 1), origin='DL', scale_ctl='H', rulers='BL',\
                  margl=None, margr=None, margt=None, margb=None,
                  imon=-1) :
 
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
 
-        self.lab_stat = QtGui.QLabel('Histogram\nstatistics')
+        self.lab_stat = QtWidgets.QLabel('Histogram\nstatistics')
  
         self.hist = EMQViewHist(self, rectax, origin, scale_ctl, rulers,\
                                 margl, margr, margt, margb, imon)
 
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
         grid.addWidget(self.hist,     0,  0, 100, 100)
         grid.addWidget(self.lab_stat, 0, 80,  10,  20)
         self.setLayout(grid) 
@@ -90,7 +90,7 @@ def test_emqhistogram(tname) :
     print('%s:' % sys._getframe().f_code.co_name)
     import numpy as np
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     mu, sigma = 200, 25
     arr = np.require(mu + sigma*np.random.standard_normal((100,)), dtype=np.float)

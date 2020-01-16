@@ -8,7 +8,7 @@
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
@@ -22,7 +22,7 @@ from expmon.EMQConfMonI        import EMQConfMonI
 #------------------------------
 
 #class EMQTabs(Frame) :
-class EMQTabs(QtGui.QWidget) :
+class EMQTabs(QtWidgets.QWidget) :
     """GUI for tabs
     """
     orientation = 'H'
@@ -31,7 +31,7 @@ class EMQTabs(QtGui.QWidget) :
     def __init__ (self, parent=None, app=None) :
 
         #Frame.__init__(self, parent, mlw=1)
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self._name = self.__class__.__name__
 
         self.MON1        = cp.MON1
@@ -55,14 +55,14 @@ class EMQTabs(QtGui.QWidget) :
 
         self.gui_win = None
 
-        self.hboxW = QtGui.QHBoxLayout()
+        self.hboxW = QtWidgets.QHBoxLayout()
 
         self.make_monitors()
         self.make_tab_bar()
         self.gui_selector()
 
-        if self.orientation == 'H' : self.box = QtGui.QVBoxLayout(self) 
-        else :                       self.box = QtGui.QHBoxLayout(self) 
+        if self.orientation == 'H' : self.box = QtWidgets.QVBoxLayout(self) 
+        else :                       self.box = QtWidgets.QHBoxLayout(self) 
 
         self.box.addWidget(self.tab_bar)
         self.box.addLayout(self.hboxW)
@@ -99,7 +99,7 @@ class EMQTabs(QtGui.QWidget) :
 
     def make_tab_bar(self,mode=None) :
         #if mode != None : self.tab_bar.close()
-        self.tab_bar = QtGui.QTabBar()
+        self.tab_bar = QtWidgets.QTabBar()
         #self.tab_bar = EMQTabBar(width=100)
 
         #len(self.tab_names)
@@ -110,14 +110,14 @@ class EMQTabs(QtGui.QWidget) :
         #self.tab_bar.setTabsClosable(True)
 
         if self.orientation == 'H' :
-            self.tab_bar.setShape(QtGui.QTabBar.RoundedNorth)
+            self.tab_bar.setShape(QtWidgets.QTabBar.RoundedNorth)
         else :
-            self.tab_bar.setShape(QtGui.QTabBar.RoundedWest)
+            self.tab_bar.setShape(QtWidgets.QTabBar.RoundedWest)
 
         self.set_tab_by_name(self.current_tab.value())
             
-        self.connect(self.tab_bar, QtCore.SIGNAL('currentChanged(int)'), self.on_tab_bar)
-        self.connect(self.tab_bar, QtCore.SIGNAL('tabCloseRequested(int)'), self.on_tab_close)
+        self.tab_bar.currentChanged[int].connect(self.on_tab_bar)
+        self.tab_bar.tabCloseRequested[int].connect(self.on_tab_close)
 
 
     def set_tab_by_name(self, tab_name) :
@@ -200,7 +200,7 @@ class EMQTabs(QtGui.QWidget) :
         #try    : del self.gui_win
         #except : pass
 
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
 
 
     def onExit(self):
@@ -212,7 +212,7 @@ class EMQTabs(QtGui.QWidget) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQTabs()
     w.setGeometry(10, 25, 400, 600)
     w.setWindowTitle(w._name)

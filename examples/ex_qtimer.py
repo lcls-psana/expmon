@@ -2,16 +2,16 @@ from __future__ import print_function
 #------------------------------
 
 import sys
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 #------------------------------
 
-class MWidget(QtGui.QWidget) :
+class MWidget(QtWidgets.QWidget) :
     def __init__(self, parent=None) :
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.timer = QtCore.QTimer()
         self.dt_msec = 500
-        self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.on_timeout)
+        self.timer.timeout.connect(self.on_timeout)
 
 
     def on_timeout(self) :
@@ -29,7 +29,7 @@ class MWidget(QtGui.QWidget) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = MWidget()
     w.show()
     w.test_qtimer()

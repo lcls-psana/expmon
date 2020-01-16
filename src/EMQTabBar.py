@@ -10,15 +10,15 @@
 import sys
 #import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 #------------------------------
 
-class EMQTabBar(QtGui.QTabBar) :
+class EMQTabBar(QtWidgets.QTabBar) :
     """Re-implementation of QTabBar - add "+" tab
     """
 
     def __init__ (self, parent=None, width=80) :
-        QtGui.QTabBar.__init__(self, parent)
+        QtWidgets.QTabBar.__init__(self, parent)
         self.showToolTips()
         self.tab_width = width
         self.tabi_add = None
@@ -39,7 +39,7 @@ class EMQTabBar(QtGui.QTabBar) :
         #self.setTabEnabled(self.tabi_add, True)
         #self.setTabsClosable(True)
         self.tabi_add = self.addTab('+')
-        self.tabButton(self.tabi_add, QtGui.QTabBar.RightSide).resize(0, 0) # hide closing button
+        self.tabButton(self.tabi_add, QtWidgets.QTabBar.RightSide).resize(0, 0) # hide closing button
         #self.tabButton(self.tabi_add, QtGui.QTabBar.RightSide).hide() # hide closing button
 
 
@@ -55,7 +55,7 @@ class EMQTabBar(QtGui.QTabBar) :
     def tabSizeHint(self, index):
         w = self.tab_width
         if index==self.tabi_add or (self.tabText(index)[0] == '+') : w = 30
-        h = QtGui.QTabBar.tabSizeHint(self, index).height()
+        h = QtWidgets.QTabBar.tabSizeHint(self, index).height()
         return QtCore.QSize(w, h)
 
 
@@ -88,7 +88,7 @@ class EMQTabBar(QtGui.QTabBar) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     ex  = EMQTabBar()
     it1 = ex.addTab('Tab1')
     it2 = ex.addTab('Tab2')

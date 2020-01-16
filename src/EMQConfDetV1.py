@@ -7,7 +7,7 @@
 import sys
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from expmon.EMConfigParameters import cp
 from expmon.Logger             import log
@@ -42,12 +42,12 @@ class EMQConfDetV1(Frame) :
         self.detind = detind
         src = self.p_src.value()
         #self.w = QtGui.QTextEdit(self._name)
-        self.lab_src = QtGui.QLabel('Det %d:'%self.detind)
-        self.but_src = QtGui.QPushButton(src)
-        self.but_view = QtGui.QPushButton('View')
+        self.lab_src = QtWidgets.QLabel('Det %d:'%self.detind)
+        self.but_src = QtWidgets.QPushButton(src)
+        self.but_view = QtWidgets.QPushButton('View')
         self.wdet = get_detector_widget(self, src) # default
 
-        self.box = QtGui.QHBoxLayout(self)
+        self.box = QtWidgets.QHBoxLayout(self)
         self.box.addWidget(self.lab_src)
         self.box.addWidget(self.but_src)
         self.box.addWidget(self.but_view)
@@ -62,8 +62,8 @@ class EMQConfDetV1(Frame) :
 
         self._src_is_set = self.src() != 'None'
 
-        self.connect(self.but_src,  QtCore.SIGNAL('clicked()'), self.on_but_src)
-        self.connect(self.but_view, QtCore.SIGNAL('clicked()'), self.on_but_view)
+        self.but_src.clicked.connect(self.on_but_src)
+        self.but_view.clicked.connect(self.on_but_view)
 
 
     def par_src(self):
@@ -168,7 +168,7 @@ class EMQConfDetV1(Frame) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQConfDetV1(None)
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))

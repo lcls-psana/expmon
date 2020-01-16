@@ -31,7 +31,7 @@ class EMQConfMonV1(EMQConfMonI) :
         self.wdet1 = EMQConfDetV1(parent, tabind, detind=1)
         self.wdet2 = EMQConfDetV1(parent, tabind, detind=2)
 
-        self.box = QtGui.QVBoxLayout(self)
+        self.box = QtWidgets.QVBoxLayout(self)
         self.box.addWidget(self.wdet1)
         self.box.addWidget(self.wdet2)
         self.box.addStretch(1)
@@ -65,7 +65,7 @@ class EMQConfMonV1(EMQConfMonI) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQConfMonV1()
     w.setGeometry(10, 25, 700, 600)
     w.setWindowTitle(w._name)

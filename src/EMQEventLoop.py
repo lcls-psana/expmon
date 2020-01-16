@@ -13,7 +13,7 @@ from __future__ import division
 #------------------------------
 
 import sys
-from PyQt4 import QtCore#, QtGui
+from PyQt5 import QtCore#
 
 from time import time, sleep
 from expmon.EMConfigParameters import cp
@@ -26,6 +26,8 @@ from expmon.PSEventSupplier import pseventsupplier # use singleton PSEventSuppli
 class EMQEventLoop(QtCore.QObject) :
     """Uses configuration parameters to get image
     """
+    events_collected = QtCore.pyqtSignal()
+
     def __init__(self, parent=None) :
         QtCore.QObject.__init__(self, parent)
         self._name = self.__class__.__name__
@@ -145,7 +147,7 @@ class EMQEventLoop(QtCore.QObject) :
 
             if self.evnum>1 and (not self.evnum % self.nevents_update) :
                 cp.flag_nevents_collected = True
-                self.emit(QtCore.SIGNAL('events_collected()'))
+                self.events_collected.emit()
 
             #print 'XXX EMQEventLoop.event_loop E'
 
@@ -153,13 +155,13 @@ class EMQEventLoop(QtCore.QObject) :
 
     def connect_events_collected_to(self, slot) :
         #print '%s.connect_events_collected_to'%(self._name)
-        self.connect(self, QtCore.SIGNAL('events_collected()'), slot)
+        self.events_collected.connect(slot)
 
 #------------------------------
 
     def disconnect_events_collected_from(self, slot) :
         #print '%s.disconnect_events_collected_from'%(self._name)
-        self.disconnect(self, QtCore.SIGNAL('events_collected()'), slot)
+        self.events_collected.disconnect(slot)
 
 #------------------------------
 

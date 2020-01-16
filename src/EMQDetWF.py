@@ -14,8 +14,8 @@ from pyimgalgos.GlobalUtils import print_ndarr
 import graphqt.QWUtils as qwu
 from expmon.EMQUtils import point_relative_window
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 
 from graphqt.GUViewGraph import GUViewGraph
 #import pyimgalgos.NDArrGenerators as ag
@@ -66,15 +66,15 @@ class EMQDetWF(EMQDetI) :
         #self.w = QtGui.QTextEdit(self._name)
         #self.lab_info = QtGui.QLabel('Use EMQDetWF for "%s"' % src)
 
-        self.lab_indwf = QtGui.QLabel('WF#')
+        self.lab_indwf = QtWidgets.QLabel('WF#')
         self.lab_indwf.setStyleSheet(style.styleLabel)
         self.lab_info.setText('Use EMQDetWF for "%s"' % src)
         self.set_info()
-        self.lab_roi = QtGui.QLabel('Set ROI')
-        self.but_set_sig = QtGui.QPushButton('Signal')
-        self.but_set_bkg = QtGui.QPushButton('Bkgd')
+        self.lab_roi = QtWidgets.QLabel('Set ROI')
+        self.but_set_sig = QtWidgets.QPushButton('Signal')
+        self.but_set_bkg = QtWidgets.QPushButton('Bkgd')
         indwf = self.par_indwf.value()
-        self.but_indwf = QtGui.QPushButton('%d' % (indwf if indwf is not None else -1))
+        self.but_indwf = QtWidgets.QPushButton('%d' % (indwf if indwf is not None else -1))
         self.but_indwf.setFixedWidth(30)
         #self.box.addStretch(1)
         self.box.insertWidget(0, self.lab_indwf)
@@ -95,9 +95,9 @@ class EMQDetWF(EMQDetI) :
         #gu.printStyleInfo(self)
         #cp.guitabs = self
 
-        self.connect(self.but_set_sig, QtCore.SIGNAL('clicked()'), self.on_but_set)
-        self.connect(self.but_set_bkg, QtCore.SIGNAL('clicked()'), self.on_but_set)
-        self.connect(self.but_indwf,   QtCore.SIGNAL('clicked()'), self.on_but_indwf)
+        self.but_set_sig.clicked.connect(self.on_but_set)
+        self.but_set_bkg.clicked.connect(self.on_but_set)
+        self.but_indwf.clicked.connect(self.on_but_indwf)
 
         self.set_style()
         self.set_tool_tips()
@@ -155,7 +155,7 @@ class EMQDetWF(EMQDetI) :
         if self.guview is not None :
             try : self.guview.close()
             except : pass
-        QtGui.QWidget.closeEvent(self, e)
+        QtWidgets.QWidget.closeEvent(self, e)
         #Frame.closeEvent(self, e)
 
 #------------------------------
@@ -492,7 +492,7 @@ class EMQDetWF(EMQDetI) :
 #------------------------------
 
 if __name__ == "__main__" :
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     w = EMQDetWF(None, 'SxrEndstation.0:Acqiris.1')
     w.setWindowTitle(w._name)
     w.move(QtCore.QPoint(50,50))
