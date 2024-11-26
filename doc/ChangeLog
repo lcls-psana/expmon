@@ -13,6 +13,14 @@ reverse time order.
 
 #------------------------------
 
+Tag: V01-00-29
+2024-11-26 Mikhail S. Dubrovin
+- replace deprecated np.int > np.int32, np.float > np.float32
+	modified:   src/EMQGraphic.py
+	modified:   src/EMQHistogram.py
+	modified:   src/EMQPresenter.py
+	modified:   src/HexDataIO.py
+
 Tag: V01-00-28
 2019-08-21 Mikhail S. Dubrovin
 - change order of operations in QuadCalib.py
