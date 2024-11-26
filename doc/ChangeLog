@@ -13,13 +13,17 @@ reverse time order.
 
 #------------------------------
 
-Tag: V01-00-29
+Tag: V02-00-01
 2024-11-26 Mikhail S. Dubrovin
 - replace deprecated np.int > np.int32, np.float > np.float32
 	modified:   src/EMQGraphic.py
 	modified:   src/EMQHistogram.py
 	modified:   src/EMQPresenter.py
 	modified:   src/HexDataIO.py
+
+Tag: V02-00-00
+
+Tag: V01-01-00
 
 Tag: V01-00-28
 2019-08-21 Mikhail S. Dubrovin
