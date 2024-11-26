@@ -406,7 +406,7 @@ class EMQPresenter(QtCore.QObject) :
         amin, amax, nhbins, values = image_to_hist_arr(arr, vmin=None, vmax=None, nbins=100)
         w.hist.add_hist(values, (amin, amax), pen=QtGui.QPen(Qt.yellow, 0), brush=QtGui.QBrush(Qt.yellow))
 
-        #w.add_array_as_hist(self.resid, pen=QtGui.QPen(color, 0), brush=QtGui.QBrush(color), vtype=np.float)
+        #w.add_array_as_hist(self.resid, pen=QtGui.QPen(color, 0), brush=QtGui.QBrush(color), vtype=np.float32)
         w.setWindowTitle('Residuals for %s' % cp.tab_names[imon])
 
 #------------------------------
@@ -487,12 +487,12 @@ class EMQPresenter(QtCore.QObject) :
 
         self.xpoint += 1
         xarr = (self.xpoint,)
-        yarr = np.require((self.pearsr,), dtype=np.float)
+        yarr = np.require((self.pearsr,), dtype=np.float32)
 
         #npts = 50
         #xarr = range(npts)
-        #yarr = np.require(0.2*np.random.standard_normal((npts,)), dtype=np.float)
-        
+        #yarr = np.require(0.2*np.random.standard_normal((npts,)), dtype=np.float32)
+
         #w.graph.add_graph(xarr, yarr, QtGui.QPen(color), brush=QtGui.QBrush())
         w.graph.add_points(xarr, yarr, QtGui.QPen(color), brush=QtGui.QBrush(color), fsize=0.0075)
         w.setWindowTitle('Pearson vs time plot for %s' % cp.tab_names[imon])

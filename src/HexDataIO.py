@@ -61,7 +61,7 @@ import Detector.PyDataAccess as pda
 from pypsalg import find_edges
 
 from PSCalib.DCUtils import env_time, evt_time, evt_fiducials, str_tstamp
-from expmon.PSUtils import exp_run_from_dsname # event_time, 
+from expmon.PSUtils import exp_run_from_dsname # event_time,
 
 #------------------------------
 
@@ -71,8 +71,7 @@ def do_print(nev) :
        or (nev<500 and (not nev%100))\
        or not nev%1000
 
-#------------------------------    
-
+#------------------------------
 class HexDataIO(object) :
 
     def __init__(self, **kwargs) :
@@ -81,7 +80,7 @@ class HexDataIO(object) :
            - srcchs={'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)}
              (dict) - dictionary of pairs (source:list-of-channels)
              where list-of-channels should be for u1,u2,v1,v2,w1,w2,mcp signals
-           - numchs=7 (int) - total number of channels in sources 
+           - numchs=7 (int) - total number of channels in sources
            - numhits=16 (int) - maximal number of hits in waveforms
         """
         self._tdc_resolution = None
@@ -95,7 +94,7 @@ class HexDataIO(object) :
         self.t0_sec = time()
         self._size_increment = 4096
 
-        self.set_wf_hit_finder_parameters(**kwargs) 
+        self.set_wf_hit_finder_parameters(**kwargs)
         self._set_parameters(**kwargs)
         self._init_arrays()
 
@@ -104,7 +103,7 @@ class HexDataIO(object) :
         """Sets parameters from kwargs
         """
         self.SRCCHS       = kwargs.get('srcchs', {'AmoETOF.0:Acqiris.0':(6,7,8,9,10,11),'AmoITOF.0:Acqiris.0':(0,)})
-        self.NUM_CHANNELS = kwargs.get('numchs',7) #  (int) - number 
+        self.NUM_CHANNELS = kwargs.get('numchs',7) #  (int) - number
         self.NUM_HITS     = kwargs.get('numhits',16) # (int) - maximal
         self.DSNAME       = kwargs.get('dsname', 'exp=xpptut15:run=390:smd')
 
@@ -112,9 +111,9 @@ class HexDataIO(object) :
     def _init_arrays(self) :
         self._error_flag = 0
         self._event_is_processed = False
-        self._number_of_hits = np.zeros((self.NUM_CHANNELS),    dtype=np.int)
+        self._number_of_hits = np.zeros((self.NUM_CHANNELS),    dtype=np.int32)
         self._tdc_ns  = np.zeros((self.NUM_CHANNELS, self.NUM_HITS), dtype=np.double)
-        self._tdc_ind = np.zeros((self.NUM_CHANNELS, self.NUM_HITS), dtype=np.int)
+        self._tdc_ind = np.zeros((self.NUM_CHANNELS, self.NUM_HITS), dtype=np.int32)
         self._dic_wf = {}
         self._dic_wt = {}
 
@@ -124,7 +123,7 @@ class HexDataIO(object) :
         do_mpids = kwargs.get('do_mpids', False)
         pbits    = kwargs.get('pbits', 0)
 
-        if '.h5' in dsname : 
+        if '.h5' in dsname :
             self.open_input_h5file(dsname)
         else :
             self.open_input_dataset(dsname, pbits, do_mpids)
@@ -217,8 +216,8 @@ class HexDataIO(object) :
         self._oh5file.flush()
         self.h5ds_nhits.resize(self._nevmax, axis=0)   # or dset.resize((20,1024))
         self.h5ds_tdcns.resize(self._nevmax, axis=0)   # or dset.resize((20,1024))
-        self.h5ds_event_number.resize(self._nevmax, axis=0) 
-        self.h5ds_event_time  .resize(self._nevmax, axis=0) 
+        self.h5ds_event_number.resize(self._nevmax, axis=0)
+        self.h5ds_event_time  .resize(self._nevmax, axis=0)
         self.h5ds_fiducials   .resize(self._nevmax, axis=0)
 
 
@@ -262,7 +261,7 @@ class HexDataIO(object) :
 
     def fetch_event_data_from_h5file(self) :
         i = self.event_number()
-        if not (i<self.h5ds_nevents) : 
+        if not (i<self.h5ds_nevents) :
              return False
         self._number_of_hits = self.h5ds_nhits[i]
         self._tdc_ns         = self.h5ds_tdcns[i]
@@ -274,11 +273,11 @@ class HexDataIO(object) :
         self.close_input_h5file()
 
 
-    def events(self) : 
+    def events(self) :
         return self._events
 
 
-    def env(self) : 
+    def env(self) :
         return self._env
 
 
@@ -352,7 +351,7 @@ class HexDataIO(object) :
         self._evnum += 1
 
         if self._ih5file is not None :
-            #if self._evt is None : 
+            #if self._evt is None :
             #    self._init_arrays()
             #    self._evt = self._events.next()
             return self.fetch_event_data_from_h5file()
@@ -471,7 +470,7 @@ class HexDataIO(object) :
                         print(msg)
                     continue
 
-                nhits = min(self.NUM_HITS, nedges) 
+                nhits = min(self.NUM_HITS, nedges)
                 self._number_of_hits[ch_tdc] = nhits
 
                 for i in range(nhits):
@@ -522,7 +521,7 @@ class HexDataIO(object) :
     def calib_dir(self) :
         import PSCalib.GlobalUtils as gu; global gu
         #ctype = 'hex_table'
-        #ctype = 'hex_config'        
+        #ctype = 'hex_config'
         #run = self.run()
         exp = self.experiment()
         return gu.calib_dir_for_exp(exp)
@@ -553,7 +552,7 @@ class HexDataIO(object) :
         return cff.find_calib_file(cdir, src, type, rnum, pbits=pbits)
 
 
-    def make_calib_file_path(self, type='hex_config', run=None, pbits=1) : 
+    def make_calib_file_path(self, type='hex_config', run=None, pbits=1) :
         import PSCalib.CalibFileFinder as cff
         cdir = self.calib_dir()
         src  = self.calib_src()

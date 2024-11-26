@@ -83,7 +83,7 @@ class EMQHistogram(QtWidgets.QWidget) :
         except : pass
 
         #QtGui.QWidget.closeEvent(self, e)
- 
+
 #------------------------------
 
 def test_emqhistogram(tname) :
@@ -93,7 +93,7 @@ def test_emqhistogram(tname) :
     app = QtWidgets.QApplication(sys.argv)
 
     mu, sigma = 200, 25
-    arr = np.require(mu + sigma*np.random.standard_normal((100,)), dtype=np.float)
+    arr = np.require(mu + sigma*np.random.standard_normal((100,)), dtype=np.float32)
 
     xmin, xmax = arr.min(), arr.max()
     ymin, ymax = 0, 10
@@ -101,7 +101,7 @@ def test_emqhistogram(tname) :
 
     w = EMQHistogram(None, rectax, origin='DL', scale_ctl='HV', rulers='DL',\
                      margl=0.12, margr=0.01, margt=0.01, margb=0.06, imon=0)
-    
+
     amin, amax, nhbins, values = image_to_hist_arr(arr, vmin=None, vmax=None, nbins=100)
     w.hist.add_hist(values, (amin, amax), pen=QtGui.QPen(Qt.yellow, 0), brush=QtGui.QBrush(Qt.yellow))
 

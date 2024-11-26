@@ -87,8 +87,8 @@ def test_emqgraphic(tname) :
 
     mux, sigmax = 200, 25
     muy, sigmay = 100, 40
-    arrx = np.require(mux + sigmax*np.random.standard_normal((100,)), dtype=np.float)
-    arry = np.require(muy + sigmay*np.random.standard_normal((100,)), dtype=np.float)
+    arrx = np.require(mux + sigmax*np.random.standard_normal((100,)), dtype=np.float32)
+    arry = np.require(muy + sigmay*np.random.standard_normal((100,)), dtype=np.float32)
 
     xmin, xmax = arrx.min(), arrx.max()
     ymin, ymax = arry.min(), arry.max()
